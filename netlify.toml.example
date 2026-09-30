@@ -1,0 +1,11 @@
+# Copy to netlify.toml only when deploying on Netlify.
+# Install the Next.js runtime first: pnpm add -D @netlify/plugin-nextjs
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

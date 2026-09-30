@@ -1,0 +1,44 @@
+@font-face {
+  font-family: "Monocraft";
+  src: url("/fonts/Monocraft.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Monocraft";
+  src: url("/fonts/Monocraft-SemiBold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Monocraft";
+  src: url("/fonts/Monocraft-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Monocraft";
+  src: url("/fonts/Monocraft-Black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Miracode";
+  src: url("/fonts/Miracode.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* TODO: awaiting licensed PP Kyoto Regular Italic (400) webfont files.
+   Add its @font-face here with font-family: "PP Kyoto", font-style: italic,
+   font-weight: 400 and font-display: swap. The display token is ready.
+   Do not declare a URL until the licensed file exists. */

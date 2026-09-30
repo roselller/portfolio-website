@@ -1,0 +1,50 @@
+:root {
+  --font-body: "Miracode", ui-monospace, "Courier New", monospace;
+  --font-heading: "Monocraft", ui-monospace, "Courier New", monospace;
+  --font-label: "Miracode", ui-monospace, "Courier New", monospace;
+  /* TODO: awaiting licensed PP Kyoto Regular Italic font files. */
+  --font-display: "PP Kyoto", Georgia, "Times New Roman", serif;
+  --font-ligatures: "liga" 1, "calt" 1;
+  color-scheme: dark;
+  --bg: #0b0c0e;
+  --surface: #e7e9ec;
+  --surface-dark: #16181c;
+  --panel: #131518;
+  --shadow-light: rgba(255, 255, 255, 0.045);
+  --shadow-dark: rgba(0, 0, 0, 0.6);
+  --text: #f2f3f5;
+  --muted: #a0a2a9;
+  --display-muted: #95969f;
+  --control-active: #34363a;
+  --panel-hover: #1b1d22;
+  --input-bg: #0d0f12;
+  --glass-start: rgba(255, 255, 255, 0.065);
+  --glass-end: rgba(255, 255, 255, 0.018);
+  --line: rgba(255, 255, 255, 0.1);
+  --accent: #9f1239;
+  --accent-mid: #e11d48;
+  --accent-glow: #fb7185;
+  --neumorphic:
+    8px 8px 24px var(--shadow-dark), -5px -5px 18px var(--shadow-light);
+  --inset:
+    inset 4px 4px 10px var(--shadow-dark),
+    inset -3px -3px 8px var(--shadow-light);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #e7e9ec;
+  --panel: #e7e9ec;
+  --text: #1c1f23;
+  --muted: #555b64;
+  --display-muted: #666b74;
+  --control-active: #d1d5da;
+  --panel-hover: #f4f5f6;
+  --input-bg: #e2e5e9;
+  --glass-start: rgba(255, 255, 255, 0.75);
+  --glass-end: rgba(255, 255, 255, 0.35);
+  --accent-glow: #a9143d;
+  --line: rgba(28, 31, 35, 0.14);
+  --shadow-light: rgba(255, 255, 255, 0.65);
+  --shadow-dark: rgba(163, 177, 198, 0.55);
+}

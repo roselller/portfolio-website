@@ -1,0 +1,62 @@
+{
+  "name": "portfolio-website",
+  "description": "Personal portfolio with an interactive 3D signpost and token-free GitHub project integration.",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "tsx --test tests/*.test.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "5.9.1",
+    "@neondatabase/serverless": "1.1.0",
+    "@react-three/drei": "10.7.8",
+    "@react-three/fiber": "9.7.0",
+    "@shadergradient/react": "2.4.20",
+    "@upstash/ratelimit": "2.1.0",
+    "@upstash/redis": "1.39.0",
+    "clsx": "2.1.1",
+    "dotenv": "18.0.1",
+    "drizzle-orm": "0.45.3",
+    "framer-motion": "13.4.0",
+    "gsap": "3.15.0",
+    "lucide-react": "1.47.0",
+    "next": "16.3.5",
+    "node-html-parser": "9.0.4",
+    "react": "~19.2.0",
+    "react-dom": "~19.2.0",
+    "react-hook-form": "7.88.0",
+    "server-only": "0.0.1",
+    "three": "0.186.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.6.2",
+    "@types/react": "~19.2.0",
+    "@types/react-dom": "~19.2.0",
+    "@types/three": "0.186.0",
+    "drizzle-kit": "0.31.11",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.5",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.8",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

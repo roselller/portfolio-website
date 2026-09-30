@@ -1,0 +1,35 @@
+node_modules/
+.pnpm-store/
+.next/
+out/
+.cache/
+.turbo/
+
+# Local configuration and credentials
+.env*
+!.env.local.example
+.vercel/
+.netlify/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Generated reports, logs, and local data
+*.tsbuildinfo
+*.log
+coverage/
+test-results/
+playwright-report/
+blob-report/
+backups/
+exports/
+tmp/
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+
+# Machine-specific files
+.DS_Store
+.idea/
