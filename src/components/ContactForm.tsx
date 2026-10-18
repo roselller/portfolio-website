@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Check, LoaderCircle } from "lucide-react";
 import { submitContact } from "@/app/actions/contact";
 import {
@@ -63,7 +63,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
     <div className="contact-form neu-card">
       <AnimatePresence mode="wait" initial={false}>
         {result?.ok ? (
-          <motion.div
+          <m.div
             key="success"
             className="form-success"
             initial={{ opacity: 0 }}
@@ -81,9 +81,9 @@ export function ContactForm({ configured }: { configured: boolean }) {
             <NeumorphicButton onClick={() => setResult(null)}>
               Send another message <ArrowUpRight size={16} />
             </NeumorphicButton>
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.form
+          <m.form
             key="form"
             onSubmit={handleSubmit(onSubmit)}
             noValidate
@@ -156,7 +156,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
             </div>
             <AnimatePresence>
               {result && !result.ok && (
-                <motion.p
+                <m.p
                   className="form-feedback"
                   role="alert"
                   initial={{ opacity: 0 }}
@@ -165,7 +165,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
                   transition={{ duration: reduced ? 0 : 0.2 }}
                 >
                   {result.message}
-                </motion.p>
+                </m.p>
               )}
             </AnimatePresence>
             <NeumorphicButton
@@ -189,7 +189,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
                 ? "This preview is not accepting messages yet."
                 : "Your details are used only to respond to your message."}
             </p>
-          </motion.form>
+          </m.form>
         )}
       </AnimatePresence>
     </div>

@@ -1,11 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
+import { m, useReducedMotion, type HTMLMotionProps } from "framer-motion";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-const MotionLink = motion.create(Link);
+const MotionLink = m.create(Link);
 
 export function NeumorphicLink({
   className,
@@ -33,13 +33,13 @@ export function NeumorphicButton({
 }: HTMLMotionProps<"button">) {
   const reduced = useReducedMotion();
   return (
-    <motion.button
+    <m.button
       className={cn("button button-solid", className)}
       whileHover={reduced ? undefined : { y: -2 }}
       whileTap={reduced ? undefined : { scale: 0.98 }}
       {...props}
     >
       {children}
-    </motion.button>
+    </m.button>
   );
 }

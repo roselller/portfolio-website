@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { profile } from "@/data/profile";
 import { siteCopy } from "@/data/site-copy";
+import { CurrentYear } from "./CurrentYear";
 
 export function Footer() {
   return (
@@ -18,7 +19,8 @@ export function Footer() {
         ))}
       </div>
       <p>
-        © {new Date().getFullYear()} <span>{siteCopy.footer.status}</span>
+        © <CurrentYear buildYear={new Date().getFullYear()} />{" "}
+        <span>{siteCopy.footer.status}</span>
       </p>
     </footer>
   );

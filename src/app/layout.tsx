@@ -6,6 +6,7 @@ import { profile } from "@/data/profile";
 import { ProjectViewProvider } from "@/components/ProjectViewProvider";
 import { SiteBackground } from "@/components/SiteBackground";
 import { GlassFilter } from "@/components/GlassFilter";
+import { MotionProvider } from "@/components/MotionProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(profile.siteUrl),
@@ -57,11 +58,13 @@ export default function RootLayout({
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <ProjectViewProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </ProjectViewProvider>
+        <MotionProvider>
+          <ProjectViewProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </ProjectViewProvider>
+        </MotionProvider>
       </body>
     </html>
   );

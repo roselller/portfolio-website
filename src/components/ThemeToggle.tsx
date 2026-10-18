@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useSyncExternalStore } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 
 const storageKey = "portfolio-theme";
 const themeEvent = "portfolio-theme-change";
@@ -50,7 +50,7 @@ export function ThemeToggle() {
       aria-label={label}
       title={label}
     >
-      <motion.svg
+      <m.svg
         viewBox="0 0 24 24"
         width="23"
         height="23"
@@ -62,7 +62,7 @@ export function ThemeToggle() {
         <defs>
           <mask id={maskId}>
             <rect width="24" height="24" fill="white" />
-            <motion.circle
+            <m.circle
               r="6"
               fill="black"
               initial={false}
@@ -71,7 +71,7 @@ export function ThemeToggle() {
             />
           </mask>
         </defs>
-        <motion.circle
+        <m.circle
           cx="12"
           cy="12"
           fill="currentColor"
@@ -80,7 +80,7 @@ export function ThemeToggle() {
           animate={{ r: light ? 5 : 8 }}
           transition={{ duration: reduced ? 0 : 0.45 }}
         />
-        <motion.g
+        <m.g
           stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
@@ -90,8 +90,8 @@ export function ThemeToggle() {
           transition={{ duration: reduced ? 0 : 0.35 }}
         >
           <path d="M12 1v2M12 21v2M1 12h2M21 12h2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-        </motion.g>
-      </motion.svg>
+        </m.g>
+      </m.svg>
     </button>
   );
 }

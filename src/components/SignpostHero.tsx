@@ -105,13 +105,23 @@ export function SignpostHero({
     observer.observe(work);
     observer.observe(stage);
     if (card) observer.observe(card);
-    window.addEventListener("scroll", update, { passive: true });
+    // Scroll can fire several times per frame; read layout at most once per frame.
+    let frame = 0;
+    const scheduleUpdate = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
+    };
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", measure);
     measure();
     return () => {
       observer.disconnect();
+      cancelAnimationFrame(frame);
       stage.style.clipPath = "none";
-      window.removeEventListener("scroll", update);
+      window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", measure);
     };
   }, [grid, sceneHeight]);

@@ -23,12 +23,19 @@ function snapshot() {
   return `${document.documentElement.dataset.theme}|${window.matchMedia("(prefers-reduced-motion: reduce)").matches}|${document.visibilityState}`;
 }
 
+// The gradient follows clock time, so drawing ~30 frames a second instead of
+// every display refresh keeps the same speed at about half the GPU work.
+const FRAME_INTERVAL_MS = 33;
+
 function RenderPolicy({ paused }: { paused: boolean }) {
   const setFrameloop = useThree((state) => state.setFrameloop);
   const invalidate = useThree((state) => state.invalidate);
   useEffect(() => {
-    setFrameloop(paused ? "demand" : "always");
+    setFrameloop("demand");
     invalidate();
+    if (paused) return;
+    const timer = window.setInterval(invalidate, FRAME_INTERVAL_MS);
+    return () => window.clearInterval(timer);
   }, [paused, setFrameloop, invalidate]);
   return null;
 }
@@ -72,7 +79,6 @@ export default function ShaderBackground() {
         lightType="3d"
         brightness={1.2}
         reflection={0.1}
-        // The shared CSS noise layer supplies a softer grain than the shader.
         grain="on"
         enableTransition={false}
         enableCameraUpdate={false}

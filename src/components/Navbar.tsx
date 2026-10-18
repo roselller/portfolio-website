@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Box, List } from "lucide-react";
 import { profile } from "@/data/profile";
@@ -35,7 +35,7 @@ export function Navbar() {
             >
               {(pathname === href ||
                 (href === "/" && pathname.startsWith("/projects/"))) && (
-                <motion.span
+                <m.span
                   className="nav-active-indicator"
                   layoutId="main-navigation-active"
                   transition={

@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   title: "Contact",
   description: `Have something in mind? Start a conversation with ${profile.name}.`,
 };
-export const dynamic = "force-dynamic";
 
 export default function ContactPage() {
   return (
