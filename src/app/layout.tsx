@@ -3,19 +3,31 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { profile } from "@/data/profile";
+import { getSiteUrl } from "@/lib/site-url";
 import { ProjectViewProvider } from "@/components/ProjectViewProvider";
 import { SiteBackground } from "@/components/SiteBackground";
 import { GlassFilter } from "@/components/GlassFilter";
 import { MotionProvider } from "@/components/MotionProvider";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(profile.siteUrl),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: `${profile.name} — Designer & Developer`,
     template: `%s — ${profile.name}`,
   },
   description: profile.description,
   icons: { icon: "/icon.svg" },
+  openGraph: {
+    type: "website",
+    siteName: profile.name,
+    title: `${profile.name} — Designer & Developer`,
+    description: profile.description,
+  },
+  twitter: {
+    card: "summary",
+    title: `${profile.name} — Designer & Developer`,
+    description: profile.description,
+  },
 };
 
 export default function RootLayout({

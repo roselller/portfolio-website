@@ -8,6 +8,7 @@ import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
 import { ProjectReadme } from "@/components/ProjectReadme";
 import { safeExternalUrl } from "@/lib/utils";
 import { projectImageUrl } from "@/lib/images";
+import { profile } from "@/data/profile";
 
 export const revalidate = 3600;
 type Props = { params: Promise<{ slug: string }> };
@@ -15,9 +16,17 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const { project } = await getProjectBySlug(slug);
+  const title = project?.title || "Project not found";
   return {
-    title: project?.title || "Project not found",
+    title,
     description: project?.shortDescription,
+    // Replaces the layout's openGraph object as a whole, so repeat siteName.
+    openGraph: {
+      type: "website",
+      siteName: profile.name,
+      title: `${title} — ${profile.name}`,
+      description: project?.shortDescription,
+    },
   };
 }
 
