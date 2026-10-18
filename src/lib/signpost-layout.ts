@@ -14,10 +14,22 @@ export const signpostThemes = {
 export type SignpostTheme =
   (typeof signpostThemes)[keyof typeof signpostThemes];
 
+// Characters contained in public/fonts/Monocraft-SemiBold.ttf (the sign font).
+// If the 3D text needs any other character, troika tries to download a fallback
+// font from a CDN. The site's CSP blocks that, and the whole scene then stays
+// blank, so unsupported characters are replaced instead.
+const UNSUPPORTED_SIGN_CHARACTER =
+  /[^\u0020-\u007E\u00A0-\u00AC\u00AE-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2026]/gu;
+
+/** The uppercase text painted on a sign, limited to what the sign font can draw. */
+export function toSignText(title: string) {
+  return title.toLocaleUpperCase().replace(UNSUPPORTED_SIGN_CHARACTER, "?");
+}
+
 /** Layout follows the complete project collection; there is no fixed slot limit. */
 export function getSignpostLayout(projects: readonly Project[]) {
   const boards = projects.map((project, index) => {
-    const title = project.title.toLocaleUpperCase();
+    const title = toSignText(project.title);
     const width = Math.min(4.2, Math.max(3.02, 2.35 + title.length * 0.12));
     const scaleX = width / BOARD_TEMPLATE_WIDTH;
     const titleWidth = (BOARD_TEMPLATE_WIDTH - 1.52) * scaleX;

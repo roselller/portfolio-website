@@ -6,6 +6,7 @@ import {
   getSignpostLayout,
   getSignpostScale,
   signpostThemes,
+  toSignText,
 } from "../src/lib/signpost-layout";
 
 function projects(count: number) {
@@ -125,4 +126,15 @@ test("the reusable Blender kit contains unlabelled components and no scene light
     !JSON.stringify(json).includes("/projects/orbit"),
     "template must not contain a fixed project link",
   );
+});
+
+test("sign text is uppercased and limited to characters the sign font contains", () => {
+  assert.equal(toSignText("Form & Field"), "FORM & FIELD");
+  assert.equal(toSignText("portfolio_site.v2-cli"), "PORTFOLIO_SITE.V2-CLI");
+  assert.equal(toSignText("Café — “Été”…"), "CAFÉ — “ÉTÉ”…");
+  // Outside the font: would make troika request a blocked fallback font.
+  assert.equal(toSignText("東京 Trip"), "?? TRIP");
+  assert.equal(toSignText("Wave 🌊"), "WAVE ?");
+  assert.equal(toSignText("Tab\there"), "TAB?HERE");
+  assert.equal(toSignText("ÿ"), "?"); // uppercases to U+0178, which is not in the font
 });
