@@ -1,13 +1,13 @@
 import { contactSchema, type ContactResult } from "./validations";
 
+type ContactMessage = { name: string; email: string; message: string };
+
 type ContactDependencies = {
   available: boolean;
   rateLimit: () => Promise<{ success: boolean; reason?: string }>;
-  save: (message: {
-    name: string;
-    email: string;
-    message: string;
-  }) => Promise<void>;
+  save: (message: ContactMessage) => Promise<void>;
+  // Sends the owner a heads-up. Runs only after the message is safely saved.
+  notify: (message: ContactMessage) => Promise<void>;
 };
 
 export async function processContact(
@@ -44,6 +44,13 @@ export async function processContact(
       };
     const { name, email, message } = parsed.data;
     await dependencies.save({ name, email, message });
+    try {
+      await dependencies.notify({ name, email, message });
+    } catch {
+      // The message is already stored, so a failed email must not look like a
+      // failed submission. Nothing personal is logged.
+      console.error("The contact notification could not be sent.");
+    }
     return { ok: true };
   } catch {
     return {

@@ -11,7 +11,9 @@ export function isContactConfigured() {
     process.env.DATABASE_URL &&
     process.env.UPSTASH_REDIS_REST_URL &&
     process.env.UPSTASH_REDIS_REST_TOKEN &&
-    process.env.RATE_LIMIT_SALT,
+    process.env.RATE_LIMIT_SALT &&
+    process.env.RESEND_API_KEY &&
+    process.env.CONTACT_TO_EMAIL,
   );
 }
 

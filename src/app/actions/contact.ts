@@ -9,6 +9,7 @@ import {
   isContactConfigured,
 } from "@/lib/rate-limit";
 import { processContact } from "@/lib/contact-service";
+import { sendContactNotification } from "@/lib/notify";
 import type { ContactResult } from "@/lib/validations";
 
 export async function submitContact(input: unknown): Promise<ContactResult> {
@@ -27,5 +28,6 @@ export async function submitContact(input: unknown): Promise<ContactResult> {
       if (!database) throw new Error("Contact is unavailable.");
       await database.insert(messages).values(values);
     },
+    notify: sendContactNotification,
   });
 }

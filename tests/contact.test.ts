@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import test, { mock } from "node:test";
 import { processContact } from "../src/lib/contact-service";
 
 const valid = {
@@ -16,12 +16,17 @@ function setup(
     reason?: string;
     failSave?: boolean;
     failLimit?: boolean;
+    failNotify?: boolean;
   } = {},
 ) {
   const saved: unknown[] = [];
+  const notified: unknown[] = [];
+  const order: string[] = [];
   let checks = 0;
   return {
     saved,
+    notified,
+    order,
     get checks() {
       return checks;
     },
@@ -34,7 +39,13 @@ function setup(
       },
       save: async (message: unknown) => {
         if (options.failSave) throw new Error("Database failed");
+        order.push("save");
         saved.push(message);
+      },
+      notify: async (message: unknown) => {
+        order.push("notify");
+        if (options.failNotify) throw new Error("Resend failed");
+        notified.push(message);
       },
     },
   };
@@ -71,6 +82,7 @@ test("invalid, oversized, and malformed requests never reach external services",
     );
     assert.equal(context.checks, 0);
     assert.equal(context.saved.length, 0);
+    assert.equal(context.notified.length, 0);
   }
 });
 
@@ -85,6 +97,7 @@ test("honeypot submissions silently discard the message without external calls",
   );
   assert.equal(context.checks, 0);
   assert.equal(context.saved.length, 0);
+  assert.equal(context.notified.length, 0);
 });
 
 test("unconfigured services cannot report a genuine message as saved", async () => {
@@ -92,6 +105,7 @@ test("unconfigured services cannot report a genuine message as saved", async () 
   assert.equal((await processContact(valid, context.dependencies)).ok, false);
   assert.equal(context.checks, 0);
   assert.equal(context.saved.length, 0);
+  assert.equal(context.notified.length, 0);
 });
 
 test("rate limits, Redis failures, and fail-open timeout responses cannot cause writes", async () => {
@@ -103,6 +117,7 @@ test("rate limits, Redis failures, and fail-open timeout responses cannot cause 
     const context = setup(options);
     assert.equal((await processContact(valid, context.dependencies)).ok, false);
     assert.equal(context.saved.length, 0);
+    assert.equal(context.notified.length, 0);
   }
 });
 
@@ -112,4 +127,33 @@ test("database failures return a safe error without exposing infrastructure deta
   assert.equal(result.ok, false);
   assert.equal(JSON.stringify(result).includes("Database failed"), false);
   assert.equal(context.saved.length, 0);
+  assert.equal(context.notified.length, 0, "no email for an unsaved message");
+});
+
+test("the owner is notified once, after the message is saved", async () => {
+  const context = setup();
+  assert.deepEqual(await processContact(valid, context.dependencies), {
+    ok: true,
+  });
+  assert.deepEqual(context.order, ["save", "notify"]);
+  assert.deepEqual(context.notified, context.saved);
+});
+
+test("a failed notification still reports success because the message is stored", async () => {
+  const errors = mock.method(console, "error", () => {});
+  try {
+    const context = setup({ failNotify: true });
+    const result = await processContact(valid, context.dependencies);
+    assert.deepEqual(result, { ok: true });
+    assert.equal(context.saved.length, 1);
+    // The log line must not carry the visitor's details or the provider error.
+    const logged = JSON.stringify(
+      errors.mock.calls.map((call) => call.arguments),
+    );
+    assert.equal(errors.mock.callCount(), 1);
+    assert.equal(logged.includes("alex@example.com"), false);
+    assert.equal(logged.includes("Resend failed"), false);
+  } finally {
+    errors.mock.restore();
+  }
 });
