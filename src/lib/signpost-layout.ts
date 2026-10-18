@@ -21,9 +21,12 @@ export type SignpostTheme =
 const UNSUPPORTED_SIGN_CHARACTER =
   /[^\u0020-\u007E\u00A0-\u00AC\u00AE-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2026]/gu;
 
-/** The uppercase text painted on a sign, limited to what the sign font can draw. */
+/**
+ * The uppercase text painted on a sign, limited to what the sign font can draw.
+ * Locale-independent: a Turkish locale would turn "i" into "İ", which the font lacks.
+ */
 export function toSignText(title: string) {
-  return title.toLocaleUpperCase().replace(UNSUPPORTED_SIGN_CHARACTER, "?");
+  return title.toUpperCase().replace(UNSUPPORTED_SIGN_CHARACTER, "?");
 }
 
 /** Layout follows the complete project collection; there is no fixed slot limit. */

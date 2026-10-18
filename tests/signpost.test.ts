@@ -137,4 +137,7 @@ test("sign text is uppercased and limited to characters the sign font contains",
   assert.equal(toSignText("Wave 🌊"), "WAVE ?");
   assert.equal(toSignText("Tab\there"), "TAB?HERE");
   assert.equal(toSignText("ÿ"), "?"); // uppercases to U+0178, which is not in the font
+  // The browser locale must not change the result (Turkish uppercases i to İ).
+  assert.equal(toSignText("live"), "LIVE");
+  assert.equal(toSignText("Straße"), "STRASSE");
 });
