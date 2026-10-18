@@ -29,7 +29,7 @@ The collection contains up to six pins in GitHub order. If fewer than six are av
 
 The project uses the App Router with Cache Components disabled. `unstable_cache` stores each completed collection for 3,600 seconds, keyed by username, and React `cache` deduplicates access within a render. Raw HTML requests use `no-store` inside that cached function.
 
-The homepage uses hourly incremental static regeneration. Project detail paths render on demand using the same data cache. Revalidation is request-driven after expiry, not a scheduled background job; development mode can refresh more frequently.
+The homepage uses hourly incremental static regeneration. Project detail paths render on demand using the same data cache. Revalidation is request-driven after expiry, not a scheduled background job; development mode can refresh more frequently. `sitemap.xml` reads the same cached collection and revalidates hourly, so it lists the pinned project pages (or the samples during a fallback).
 
 A shared eight-second deadline bounds the profile request and concurrent repository metadata requests. Missing or invalid configuration, a failed request, an unreadable profile, or zero pins returns six sample projects. Fallback collections are cached as well. A failed optional homepage lookup keeps the real repository and its GitHub URL. Cache-service failures also produce a usable collection.
 
