@@ -7,14 +7,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Miracode";
-  src: url("/fonts/Miracode.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
 /* TODO: awaiting licensed PP Kyoto Regular Italic (400) webfont files.
    Add its @font-face here with font-family: "PP Kyoto", font-style: italic,
    font-weight: 400 and font-display: swap. The display token is ready.
