@@ -97,7 +97,7 @@ export function SignArm({
                 back ? 0.139 : 0.221,
               ]}
               rotation={[0, back ? Math.PI : 0, 0]}
-              font="/fonts/Monocraft-SemiBold.ttf"
+              font="/fonts/GoogleSans-SemiBold.ttf"
               fontSize={board.fontSize}
               color={theme.ink}
               anchorX="center"

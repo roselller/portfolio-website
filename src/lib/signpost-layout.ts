@@ -14,7 +14,7 @@ export const signpostThemes = {
 export type SignpostTheme =
   (typeof signpostThemes)[keyof typeof signpostThemes];
 
-// Characters contained in public/fonts/Monocraft-SemiBold.ttf (the sign font).
+// Characters contained in public/fonts/GoogleSans-SemiBold.ttf (the sign font).
 // If the 3D text needs any other character, troika tries to download a fallback
 // font from a CDN. The site's CSP blocks that, and the whole scene then stays
 // blank, so unsupported characters are replaced instead.
