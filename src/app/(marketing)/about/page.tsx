@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { NeumorphicCard } from "@/components/ui/NeumorphicCard";
 import { profile } from "@/data/profile";
+import { formatMonth, sortedJourney } from "@/data/journey";
 
 export const metadata: Metadata = {
   title: "About",
@@ -83,32 +85,39 @@ export default function AboutPage() {
         </section>
         <section>
           <h2 className="section-label">02 / AN ONGOING JOURNEY</h2>
-          <div className="timeline">
-            <div className="timeline-item">
-              <span>THE STARTING POINT</span>
-              <h3>Follow the curiosity.</h3>
-              <p>
-                Taking things apart, trying things out, and learning how the
-                pieces fit together.
-              </p>
-            </div>
-            <div className="timeline-item">
-              <span>THE PRACTICE</span>
-              <h3>Connect design and code.</h3>
-              <p>
-                Exploring how thoughtful interfaces become useful, accessible
-                experiences.
-              </p>
-            </div>
-            <div className="timeline-item">
-              <span>THE NEXT CHAPTER</span>
-              <h3>Keep making. Keep learning.</h3>
-              <p>
-                Looking for new perspectives, interesting problems, and people
-                to build with.
-              </p>
-            </div>
-          </div>
+          <ol className="timeline">
+            {sortedJourney().map((entry) => (
+              <li className="timeline-item" key={entry.name}>
+                <p className="timeline-date">
+                  <time dateTime={entry.start}>{formatMonth(entry.start)}</time>
+                  {"\u00a0–"}
+                  <br />
+                  <time dateTime={entry.end}>{formatMonth(entry.end)}</time>
+                </p>
+                <div className="timeline-body">
+                  <h3>
+                    <Image
+                      src={entry.logo}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="timeline-logo"
+                    />
+                    {entry.name}
+                  </h3>
+                  <p className="timeline-role">{entry.role}</p>
+                  {entry.details && <p>{entry.details}</p>}
+                  {entry.highlights && (
+                    <ul>
+                      {entry.highlights.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
         </section>
       </div>
       <div className="page-cta">
