@@ -26,14 +26,18 @@ export default function AboutPage() {
             <em>Considered by choice.</em>
           </h1>
           <p className="page-lead">
-            I’m {profile.name}, a designer and developer who likes asking “what
-            if?” — and then building something to find out.
+            I’m {profile.name}, a Singapore-based developer and designer who
+            likes asking “what if?” and then building something to find out. I’m
+            studying Information Systems at Singapore Management University,
+            combining computer science with business management. I’m most drawn
+            to analysis, automation, and the kind of tools that make everyday
+            work quietly simpler.
           </p>
           <p className="page-lead">
-            My practice brings design and development into the same
-            conversation. From the first sketch to the last interaction, I look
-            for the detail that makes an experience feel clear, useful, and a
-            little more human.
+            Away from the desk, I build on the side: an on-device translator for
+            macOS, a city-building game in Python, machine learning experiments,
+            and this site. I also take photographs, and I studied Korean as a
+            minor.
           </p>
         </div>
         <NeumorphicCard className="about-note">
