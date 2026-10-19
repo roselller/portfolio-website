@@ -108,7 +108,7 @@ h6,
   justify-self: start;
   font-size: 44px;
   line-height: 1;
-  letter-spacing: -0.09em;
+  letter-spacing: -0.05em;
   font-weight: 800;
 }
 .wordmark span {
@@ -251,7 +251,7 @@ h6,
   font-size: clamp(42px, 4.5vw, 76px);
   line-height: 1.12;
   font-weight: 500;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.025em;
 }
 .headline-line {
   display: block;
@@ -567,7 +567,7 @@ h6,
 }
 .intro-copy h2 {
   font-size: clamp(28px, 2.85vw, 42px);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   line-height: 1.35;
   font-weight: 400;
 }
@@ -691,7 +691,7 @@ h6,
 }
 .project-card-title h3 {
   font-size: 22px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
 }
 .project-card-title svg {
   color: var(--accent-glow);
@@ -766,12 +766,13 @@ h6,
 }
 .page-heading {
   font-size: clamp(48px, 6vw, 86px);
-  letter-spacing: -0.065em;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   font-weight: 500;
   margin-top: 26px;
 }
 .page-heading em {
+  letter-spacing: -0.065em;
   color: var(--display-muted);
   font-family: var(--font-display);
   font-weight: 400;
@@ -929,7 +930,7 @@ h2.section-label {
 .page-cta h2 {
   font-size: 30px;
   font-weight: 400;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
 }
 .contact-layout {
   display: grid;
@@ -1044,7 +1045,7 @@ h2.section-label {
   font-size: 30px;
   font-weight: 500;
   margin: 25px 0 13px;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
 }
 .form-success p {
   color: var(--muted);
@@ -1111,7 +1112,7 @@ h2.section-label {
   white-space: nowrap;
   line-height: 1.15;
   font-size: clamp(54px, 9vw, 138px);
-  letter-spacing: -0.07em;
+  letter-spacing: -0.035em;
   font-weight: 450;
   color: #d3d4dc;
 }
@@ -1144,7 +1145,7 @@ h2.section-label {
 }
 .project-story h2 {
   font-size: 25px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
   font-weight: 500;
 }
 .project-story p {
@@ -1196,7 +1197,7 @@ h2.section-label {
 .project-direction h2 {
   font-size: clamp(22px, 2.5vw, 38px);
   font-weight: 400;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
   margin-top: 8px;
   overflow-wrap: anywhere;
 }
@@ -1212,7 +1213,7 @@ h2.section-label {
 }
 .not-found h1 {
   font-size: 56px;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.025em;
   font-weight: 500;
   margin: 25px 0;
 }

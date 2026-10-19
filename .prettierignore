@@ -2,3 +2,5 @@ node_modules
 .next
 pnpm-lock.yaml
 drizzle/meta
+# Verbatim upstream notice
+public/fonts/GoogleSans-TRADEMARKS.md

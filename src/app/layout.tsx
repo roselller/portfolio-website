@@ -48,7 +48,7 @@ export default function RootLayout({
         />
         <link
           rel="preload"
-          href="/fonts/Monocraft.woff2"
+          href="/fonts/GoogleSans.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

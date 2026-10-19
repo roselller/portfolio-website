@@ -1,6 +1,7 @@
 :root {
   --font-body: "Miracode", ui-monospace, "Courier New", monospace;
-  --font-heading: "Monocraft", ui-monospace, "Courier New", monospace;
+  --font-heading:
+    "Google Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-label: "Miracode", ui-monospace, "Courier New", monospace;
   /* TODO: awaiting licensed PP Kyoto Regular Italic font files. */
   --font-display: "PP Kyoto", Georgia, "Times New Roman", serif;

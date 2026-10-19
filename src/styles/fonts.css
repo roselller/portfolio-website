@@ -1,32 +1,9 @@
+/* Variable font: one file covers every weight from 400 to 700. */
 @font-face {
-  font-family: "Monocraft";
-  src: url("/fonts/Monocraft.woff2") format("woff2");
+  font-family: "Google Sans";
+  src: url("/fonts/GoogleSans.woff2") format("woff2");
   font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Monocraft";
-  src: url("/fonts/Monocraft-SemiBold.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Monocraft";
-  src: url("/fonts/Monocraft-Bold.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Monocraft";
-  src: url("/fonts/Monocraft-Black.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 900;
+  font-weight: 400 700;
   font-display: swap;
 }
 
