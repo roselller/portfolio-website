@@ -72,34 +72,39 @@ LinkedIn buttons on the Contact page keep working).
 ## 4. Vercel (hosting)
 
 1. Sign in to vercel.com with GitHub and import `roselller/portfolio-website`. Framework: Next.js (detected).
-2. Add the variables **before** the first deploy:
+2. On the import screen add **only** the two non-secret variables, so nothing sensitive can land in Preview or
+   Development by accident (the import screen may not offer a per-environment scope or the Sensitive switch):
+   `GITHUB_USERNAME` = `roselller` and `ENABLE_EXPERIMENTAL_COREPACK` = `1` (makes Vercel use the pinned `pnpm@11.19.0`;
+   see "pnpm on Vercel" below). Deploy. This first deployment is harmless: the contact form says it is not accepting
+   messages.
+3. Once the build is healthy, open **Settings, Environment Variables** and add the secrets one at a time. For each one tick
+   **Production only** and turn on **Sensitive**:
 
-   | Variable                                             | Environments          | Notes                                                                          |
-   | ---------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------ |
-   | `GITHUB_USERNAME`                                    | All                   | `roselller`. Not secret.                                                       |
-   | `ENABLE_EXPERIMENTAL_COREPACK`                       | All                   | `1`. Makes Vercel use the pinned `pnpm@11.19.0` (see "pnpm on Vercel" below).  |
-   | `DATABASE_URL`                                       | Production, Sensitive | The `portfolio_app` pooled URL.                                                |
-   | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Production, Sensitive | From Upstash.                                                                  |
-   | `RATE_LIMIT_SALT`                                    | Production, Sensitive | `openssl rand -hex 32`. Never change it casually (it resets everyone's limit). |
-   | `RESEND_API_KEY`, `CONTACT_TO_EMAIL`                 | Production, Sensitive | From Resend.                                                                   |
+   | Variable                                             | Notes                                                                          |
+   | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
+   | `DATABASE_URL`                                       | The `portfolio_app` pooled URL.                                                |
+   | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | From Upstash.                                                                  |
+   | `RATE_LIMIT_SALT`                                    | `openssl rand -hex 32`. Never change it casually (it resets everyone's limit). |
+   | `RESEND_API_KEY`, `CONTACT_TO_EMAIL`                 | From Resend.                                                                   |
 
    Do **not** add `DATABASE_URL_UNPOOLED` (owner access), `NEXT_PUBLIC_SITE_URL` (the site falls back to the production
    domain Vercel provides; the `localhost` value from the example file would break the sitemap and share links),
    `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` (Vercel handles it), or `NEXT_PUBLIC_CONTACT_EMAIL` (a public address invites spam;
-   the form is enough).
+   the form is enough). Then **Redeploy**.
 
-3. In **Settings**, leave **Automatically expose System Environment Variables** on (the site URL fallback needs it),
+4. In **Settings**, leave **Automatically expose System Environment Variables** on (the site URL fallback needs it),
    keep **Git Fork Protection** on (the default; this repository is public, and without it a stranger's pull request
    could build with your variables), and keep **Deployment Protection** on for previews.
-4. Deploy. Environment variable changes only take effect on a new deployment, and the contact page is prerendered, so
-   always **Redeploy** after changing one.
+5. Environment variable changes only take effect on a new deployment, and the contact page is prerendered, so always
+   **Redeploy** after changing one.
 
 ### pnpm on Vercel
 
 Vercel's documentation lists pnpm 6 to 10, while this repository pins `pnpm@11.19.0` (`packageManager` in
 `package.json`, `allowBuilds` in `pnpm-workspace.yaml`). `ENABLE_EXPERIMENTAL_COREPACK=1` asks Vercel to honor the pinned
 version. Node is not a problem: `engines.node: ">=22"` resolves to the latest 24.x on Vercel, which still ships Corepack
-(Node 25 and later do not).
+(Node 25 and later do not). If Vercel later moves `>=22` to a Node version without Corepack and the build breaks, use the
+`npx` fallback below.
 
 **First thing to check on the first build:** the install step in the build log should say `pnpm 11.19.0`. If the build
 fails with `packages field missing or empty` or an `ERR_PNPM_*` message, an older pnpm was used. A failed build never goes
@@ -127,8 +132,10 @@ Replace `SITE` with the `vercel.app` address Vercel gave you.
 5. **Contact form:** send a test message. "Message received" appears, the email arrives, and the row shows in Neon's
    **Tables** view.
 6. **Separate limits per visitor:** send one test message from your phone on mobile data and one from a computer on Wi-Fi.
-   Upstash's data browser should show two different `portfolio:contact:...` keys. If it shows one, the real visitor
-   address is not being read and everyone would share a single 5-per-10-minutes allowance.
+   In Upstash's data browser, search for `portfolio:contact:`. Each key looks like `portfolio:contact:<long hash>:<window>`.
+   Compare the **hash** between the two colons: the phone's and the computer's must differ. (The `<window>` part changes
+   by itself over time, so only the hash counts.) If the hash is the same, the real visitor address is not being read and
+   everyone would share a single 5-per-10-minutes allowance. A separate `portfolio:sitecap:` key holds the daily total.
 7. **Database user is locked down.** In the Neon SQL Editor:
 
    ```sql

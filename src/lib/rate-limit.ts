@@ -39,7 +39,7 @@ function getContactLimiters(): ContactLimiters | null {
       site: new Ratelimit({
         redis,
         limiter: Ratelimit.fixedWindow(SITE_DAILY_LIMIT, "1 d"),
-        prefix: "portfolio:contact-site",
+        prefix: "portfolio:sitecap",
         analytics: false,
       }),
     };
