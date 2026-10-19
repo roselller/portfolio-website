@@ -33,3 +33,7 @@ tmp/
 # Machine-specific files
 .DS_Store
 .idea/
+
+# Local agent notes (private; kept on this machine only)
+CLAUDE.md
+AGENTS.md
