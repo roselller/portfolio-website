@@ -29,6 +29,9 @@ export const journey: JourneyEntry[] = [
     end: "2024-02",
     highlights: [
       "Built an end-to-end laptop asset management automation (JAMF, Snowflake, Jira) for onboarding and off-boarding, giving BT and HR visibility into laptop status.",
+      "Scaled the License Optimisation framework with 8 new applications, ahead of the team’s first-half targets, and 10+ monitored monthly, contributing to hundreds of thousands of dollars in SaaS license savings.",
+      "Built 20+ Workato recipes and custom connectors (Workato SDK, Ruby, REST APIs) across IT, Finance and asset workflows, replacing manual processes company-wide.",
+      "Gathered requirements from Finance, HR, Procurement and Security and delivered in 2-week Scrum sprints. Also produced the monthly BT newsletter and resolved Level 1/2 Jira tickets.",
     ],
   },
   {
