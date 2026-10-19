@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { isContactConfigured } from "@/lib/rate-limit";
 import { profile } from "@/data/profile";
+import { SocialLinks } from "@/components/SocialLinks";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -31,11 +32,14 @@ export default function ContactPage() {
               <a href={`mailto:${profile.email}`}>{profile.email}</a>
             </div>
           )}
-          <p className="contact-aside">
-            Good things often start
-            <br />
-            with a conversation.
-          </p>
+          <div className="contact-closing">
+            <p className="contact-aside">
+              Good things often start
+              <br />
+              with a conversation.
+            </p>
+            <SocialLinks />
+          </div>
         </div>
         <ContactForm configured={isContactConfigured()} />
       </div>

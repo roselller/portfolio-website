@@ -7,6 +7,6 @@ export const profile = {
   description:
     "I turn curiosity into considered digital experiences. A balance of thoughtful design, thoughtful code, and a little unexpected.",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
-  github: "",
-  linkedin: "",
+  github: "https://github.com/roselller/",
+  linkedin: "https://www.linkedin.com/in/roseller-armirola-iii/",
 };

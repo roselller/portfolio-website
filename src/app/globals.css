@@ -900,6 +900,37 @@ h2.section-label {
   font-size: 17px;
   margin-top: 7px;
 }
+.contact-closing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+  margin-top: 45px;
+}
+.contact-closing .contact-aside {
+  margin-top: 0;
+}
+.social-links {
+  display: flex;
+  gap: 10px;
+}
+.social-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--text);
+  background: var(--glass-end);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.social-button:hover {
+  color: var(--accent-glow);
+  background: var(--panel-hover);
+}
 .contact-form {
   padding: 34px;
 }
