@@ -8,6 +8,8 @@ export type JourneyEntry = {
   end: string;
   details?: string;
   highlights?: string[];
+  /** Titled lists, mirroring the headings used on LinkedIn. */
+  groups?: { title: string; items: string[] }[];
 };
 
 export const journey: JourneyEntry[] = [
@@ -35,12 +37,31 @@ export const journey: JourneyEntry[] = [
     role: "Diploma in Information Technology",
     start: "2021-04",
     end: "2024-02",
-    highlights: [
-      "Director’s List (AY2021/22)",
-      "Workato Hackathon Winner (2023)",
-      "Co-Facilitator, Workato Automation Workshop for Polytechnic Peers (2023)",
-      "Shopee Code League (2022)",
-      "Minor in Foreign Languages (Korean)",
+    groups: [
+      {
+        title: "Activities and societies",
+        items: [
+          "Workato Hackathon Winner (2023)",
+          "Co-Facilitator, Workato Automation Workshop for Polytechnic Peers (2023)",
+          "Module Representative, School of InfoComm Technology (2021)",
+          "Ambassador, RED Camp (2022)",
+          "Photography Club; SG New-Wave (Film & Media Enthusiast Club)",
+          "Shopee Code League (2022)",
+        ],
+      },
+      {
+        title: "Academic honours",
+        items: [
+          "Director’s List, Diploma in Information Technology (AY2021/22)",
+        ],
+      },
+      {
+        title: "Specialisations & supplementary coursework",
+        items: [
+          "Minor in Foreign Languages (Korean)",
+          "Advanced Statistics Enrichment Programme (45 hours beyond core curriculum)",
+        ],
+      },
     ],
   },
 ];

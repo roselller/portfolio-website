@@ -101,6 +101,16 @@ export default function AboutPage() {
                       ))}
                     </ul>
                   )}
+                  {entry.groups?.map((group) => (
+                    <div className="timeline-group" key={group.title}>
+                      <h4>{group.title}</h4>
+                      <ul>
+                        {group.items.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </li>
             ))}

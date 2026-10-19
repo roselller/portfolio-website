@@ -904,6 +904,16 @@ h2.section-label {
   padding-left: 16px;
   list-style: "– ";
 }
+.timeline-group {
+  margin-top: 16px;
+}
+.timeline-group h4 {
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
 .timeline-body li + li {
   margin-top: 4px;
 }
