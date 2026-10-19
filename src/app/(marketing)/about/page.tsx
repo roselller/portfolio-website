@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { NeumorphicCard } from "@/components/ui/NeumorphicCard";
 import { profile } from "@/data/profile";
 import { formatMonth, sortedJourney } from "@/data/journey";
+import { skillGroups } from "@/data/skills";
 
 export const metadata: Metadata = {
   title: "About",
@@ -54,34 +55,16 @@ export default function AboutPage() {
       <div className="about-sections">
         <section>
           <h2 className="section-label">01 / THE TOOLBOX</h2>
-          <div className="skill-group">
-            <h3>From an idea to an interface</h3>
-            <div className="tag-list">
-              {[
-                "Interface design",
-                "Design systems",
-                "Prototyping",
-                "Interaction design",
-              ].map((skill) => (
-                <span key={skill}>{skill}</span>
-              ))}
+          {skillGroups.map((group) => (
+            <div className="skill-group" key={group.title}>
+              <h3>{group.title}</h3>
+              <div className="tag-list">
+                {group.skills.map((skill) => (
+                  <span key={skill}>{skill}</span>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="skill-group">
-            <h3>From an interface to an experience</h3>
-            <div className="tag-list">
-              {[
-                "TypeScript",
-                "React",
-                "Next.js",
-                "CSS",
-                "Three.js",
-                "PostgreSQL",
-              ].map((skill) => (
-                <span key={skill}>{skill}</span>
-              ))}
-            </div>
-          </div>
+          ))}
         </section>
         <section>
           <h2 className="section-label">02 / AN ONGOING JOURNEY</h2>
