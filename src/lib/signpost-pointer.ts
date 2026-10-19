@@ -1,4 +1,9 @@
-/** Stop immediately on blur; refocusing waits for a fresh pointer movement. */
+import { PHONE_MAX_WIDTH } from "./signpost-layout";
+
+/**
+ * Stop immediately on blur; refocusing waits for a fresh pointer movement.
+ * Phone-width windows stay at rest, because their signs are sized edge to edge.
+ */
 export function bindSignpostPointer(
   host: Pick<Window, "addEventListener" | "removeEventListener" | "innerWidth">,
   page: Pick<
@@ -16,6 +21,10 @@ export function bindSignpostPointer(
       page.visibilityState !== "visible"
     )
       return;
+    if (host.innerWidth <= PHONE_MAX_WIDTH) {
+      move(0);
+      return;
+    }
     const normalized = Math.max(
       -1,
       Math.min(1, (pointer.clientX / Math.max(1, host.innerWidth)) * 2 - 1),
@@ -26,11 +35,17 @@ export function bindSignpostPointer(
   function onVisibility() {
     if (page.visibilityState !== "visible") pause();
   }
+  function onResize() {
+    // Resizing down to a phone width must not leave the signpost tilted.
+    if (host.innerWidth <= PHONE_MAX_WIDTH) move(0);
+  }
   host.addEventListener("pointermove", onMove, { passive: true });
+  host.addEventListener("resize", onResize);
   host.addEventListener("blur", pause);
   page.addEventListener("visibilitychange", onVisibility);
   return () => {
     host.removeEventListener("pointermove", onMove);
+    host.removeEventListener("resize", onResize);
     host.removeEventListener("blur", pause);
     page.removeEventListener("visibilitychange", onVisibility);
     pause();

@@ -5,7 +5,7 @@ The homepage passes a `Project[]` collection and a `sample` flag to `SignpostHer
 ## Layout and sizing
 
 - `src/lib/signpost-layout.ts` defines board dimensions, alternating directions, numbering, spacing, colors, and responsive presentation scale.
-- `src/lib/signpost-fit.ts` constrains each board to the available horizontal space, using the introduction card's measured edge and the viewport's right gutter. It projects board bounds across the pointer rotation range and accounts for hover and scroll movement.
+- `src/lib/signpost-fit.ts` constrains each board to the available horizontal space, using the introduction card's measured edge and the viewport's right gutter. It projects board bounds across the pointer rotation range and accounts for hover and scroll movement. Phones (up to 599 px wide) are the exception, described below.
 - `SignpostScene` lifts the complete stack to the top of the extended pole, preserving the authored 0.71-unit board spacing. The pole extends with the document rather than spreading the signs apart.
 - `SignArm` reuses bundled Blender geometry and renders project labels on both faces. Titles pass through `toSignText()`, which uppercases them and replaces characters missing from the subset sign font with `?`. Width and font size adapt individually; board height and thickness remain consistent.
 
@@ -13,9 +13,15 @@ The presentation multiplier is `0.612 * 0.85`. The orthographic camera sits at `
 
 The component supports an empty collection and a single board, although the default data policy fills the portfolio to six projects. Geometry tests cover empty, one-, three-, and six-board collections at widths from 320 to 1920 pixels, with sampled pointer angles and scroll positions.
 
+## Phones
+
+At 599 px and narrower, `getSignpostPlacement` in `signpost-fit.ts` replaces the standard zoom and pole position. It measures where the signs sit at rest and picks the zoom and pole x so the outermost signs meet the left and right edges of the introduction card (measured in `SignpostHero` and passed down as `phoneEdges`). The two sides are unequal, because the right-hand signs swing further from the viewer, so the pole sits off-centre. Signs keep their natural widths. The zoom is capped at twice the standard value so a collection with only one or two signs does not balloon. Widths above 599 px return exactly the previous zoom and pole position; a test covers this.
+
+Because the signs are fitted at rest, pointer tilt is disabled at phone widths (`signpost-pointer.ts`), and resizing down to a phone width returns the signpost to rest. CSS (`@media (max-width: 599px)`) lifts the context card so it covers the foot of the pole, as on desktop. The overlap is `32px + 12vw`: the foot sits 32 px above the stage bottom, and its height grows with the zoom, which grows with the screen width.
+
 ## Interaction and accessibility
 
-`signpost-pointer.ts` bounds reversed cursor rotation to +10°/−20° around the resting orientation. GSAP smooths updates over 0.18 seconds. Inactive windows and hidden tabs pause interaction; touch movement does not rotate the object.
+`signpost-pointer.ts` bounds reversed cursor rotation to +10°/−20° around the resting orientation. GSAP smooths updates over 0.18 seconds. Inactive windows and hidden tabs pause interaction; touch movement does not rotate the object, and neither does a mouse in a phone-width window.
 
 The scene renders on demand when input, hover, scrolling, or resizing requires an update. Event listeners, observers, and tweens clean up when the view changes. The explicit card view, reduced-motion preference, keyboard project navigation, and WebGL fallback all provide access to the same project collection.
 

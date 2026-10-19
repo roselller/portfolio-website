@@ -1,6 +1,8 @@
 import { Euler, Matrix4, Vector3 } from "three";
 import {
   BOARD_TEMPLATE_WIDTH,
+  PHONE_MAX_WIDTH,
+  getSignpostPresentation,
   type SignboardLayout,
   type getSignpostLayout,
 } from "./signpost-layout";
@@ -15,6 +17,10 @@ type View = {
   topX: number;
   rotation: [number, number, number];
   restOffset: number;
+  /** Right limit in px; defaults to the page gutter. */
+  rightEdge?: number;
+  /** Phones: fit the rest pose only, because touch never tilts the signpost. */
+  restOnly?: boolean;
 };
 
 // The bundled board's bounds, including the label faces and hover movement.
@@ -27,11 +33,14 @@ function horizontalBounds(
   scale: number,
   matrix: Matrix4,
   restOffset: number,
+  restOnly = false,
 ) {
-  const [low, high] = [
-    board.angle + restOffset - Math.PI / 9,
-    board.angle + restOffset + Math.PI / 18,
-  ];
+  const [low, high] = restOnly
+    ? [board.angle + restOffset, board.angle + restOffset]
+    : [
+        board.angle + restOffset - Math.PI / 9,
+        board.angle + restOffset + Math.PI / 18,
+      ];
   const m = matrix.elements;
   let min = Infinity;
   let max = -Infinity;
@@ -64,7 +73,7 @@ export function fitSignpostBoards(layout: Layout, view: View) {
   const up = new Vector3(0, 1, 0).applyMatrix4(matrix);
   const gutter = Math.max(16, view.width * 0.02);
   const left = Math.max(gutter, view.leftInset);
-  const right = view.width - gutter;
+  const right = view.rightEdge ?? view.width - gutter;
   const scrollDrift =
     Math.max(0, view.documentHeight - view.height) * (up.x / up.y);
 
@@ -72,7 +81,13 @@ export function fitSignpostBoards(layout: Layout, view: View) {
     const poleX =
       view.topX + (board.height - layout.height) * up.x * view.pixelsPerUnit;
     const fits = (scale: number) => {
-      const bounds = horizontalBounds(board, scale, matrix, view.restOffset);
+      const bounds = horizontalBounds(
+        board,
+        scale,
+        matrix,
+        view.restOffset,
+        view.restOnly,
+      );
       return (
         poleX + Math.min(0, scrollDrift) + bounds.min * view.pixelsPerUnit >=
           left + 2 &&
@@ -103,4 +118,71 @@ export function fitSignpostBoards(layout: Layout, view: View) {
       ),
     };
   });
+}
+
+type Edges = { left: number; right: number };
+
+/**
+ * Where the signpost sits in the canvas. Phones scale it so the outermost
+ * signs (at rest) meet the card edges; every other width keeps the standard
+ * zoom and pole position.
+ */
+export function getSignpostPlacement(
+  layout: Layout,
+  width: number,
+  height: number,
+  edges: Edges | null,
+  rotation: [number, number, number],
+  restOffset: number,
+) {
+  const base = getSignpostPresentation(
+    layout.width,
+    layout.height,
+    width,
+    height,
+  );
+  const standard = {
+    ...base,
+    topX: width * (width >= 900 ? 0.67 : 0.5),
+    restOnly: false,
+    leftEdge: undefined as number | undefined,
+    rightEdge: undefined as number | undefined,
+  };
+  if (width > PHONE_MAX_WIDTH || layout.boards.length === 0) return standard;
+
+  const left = edges?.left ?? width * 0.06;
+  const right = edges?.right ?? width * 0.94;
+  const matrix = new Matrix4().makeRotationFromEuler(new Euler(...rotation));
+  const up = new Vector3(0, 1, 0).applyMatrix4(matrix);
+  let min = Infinity;
+  let max = -Infinity;
+  for (const board of layout.boards) {
+    const bounds = horizontalBounds(
+      board,
+      board.scaleX,
+      matrix,
+      restOffset,
+      true,
+    );
+    const offset = (board.height - layout.height) * up.x;
+    min = Math.min(min, bounds.min + offset);
+    max = Math.max(max, bounds.max + offset);
+  }
+  // Stay inside the 2 px tolerance used by fitSignpostBoards, plus a hair
+  // (0.05 px per side) so rounding never trims a sign.
+  const span = right - left - 4.1;
+  if (!(max > min) || !(span > 0)) return standard;
+  // One or two signs lean to one side; cap the zoom so they never balloon.
+  const pixelsPerUnit = Math.min(span / (max - min), base.pixelsPerUnit * 2);
+  const used = (max - min) * pixelsPerUnit;
+  // Centre the signs between the edges when the zoom was capped.
+  const topX = left + 2.05 + (span - used) / 2 - min * pixelsPerUnit;
+  return {
+    pixelsPerUnit,
+    contentHeight: Math.ceil(layout.height * pixelsPerUnit + 64),
+    topX,
+    restOnly: true,
+    leftEdge: left,
+    rightEdge: right,
+  };
 }

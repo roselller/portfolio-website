@@ -1736,6 +1736,14 @@ h2.section-label {
     right: 6%;
   }
 }
+/* Phones: the context card rises over the foot of the signpost pole, as on
+   desktop. The pole's foot sits 32px above the stage bottom and its height
+   grows with the zoom, which grows with the screen width. */
+@media (max-width: 599px) {
+  .hero:not(.hero-list) .hero-work {
+    margin-bottom: calc(-1 * (32px + 12vw));
+  }
+}
 @media (max-width: 380px) {
   .main-nav a {
     padding-inline: 6px;

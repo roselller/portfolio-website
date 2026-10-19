@@ -16,12 +16,9 @@ import { Pole } from "./Pole";
 import { SignArm } from "./SignArm";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import type { Project } from "@/data/projects";
-import {
-  getSignpostLayout,
-  getSignpostPresentation,
-} from "@/lib/signpost-layout";
+import { getSignpostLayout } from "@/lib/signpost-layout";
 import { useSignpostTheme } from "./SignpostParts";
-import { fitSignpostBoards } from "@/lib/signpost-fit";
+import { fitSignpostBoards, getSignpostPlacement } from "@/lib/signpost-fit";
 
 const REST_OFFSET = -Math.PI / 10;
 
@@ -45,6 +42,7 @@ function Assembly({
   onSceneHeight,
   documentHeight,
   leftInset,
+  phoneEdges,
 }: {
   projects: Project[];
   rotation: RefObject<number>;
@@ -52,6 +50,7 @@ function Assembly({
   onSceneHeight: (height: number) => void;
   documentHeight: number;
   leftInset: number;
+  phoneEdges: { left: number; right: number } | null;
 }) {
   const assembly = useRef<Group>(null);
   const position = useRef<Group>(null);
@@ -59,14 +58,22 @@ function Assembly({
   const invalidate = useThree((state) => state.invalidate);
   const theme = useSignpostTheme();
   const layout = useMemo(() => getSignpostLayout(projects), [projects]);
-  const presentation = getSignpostPresentation(
-    layout.width,
-    layout.height,
-    size.width,
-    size.height,
-  );
   const lean = size.width >= 900 ? 0.1 : 0.08;
   const pitch = -Math.PI / 16; // Lean away from the viewer by 11.25 degrees.
+  // Phones scale the signpost to the card width; other widths are unchanged.
+  const placement = useMemo(
+    () =>
+      getSignpostPlacement(
+        layout,
+        size.width,
+        size.height,
+        phoneEdges,
+        [pitch, -0.16, -lean],
+        REST_OFFSET,
+      ),
+    [layout, size.width, size.height, phoneEdges, pitch, lean],
+  );
+  const presentation = placement;
   const up = useMemo(
     () => new Vector3(0, 1, 0).applyEuler(new Euler(pitch, -0.16, -lean)),
     [pitch, lean],
@@ -83,9 +90,11 @@ function Assembly({
         width: size.width,
         height: size.height,
         documentHeight,
-        leftInset,
-        pixelsPerUnit: presentation.pixelsPerUnit,
-        topX: size.width * (size.width >= 900 ? 0.67 : 0.5),
+        leftInset: placement.leftEdge ?? leftInset,
+        rightEdge: placement.rightEdge,
+        restOnly: placement.restOnly,
+        pixelsPerUnit: placement.pixelsPerUnit,
+        topX: placement.topX,
         rotation: [pitch, -0.16, -lean],
         restOffset: REST_OFFSET,
       }).map((board) => ({
@@ -101,7 +110,7 @@ function Assembly({
       size.height,
       documentHeight,
       leftInset,
-      presentation.pixelsPerUnit,
+      placement,
       pitch,
       lean,
     ],
@@ -122,9 +131,7 @@ function Assembly({
       assembly.current.rotation.y = rotation.current + REST_OFFSET;
     if (position.current) {
       position.current.position.x =
-        (size.width >= 900
-          ? (size.width * 0.17) / presentation.pixelsPerUnit
-          : 0) -
+        (placement.topX - size.width / 2) / presentation.pixelsPerUnit -
         (layout.height + extension) * up.x +
         (scrollOffset.current / presentation.pixelsPerUnit) * (up.x / up.y);
       position.current.position.y =
@@ -168,6 +175,7 @@ export default function SignpostScene({
   onSceneHeight,
   documentHeight,
   leftInset,
+  phoneEdges,
 }: {
   projects: Project[];
   rotation: RefObject<number>;
@@ -177,6 +185,7 @@ export default function SignpostScene({
   onSceneHeight: (height: number) => void;
   documentHeight: number;
   leftInset: number;
+  phoneEdges: { left: number; right: number } | null;
 }) {
   const fallback = (
     <div className="scene-fallback">
@@ -221,6 +230,7 @@ export default function SignpostScene({
             onSceneHeight={onSceneHeight}
             documentHeight={documentHeight}
             leftInset={leftInset}
+            phoneEdges={phoneEdges}
           />
         </Suspense>
       </Canvas>

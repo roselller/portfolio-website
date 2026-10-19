@@ -18,6 +18,7 @@ import type { Project } from "@/data/projects";
 
 import { useProjectView } from "./ProjectViewProvider";
 import { bindSignpostPointer } from "@/lib/signpost-pointer";
+import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
 
 export function SignpostHero({
   projects,
@@ -34,6 +35,11 @@ export function SignpostHero({
   const [sceneHeight, setSceneHeight] = useState(1400);
   const [documentHeight, setDocumentHeight] = useState(0);
   const [leftInset, setLeftInset] = useState(0);
+  // Phones: the card's left and right edges, so the signs can meet them.
+  const [phoneEdges, setPhoneEdges] = useState<{
+    left: number;
+    right: number;
+  } | null>(null);
   const renderSceneRef = useRef<(() => void) | null>(null);
   const { grid } = useProjectView();
 
@@ -99,6 +105,18 @@ export function SignpostHero({
               Math.max(16, viewport.width * 0.02)
           : 0,
       );
+      if (card && window.innerWidth <= PHONE_MAX_WIDTH) {
+        const panel = card.getBoundingClientRect();
+        const left = Math.round(panel.left - viewport.left);
+        const right = Math.round(panel.right - viewport.left);
+        setPhoneEdges((previous) =>
+          previous?.left === left && previous.right === right
+            ? previous
+            : { left, right },
+        );
+      } else {
+        setPhoneEdges(null);
+      }
       update();
     };
     const observer = new ResizeObserver(measure);
@@ -189,6 +207,7 @@ export function SignpostHero({
               onSceneHeight={setSceneHeight}
               documentHeight={documentHeight}
               leftInset={leftInset}
+              phoneEdges={phoneEdges}
             />
           )}
         </div>

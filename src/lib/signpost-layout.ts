@@ -80,6 +80,9 @@ export function getSignpostScale(
   );
 }
 
+/** Widest viewport treated as a phone; mirrors CSS `@media (max-width: 599px)`. */
+export const PHONE_MAX_WIDTH = 599;
+
 export const SIGNPOST_MAGNIFICATION = 3.2;
 
 /** Fixed board size as the collection grows; only the document height changes. */
