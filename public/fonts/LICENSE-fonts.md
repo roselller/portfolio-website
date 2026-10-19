@@ -11,6 +11,8 @@ Both files below were built from the official [Google Sans v14.000](https://gith
 
 The sign layout sizes each title as if every character were 0.7 em wide. Google Sans is proportional, and the widest current title measures about 0.68 em per character, so every pinned project fits its board. A future title with many wide capitals (M, W, G, O) could run past the board edge.
 
-## PP Kyoto
+## Fraunces
 
-PP Kyoto is **not bundled**. The italic display role falls back to Georgia / Times New Roman. Adding PP Kyoto requires an appropriate webfont license and a font declaration in `src/styles/fonts.css`.
+Fraunces is by the Fraunces Project Authors (Undercase Type) and is licensed under the SIL Open Font License 1.1. The copyright notice and license text are in `Fraunces-OFL.txt`. The OFL declares no Reserved Font Name, which allows the subset below to keep the name.
+
+`Fraunces-Italic.woff2` was built from the italic variable font in the [google/fonts](https://github.com/google/fonts/tree/main/ofl/fraunces) repository (`Fraunces-Italic[SOFT,WONK,opsz,wght].ttf`) with FontTools 4.60.1 (`fontTools.varLib.instancer` and `fontTools.subset`) and Brotli. The weight is fixed at 400, softness at 100 and the "wonky" forms are on; the optical size axis stays variable (9-144) so the browser picks finer or sturdier shapes by text size. It keeps Basic Latin, Latin-1 Supplement, Latin Extended-A, general punctuation, and a few symbols. Glyph outlines are unchanged. It is the display italic used for accent lines (the `--font-display` token), and stands in for PP Kyoto, which is a paid font.

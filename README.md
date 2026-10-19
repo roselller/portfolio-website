@@ -121,4 +121,4 @@ Static export, including plain GitHub Pages hosting, does not support this appli
 
 ## Asset attribution
 
-Google Sans is bundled under the SIL Open Font License. Its original notice and license text are preserved in [public/fonts](public/fonts/LICENSE-fonts.md).
+Google Sans and Fraunces are bundled under the SIL Open Font License. Their original notices and license texts are preserved in [public/fonts](public/fonts/LICENSE-fonts.md).

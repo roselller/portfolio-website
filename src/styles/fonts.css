@@ -7,7 +7,12 @@
   font-display: swap;
 }
 
-/* TODO: awaiting licensed PP Kyoto Regular Italic (400) webfont files.
-   Add its @font-face here with font-family: "PP Kyoto", font-style: italic,
-   font-weight: 400 and font-display: swap. The display token is ready.
-   Do not declare a URL until the licensed file exists. */
+/* Display italic for accent lines. Optical size stays variable (9-144), so
+   large headlines get finer detail and small text stays sturdy. */
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/Fraunces-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}

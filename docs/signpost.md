@@ -21,7 +21,7 @@ The scene renders on demand when input, hover, scrolling, or resizing requires a
 
 ## Presentation
 
-Google Sans supplies all text, including the sign titles and numbers. The italic display role uses the existing Georgia fallback. Font licenses live beside the bundled assets.
+Google Sans supplies all text, including the sign titles and numbers. Accent lines use Fraunces Italic (the `--font-display` token). Font licenses live beside the bundled assets.
 
 The shader background runs only on the home page, at about 30 fps; other pages keep the themed CSS gradient behind `.site-background` and never load the shader code. It supports both themes and pauses animation for reduced motion or hidden tabs. Camera position, assembly rotation, font assets, and theme tokens do not need to change when adding projects or adjusting label fitting.
 

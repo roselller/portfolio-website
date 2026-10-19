@@ -262,7 +262,7 @@ h6,
   font-size: 1.17em;
   font-weight: 400;
   color: var(--display-muted);
-  letter-spacing: -0.045em;
+  letter-spacing: -0.015em;
 }
 .hero-description {
   max-width: 34ch;
@@ -777,7 +777,7 @@ h6,
   margin-top: 26px;
 }
 .page-heading em {
-  letter-spacing: -0.065em;
+  letter-spacing: -0.015em;
   color: var(--display-muted);
   font-family: var(--font-display);
   font-weight: 400;

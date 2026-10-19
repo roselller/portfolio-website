@@ -5,8 +5,7 @@
     "Google Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-label:
     "Google Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* TODO: awaiting licensed PP Kyoto Regular Italic font files. */
-  --font-display: "PP Kyoto", Georgia, "Times New Roman", serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-ligatures: "liga" 1, "calt" 1;
   color-scheme: dark;
   --bg: #0b0c0e;
