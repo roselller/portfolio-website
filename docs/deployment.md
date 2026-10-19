@@ -13,7 +13,7 @@ branches and pull requests create preview deployments instead. Merge to `main` o
 - Generate passwords and salts in your own terminal with `openssl rand -hex 32`.
 - Turn on two-factor authentication for GitHub, Vercel, Neon, Upstash, and Resend.
 - Only `.env.local.example` is tracked in Git. `.env.local` stays on your machine.
-- Mark every secret on Vercel as **Sensitive** (it can then never be read back from the dashboard) and give it to
+- Give every secret the **Secret** type on Vercel (older Vercel screens called this "Sensitive"; the value is then write-only and can never be read back from the dashboard) and give it to
   **Production only**. Preview deployments then run without any secrets: their contact form correctly says it is not
   accepting messages.
 
@@ -73,12 +73,12 @@ LinkedIn buttons on the Contact page keep working).
 
 1. Sign in to vercel.com with GitHub and import `roselller/portfolio-website`. Framework: Next.js (detected).
 2. On the import screen add **only** the two non-secret variables, so nothing sensitive can land in Preview or
-   Development by accident (the import screen may not offer a per-environment scope or the Sensitive switch):
+   Development by accident (the import screen may not offer a per-environment scope or the Secret type):
    `GITHUB_USERNAME` = `roselller` and `ENABLE_EXPERIMENTAL_COREPACK` = `1` (makes Vercel use the pinned `pnpm@11.19.0`;
    see "pnpm on Vercel" below). Deploy. This first deployment is harmless: the contact form says it is not accepting
    messages.
 3. Once the build is healthy, open **Settings, Environment Variables** and add the secrets one at a time. For each one tick
-   **Production only** and turn on **Sensitive**:
+   **Production only** and choose the **Secret** type (not Config):
 
    | Variable                                             | Notes                                                                          |
    | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
@@ -146,6 +146,8 @@ Replace `SITE` with the `vercel.app` address Vercel gave you.
    ```
 
 8. **Previews stay secret-free:** a preview deployment's Contact page says it is not accepting messages.
+9. **Secrets are write-only:** in Vercel's Environment Variables list, each of the six secrets shows only a **Production**
+   label, and setting the type filter to **Config** lists none of them.
 
 ## Day-to-day
 
