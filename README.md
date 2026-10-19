@@ -8,7 +8,7 @@ The personal portfolio of **Roseller Armirola**, designer and developer. An inte
 - **GitHub integration without a token:** pinned repositories appear in profile order, with server-side caching and hourly revalidation. Clearly labeled sample concepts fill remaining places up to six projects.
 - **Repository briefs:** project pages display README content with readable tables, code blocks, images, and previous/next navigation.
 - **Adaptive presentation:** dark and light themes, bundled fonts, an animated shader background on the home page (about 30 fps; other pages use a static CSS gradient), keyboard-accessible project links, reduced-motion support, and a WebGL fallback.
-- **Optional contact form:** validated submissions, honeypot protection, and Redis rate limiting. Messages are stored in PostgreSQL, then emailed to the owner through Resend.
+- **Optional contact form:** validated submissions, honeypot protection, and Redis rate limiting (per visitor and a site-wide daily cap). Messages are stored in PostgreSQL through an insert-only database user, then emailed to the owner through Resend.
 - **Security and search:** a Content Security Policy with standard hardening headers, a sitemap that includes the pinned projects, `robots.txt`, and Open Graph metadata.
 
 ## Stack
@@ -115,7 +115,7 @@ Edit `src/data/profile.ts` and `src/data/site-copy.ts` for identity and interfac
 
 ## Deployment
 
-Deploy with a server-capable Next.js host. The included `vercel.json` configures a frozen-lockfile installation and production build. Set the production environment variables (including `NEXT_PUBLIC_SITE_URL`, so the sitemap and share links use your domain), apply reviewed migrations to the intended database, and verify project pages and a controlled contact submission after deployment.
+Deploy with a server-capable Next.js host. The included `vercel.json` configures a frozen-lockfile installation, the production build, and the Singapore function region. The step-by-step guide, including the limited database user, which variables go where, and the checks to run afterwards, is in the [deployment runbook](docs/deployment.md). Pushes to `main` deploy to production once Vercel is connected.
 
 Static export, including plain GitHub Pages hosting, does not support this application's hourly revalidation or Server Actions. For self-hosting, run `pnpm build` followed by `pnpm start`; the start script binds to loopback, so configure the host binding and reverse proxy for your environment. `netlify.toml.example` is provided as an optional deployment template.
 
