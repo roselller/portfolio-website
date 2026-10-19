@@ -619,6 +619,11 @@ h6,
   color: #1c1f23;
   box-shadow: var(--neumorphic);
 }
+/* Light mode inverts the primary button, like the signpost boards do. */
+[data-theme="light"] .button-solid {
+  background: var(--surface-dark);
+  color: #f2f3f5;
+}
 .neu-card {
   background: var(--panel);
   border: 1px solid var(--line);
