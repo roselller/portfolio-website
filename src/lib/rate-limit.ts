@@ -3,8 +3,16 @@ import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { SITE_LIMIT_REASON } from "./contact-service";
 
-let limiter: Ratelimit | undefined;
+// Each visitor: 5 messages per 10 minutes. The whole site: 30 messages per UTC
+// day, so spam from many addresses cannot use up Resend's free daily email
+// allowance (100) or fill the database.
+const SITE_DAILY_LIMIT = 30;
+const SITE_KEY = "all-visitors";
+
+type ContactLimiters = { visitor: Ratelimit; site: Ratelimit };
+let limiters: ContactLimiters | undefined;
 
 export function isContactConfigured() {
   return Boolean(
@@ -17,15 +25,48 @@ export function isContactConfigured() {
   );
 }
 
-export function getContactLimiter() {
+function getContactLimiters(): ContactLimiters | null {
   if (!isContactConfigured()) return null;
-  limiter ??= new Ratelimit({
-    redis: Redis.fromEnv(),
-    limiter: Ratelimit.slidingWindow(5, "10 m"),
-    prefix: "portfolio:contact",
-    analytics: false,
-  });
-  return limiter;
+  if (!limiters) {
+    const redis = Redis.fromEnv();
+    limiters = {
+      visitor: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(5, "10 m"),
+        prefix: "portfolio:contact",
+        analytics: false,
+      }),
+      site: new Ratelimit({
+        redis,
+        limiter: Ratelimit.fixedWindow(SITE_DAILY_LIMIT, "1 d"),
+        prefix: "portfolio:contact-site",
+        analytics: false,
+      }),
+    };
+  }
+  return limiters;
+}
+
+/**
+ * Checks the visitor's limit first, so a blocked visitor never spends the
+ * site-wide allowance, then the site-wide daily limit. A timeout is passed
+ * through as-is: the contact service rejects it instead of failing open.
+ */
+export async function checkContactLimits(
+  requestHeaders: Pick<Headers, "get">,
+): Promise<{ success: boolean; reason?: string }> {
+  const active = getContactLimiters();
+  if (!active) throw new Error("Contact is unavailable.");
+
+  const visitor = await active.visitor.limit(getRateLimitKey(requestHeaders));
+  await visitor.pending;
+  if (visitor.reason === "timeout" || !visitor.success) return visitor;
+
+  const site = await active.site.limit(SITE_KEY);
+  await site.pending;
+  if (site.reason === "timeout") return site;
+  if (!site.success) return { success: false, reason: SITE_LIMIT_REASON };
+  return { success: true };
 }
 
 export function getRateLimitKey(requestHeaders: Pick<Headers, "get">) {

@@ -8,6 +8,13 @@
       "when": 1790092766271,
       "tag": "0000_special_winter_soldier",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792406961343,
+      "tag": "0001_drop_projects",
+      "breakpoints": true
     }
   ]
 }

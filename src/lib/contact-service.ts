@@ -1,5 +1,9 @@
 import { contactSchema, type ContactResult } from "./validations";
 
+// Returned by the rate limiter when the whole site (not just this visitor) has
+// used up its daily allowance. Lives here so tests can import it under tsx.
+export const SITE_LIMIT_REASON = "site-limit";
+
 type ContactMessage = { name: string; email: string; message: string };
 
 type ContactDependencies = {
@@ -35,6 +39,12 @@ export async function processContact(
         ok: false,
         message:
           "The contact form is taking a moment. Please try again shortly.",
+      };
+    if (limit.reason === SITE_LIMIT_REASON)
+      return {
+        ok: false,
+        message:
+          "The contact form has reached its limit for today. Please try again tomorrow.",
       };
     if (!limit.success)
       return {

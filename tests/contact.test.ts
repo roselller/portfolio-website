@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test, { mock } from "node:test";
-import { processContact } from "../src/lib/contact-service";
+import { processContact, SITE_LIMIT_REASON } from "../src/lib/contact-service";
 
 const valid = {
   name: "  Alex Example  ",
@@ -111,6 +111,7 @@ test("unconfigured services cannot report a genuine message as saved", async () 
 test("rate limits, Redis failures, and fail-open timeout responses cannot cause writes", async () => {
   for (const options of [
     { allowed: false },
+    { allowed: false, reason: SITE_LIMIT_REASON },
     { reason: "timeout" },
     { failLimit: true },
   ]) {
@@ -119,6 +120,23 @@ test("rate limits, Redis failures, and fail-open timeout responses cannot cause 
     assert.equal(context.saved.length, 0);
     assert.equal(context.notified.length, 0);
   }
+});
+
+test("a full site-wide daily limit says so, and differs from the per-visitor message", async () => {
+  const site = await processContact(
+    valid,
+    setup({ allowed: false, reason: SITE_LIMIT_REASON }).dependencies,
+  );
+  const visitor = await processContact(
+    valid,
+    setup({ allowed: false }).dependencies,
+  );
+  assert.equal(site.ok, false);
+  assert.equal(visitor.ok, false);
+  if (site.ok || visitor.ok) return;
+  assert.match(site.message, /tomorrow/);
+  assert.match(visitor.message, /10 minutes/);
+  assert.notEqual(site.message, visitor.message);
 });
 
 test("database failures return a safe error without exposing infrastructure details", async () => {

@@ -53,7 +53,8 @@ export function ContactForm({ configured }: { configured: boolean }) {
       } catch {
         setResult({
           ok: false,
-          message: "The connection was interrupted. Please try again.",
+          message:
+            "The connection was interrupted. Please refresh the page and try again.",
         });
       }
     });
