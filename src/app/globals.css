@@ -367,6 +367,8 @@ h6,
   border-radius: 999px;
 }
 .view-toggle button[aria-pressed="true"] {
+  cursor: default;
+  pointer-events: none;
   background: var(--control-active);
   color: var(--text);
   box-shadow:
@@ -574,6 +576,9 @@ h6,
 .intro-copy h2 span {
   display: block;
   color: var(--display-muted);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1em;
 }
 .intro-copy p {
   margin: 28px 0 32px;
@@ -810,9 +815,11 @@ h2.section-label {
   line-height: 1;
 }
 .about-note p {
-  font-size: 23px;
-  line-height: 1.6;
-  letter-spacing: -0.025em;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 27px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 .about-note span {
   display: block;
@@ -918,19 +925,20 @@ h2.section-label {
 .timeline-body li + li {
   margin-top: 4px;
 }
-.page-cta {
+.about-cta {
   margin-top: 100px;
-  border-top: 1px solid var(--line);
-  padding-top: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  padding: 64px 8%;
+  border-radius: 16px;
 }
-.page-cta h2 {
-  font-size: 30px;
+.about-cta h2 {
+  font-family: var(--font-display);
+  font-style: italic;
   font-weight: 400;
-  letter-spacing: -0.02em;
+  font-size: clamp(30px, 3.2vw, 46px);
+  letter-spacing: -0.01em;
+}
+.about-cta .intro-actions {
+  margin-top: 32px;
 }
 .contact-layout {
   display: grid;
@@ -1075,11 +1083,22 @@ h2.section-label {
 .project-heading-row .page-heading {
   margin-top: 18px;
 }
-.project-heading-row .tag-list {
+.project-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  margin-top: 28px;
+}
+.project-summary .page-lead {
+  margin-top: 0;
+}
+.project-summary .tag-list {
   max-width: 350px;
+  margin-left: auto;
   justify-content: flex-end;
 }
-.project-heading-row .tag-list span {
+.project-summary .tag-list span {
   font-size: 12px;
 }
 .project-visual {
@@ -1092,7 +1111,9 @@ h2.section-label {
   overflow: hidden;
   border: 1px solid var(--line);
   background:
-    radial-gradient(ellipse at 70% 10%, #ffffff0c, transparent 65%), #15171c;
+    radial-gradient(ellipse at 70% 10%, var(--glass-start), transparent 65%),
+    var(--panel);
+  box-shadow: var(--neumorphic);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1104,6 +1125,8 @@ h2.section-label {
 .project-visual-title {
   width: 100%;
   min-width: 0;
+  font-size: 1rem;
+  font-weight: inherit;
   text-align: center;
   margin-bottom: 12px;
 }
@@ -1114,7 +1137,7 @@ h2.section-label {
   font-size: clamp(54px, 9vw, 138px);
   letter-spacing: -0.035em;
   font-weight: 450;
-  color: #d3d4dc;
+  color: color-mix(in srgb, var(--text) 88%, var(--bg));
 }
 .project-visual-number {
   position: absolute;
@@ -1122,14 +1145,14 @@ h2.section-label {
   left: var(--project-visual-padding);
   font-family: var(--font-label);
   font-size: 12px;
-  color: #a0a2a9;
+  color: var(--muted);
 }
 .project-visual-caption {
   text-align: center;
   font-family: var(--font-label);
   font-size: 12px;
   letter-spacing: 0.16em;
-  color: #a0a2a9;
+  color: var(--muted);
 }
 .project-visual-symbol {
   position: absolute;
@@ -1505,13 +1528,12 @@ h2.section-label {
   .timeline-body {
     padding-left: 18px;
   }
-  .page-cta {
+  .about-cta {
     margin-top: 60px;
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 40px 20px;
   }
-  .page-cta h2 {
-    font-size: 28px;
+  .about-cta h2 {
+    font-size: 30px;
   }
   .contact-form {
     padding: 25px 20px;
@@ -1533,7 +1555,12 @@ h2.section-label {
     align-items: flex-start;
     gap: 25px;
   }
-  .project-heading-row .tag-list {
+  .project-summary {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .project-summary .tag-list {
+    margin-left: 0;
     justify-content: flex-start;
   }
   .project-visual {

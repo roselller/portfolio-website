@@ -57,13 +57,8 @@ export default async function ProjectPage({ params }: Props) {
             {String(position + 1).padStart(2, "0")} /{" "}
             {sample ? "CONCEPT PROJECT" : "SELECTED WORK"}
           </p>
-          <h1 className="page-heading">{project.title}</h1>
-          <p className="page-lead">{project.shortDescription}</p>
-        </div>
-        <div className="tag-list">
-          {project.techStack.map((tech) => (
-            <span key={tech}>{tech}</span>
-          ))}
+          {/* Without a preview image the cover card below carries the title. */}
+          {thumbnail && <h1 className="page-heading">{project.title}</h1>}
         </div>
       </div>
       <div className="project-visual">
@@ -93,6 +88,20 @@ export default async function ProjectPage({ params }: Props) {
           </>
         )}
       </div>
+      {(project.shortDescription || project.techStack.length > 0) && (
+        <div className="project-summary">
+          {project.shortDescription && (
+            <p className="page-lead">{project.shortDescription}</p>
+          )}
+          {project.techStack.length > 0 && (
+            <div className="tag-list">
+              {project.techStack.map((tech) => (
+                <span key={tech}>{tech}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <section className="project-story">
         <div className="project-brief-heading">
           <h2>{sample ? "The story" : "Project brief"}</h2>

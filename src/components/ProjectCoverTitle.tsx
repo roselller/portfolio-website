@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef } from "react";
 
 export function ProjectCoverTitle({ title }: { title: string }) {
-  const container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLHeadingElement>(null);
   const text = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
@@ -31,11 +31,11 @@ export function ProjectCoverTitle({ title }: { title: string }) {
   }, [title]);
 
   return (
-    <div className="project-visual-title" ref={container}>
+    <h1 className="project-visual-title" ref={container}>
       <span className="project-visual-word" ref={text}>
         {title}
         <span style={{ color: "var(--accent-glow)" }}>.</span>
       </span>
-    </div>
+    </h1>
   );
 }

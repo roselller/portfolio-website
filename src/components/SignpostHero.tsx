@@ -136,7 +136,8 @@ export function SignpostHero({
       <div className="hero-intro-column">
         <div className="hero-copy neu-card">
           <p className="eyebrow">
-            <span className="accent-line" aria-hidden="true" /> {profile.role}
+            <span className="accent-line" aria-hidden="true" />{" "}
+            {profile.role.toUpperCase()}
           </p>
           <p className="hero-hello">
             {siteCopy.hero.greeting} {profile.name}.
