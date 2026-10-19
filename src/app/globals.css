@@ -1198,8 +1198,7 @@ h2.section-label {
   margin-top: 24px;
 }
 .project-directions {
-  border-top: 1px solid var(--line);
-  padding-top: 35px;
+  padding: 48px clamp(24px, 5%, 72px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(20px, 5vw, 64px);
@@ -1209,6 +1208,20 @@ h2.section-label {
   gap: 20px;
   align-items: center;
   min-width: 0;
+  color: var(--text);
+  transition: color 0.2s;
+}
+.project-direction > svg {
+  transition: transform 0.2s;
+}
+.project-direction:hover {
+  color: var(--accent-glow);
+}
+.previous-project:hover > svg {
+  transform: translate(-3px, -3px);
+}
+.next-project:hover > svg {
+  transform: translate(3px, -3px);
 }
 .project-direction > div {
   min-width: 0;
@@ -1575,6 +1588,10 @@ h2.section-label {
     gap: 25px;
     margin: 45px 0;
   }
+  .project-directions {
+    padding: 32px 20px;
+    gap: 16px;
+  }
   .project-direction {
     align-items: flex-start;
     gap: 8px;
@@ -1727,6 +1744,10 @@ h2.section-label {
 @media (min-width: 900px) {
   .hero:not(.hero-list) .hero-work {
     left: 0;
+  }
+  /* Sit low enough that the card hides the foot of the signpost pole. */
+  .hero:not(.hero-list) {
+    padding-bottom: 20px;
   }
   .hero:not(.hero-list) .intro-section {
     grid-column: 1 / -1;
@@ -1909,6 +1930,11 @@ body {
   .hero-list .hero-intro-column {
     align-self: start;
   }
+}
+
+/* Card mode: the space below the context card matches the 48px row gap above it. */
+.hero-list {
+  padding-bottom: 48px;
 }
 
 /* Card mode follows the document; both panels start at the first card row. */

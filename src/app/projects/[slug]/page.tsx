@@ -146,7 +146,10 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       </section>
       {previous && next && (
-        <nav className="project-directions" aria-label="Project navigation">
+        <nav
+          className="project-directions neu-card"
+          aria-label="Project navigation"
+        >
           <Link
             href={`/projects/${previous.slug}`}
             className="project-direction previous-project"
