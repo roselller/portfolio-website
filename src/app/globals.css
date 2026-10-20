@@ -1527,12 +1527,15 @@ h2.section-label {
   }
   .about-layout {
     grid-template-columns: 1fr;
+    row-gap: 0;
   }
   .about-note {
-    margin: 45px 5px 0;
+    margin: 56px 5px 0;
   }
+  /* The note sits midway between the last paragraph and the first section
+     label (the label's cap height leaves ~5px less visible space below). */
   .about-sections {
-    margin-top: 65px;
+    margin-top: 61px;
     grid-template-columns: 1fr;
     gap: 60px;
   }
@@ -1738,9 +1741,12 @@ h2.section-label {
 }
 /* Phones: the context card rises over the foot of the signpost pole, as on
    desktop. The pole's foot sits 32px above the stage bottom and its height
-   grows with the zoom, which grows with the screen width. */
+   grows with the zoom, which grows with the screen width. The extra 16vw
+   lengthens the pole (it follows this box's height), which leaves bare pole
+   under the last sign before the card starts. */
 @media (max-width: 599px) {
   .hero:not(.hero-list) .hero-work {
+    height: calc(var(--signpost-height) + 16vw);
     margin-bottom: calc(-1 * (32px + 12vw));
   }
 }
@@ -1971,7 +1977,18 @@ body {
   .site-header:has(.project-view-toggle) {
     row-gap: 12px;
   }
+  /* The wrapper steps aside so each control is placed on the header grid:
+     theme switch top right (as on About and Contact), view switch centered
+     on the second row. */
   .site-header:has(.project-view-toggle) .header-actions {
+    display: contents;
+  }
+  .site-header:has(.project-view-toggle) .theme-toggle {
+    grid-row: 1;
+    grid-column: 3;
+    justify-self: end;
+  }
+  .site-header:has(.project-view-toggle) .project-view-toggle {
     grid-row: 2;
     grid-column: 1 / -1;
     justify-self: center;
@@ -1985,6 +2002,13 @@ body {
   .hero:not(.hero-list) .scene-stage {
     top: 150px;
     height: min(var(--signpost-height), calc(100svh - 150px));
+  }
+}
+/* Phones: the canvas grows with the longer pole box above (same 16vw), so the
+   scene sees no scroll drift and the signs keep their size and position. */
+@media (max-width: 599px) {
+  .hero:not(.hero-list) .scene-stage {
+    height: min(calc(var(--signpost-height) + 16vw), calc(100svh - 150px));
   }
 }
 
