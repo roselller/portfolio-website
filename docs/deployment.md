@@ -74,7 +74,7 @@ LinkedIn buttons on the Contact page keep working).
 1. Sign in to vercel.com with GitHub and import `roselller/portfolio-website`. Framework: Next.js (detected).
 2. On the import screen add **only** the two non-secret variables, so nothing sensitive can land in Preview or
    Development by accident (the import screen may not offer a per-environment scope or the Secret type):
-   `GITHUB_USERNAME` = `roselller` and `ENABLE_EXPERIMENTAL_COREPACK` = `1` (makes Vercel use the pinned `pnpm@11.19.0`;
+   `GITHUB_USERNAME` = your own GitHub username (this site uses `roselller`) and `ENABLE_EXPERIMENTAL_COREPACK` = `1` (makes Vercel use the pinned `pnpm@11.19.0`;
    see "pnpm on Vercel" below). Deploy. This first deployment is harmless: the contact form says it is not accepting
    messages.
 3. Once the build is healthy, open **Settings, Environment Variables** and add the secrets one at a time. For each one tick
@@ -162,3 +162,7 @@ Replace `SITE` with the `vercel.app` address Vercel gave you.
 - **Custom domain later:** add it in Vercel (Settings, Domains). No code change is needed. The site sends
   `Strict-Transport-Security` with `includeSubDomains`, so every subdomain of your domain must then serve HTTPS. Verify
   the domain in Resend to send mail from your own address.
+
+## Other hosts
+
+Deploy with a server-capable Next.js host. Static export, including plain GitHub Pages hosting, does not support this application's hourly revalidation or Server Actions. For self-hosting, run `pnpm build` followed by `pnpm start`; the start script binds to loopback, so configure the host binding and reverse proxy for your environment. `netlify.toml.example` is provided as an optional deployment template.

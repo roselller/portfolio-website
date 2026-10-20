@@ -1,30 +1,24 @@
 # Portfolio Website
 
-This is my personal portfolio, containing an interactive 3D signpost introduces selected work, with projects drawn from my pinned GitHub repositories.
+The personal portfolio of **Roseller Armirola**, a designer and developer. See it live at **[roseller.vercel.app](https://roseller.vercel.app)**.
 
-## Features
+Instead of a plain list, my projects hang on a 3D signpost. Pick a sign to read about the project behind it.
 
-- **Interactive project navigation:** responsive 3D signs with pointer interaction, individual title fitting, and an alternative card view.
-- **GitHub integration without a token:** pinned repositories appear in profile order, with server-side caching and hourly revalidation. Clearly labeled sample concepts fill remaining places up to six projects.
-- **Repository briefs:** project pages display README content with readable tables, code blocks, images, and previous/next navigation.
-- **Adaptive presentation:** dark and light themes, bundled fonts, an [animated shader background](https://github.com/ruucm/shadergradient) from ruucm on the home page, keyboard-accessible project links, reduced-motion support, and a WebGL fallback.
-- **Optional contact form:** validated submissions, honeypot protection, and Redis rate limiting. Messages are stored in PostgreSQL through an insert-only database user, then emailed to the owner through Resend.
-- **Security and search:** a Content Security Policy with standard hardening headers, a sitemap that includes the pinned projects, `robots.txt`, and Open Graph metadata.
+## What you'll find
 
-## Stack
+- **A 3D signpost.** Move your cursor to tilt it, or switch to a simple card view.
+- **Projects that stay up to date.** My pinned GitHub repositories show up automatically, each with its README. No login or token needed.
+- **An About page** with my skills and my journey so far.
+- **A contact form** that blocks spam, saves each message securely, and emails it to me.
+- **Comfortable everywhere.** Light and dark themes, phone to desktop layouts, keyboard support, and reduced-motion support.
 
-| Area                | Technology                                                                |
-| ------------------- | ------------------------------------------------------------------------- |
-| Application         | Next.js 16.3.8 App Router, React 19.2, TypeScript                         |
-| Graphics and motion | Three.js, React Three Fiber, Drei, GSAP, Framer Motion                    |
-| Styling             | Tailwind CSS 4, shared CSS tokens, locally bundled fonts                  |
-| Project data        | Public GitHub pages, `node-html-parser`, Next.js Data Cache               |
-| Contact form        | React Hook Form, Zod, Neon PostgreSQL, Drizzle ORM, Upstash Redis, Resend |
-| Tooling             | pnpm, ESLint, Prettier, Node.js test runner with `tsx`                    |
+## Built with
 
-## Getting started
+Next.js, React, and TypeScript, with Three.js for the 3D scene and Tailwind CSS for styling. The contact form uses Neon (database), Upstash (spam limits), and Resend (email).
 
-Use **Node.js 22 or newer** and **pnpm 11.19.0**, as specified in `package.json`.
+## Run it on your computer
+
+You'll need [Node.js](https://nodejs.org) 22 or newer and [pnpm](https://pnpm.io) 11.19.0 (the version pinned in `package.json`).
 
 ```sh
 git clone https://github.com/roselller/portfolio-website.git
@@ -34,81 +28,34 @@ cp .env.local.example .env.local
 pnpm dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The example configuration selects the public `roselller` GitHub profile. The portfolio runs without a GitHub token or database credentials; contact submissions remain unavailable until the optional services are configured.
+Then open [localhost:3000](http://localhost:3000). It shows my GitHub projects by default. To show yours, set `GITHUB_USERNAME` in `.env.local` to your GitHub username.
 
-## Configuration
+You don't need any accounts or keys to look around. Until you set up the contact form (see the [contact guide](docs/contact.md)), it shows a notice that it isn't accepting messages yet.
 
-Keep local settings in `.env.local` and configure production values through the hosting provider. Only the example environment file belongs in Git.
+## Make it yours
 
-| Variable                    | Purpose                                                                                            | Required for           |
-| --------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------- |
-| `GITHUB_USERNAME`           | Public profile whose pinned repositories populate the portfolio                                    | Live GitHub projects   |
-| `NEXT_PUBLIC_SITE_URL`      | Site origin for metadata and the sitemap; falls back to Vercel's production domain, then localhost | Production metadata    |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Optional publicly displayed contact address                                                        | Email link             |
-| `NEXT_PUBLIC_IMAGE_HOSTS`   | Comma-separated trusted HTTPS hosts for project cover images                                       | Remote cover images    |
-| `DATABASE_URL`              | Pooled Neon connection URL                                                                         | Contact storage        |
-| `DATABASE_URL_UNPOOLED`     | Direct Neon connection URL                                                                         | Database migrations    |
-| `UPSTASH_REDIS_REST_URL`    | Redis REST endpoint                                                                                | Contact rate limiting  |
-| `UPSTASH_REDIS_REST_TOKEN`  | Redis REST credential                                                                              | Contact rate limiting  |
-| `RATE_LIMIT_SALT`           | Private value used to hash rate-limit identifiers                                                  | Contact rate limiting  |
-| `RESEND_API_KEY`            | Resend API key for message notifications                                                           | Contact form           |
-| `CONTACT_TO_EMAIL`          | Address that receives new messages                                                                 | Contact form           |
-| `CONTACT_FROM_EMAIL`        | Sender; defaults to `Portfolio <onboarding@resend.dev>`                                            | Verified Resend domain |
+- `src/data/profile.ts` and `src/data/site-copy.ts`: your name, links, and most of the words on the site.
+- `src/data/skills.ts`, `src/data/journey.ts`, and `public/logos/`: the skills and journey on the About page, and the logos beside them.
+- `src/app/(marketing)/about/page.tsx` and `src/app/(marketing)/contact/page.tsx`: the biography, the quote, and the contact page text.
+- `src/data/projects.ts`: sample projects shown when you have fewer than six pins.
+- `src/styles/`: fonts and colors.
 
-`NEXT_PUBLIC_` values are public and may be embedded in client assets at build time. Keep database credentials, Redis credentials, the rate-limit salt, and the Resend API key in server-only variables.
+## Put it online
 
-### Project data
+I host it on Vercel. The [deployment guide](docs/deployment.md) has the full step-by-step, including how to keep your keys safe. Set `GITHUB_USERNAME` on the host to your own GitHub username (the guide's example uses mine). Once Vercel is connected to the repository, every push to `main` goes live.
 
-The server reads pinned repositories directly from public GitHub pages, avoiding a token requirement and an additional community API dependency. The collection and individual READMEs are cached for one hour. Changes become visible through request-driven revalidation after the cache expires.
+The site needs a host that can run a Next.js server, so plain GitHub Pages won't work; the end of the guide covers other hosts.
 
-One to five pins are padded with sample concepts to reach six projects. Missing configuration, zero pins, timeouts, or an unavailable profile produce a complete sample fallback. An unavailable README falls back to the project description and repository link. GitHub markup changes may require parser updates.
+## For developers
 
-See [GitHub project data](docs/github-pinned-projects.md) for field mapping, parsing, and cache details.
-
-## Development
+Run the checks before publishing a change:
 
 ```sh
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm format:check
-pnpm build
+pnpm typecheck && pnpm lint && pnpm test && pnpm format:check && pnpm build
 ```
 
-Use `pnpm format` to apply formatting and `pnpm start` to preview a production build. Tests cover GitHub parsing and fallbacks, README rendering, signpost geometry, pointer behavior and sign text, and contact validation, notifications, and service failures.
+More detail lives in `docs/`: [development guide](docs/development.md) (project layout and security headers), [GitHub project data](docs/github-pinned-projects.md), [signpost architecture](docs/signpost.md), [contact service](docs/contact.md), and [configuration](docs/configuration.md).
 
-### Security headers
+## Credits and license
 
-`next.config.ts` sends a Content Security Policy and standard hardening headers on every route (HSTS in production only). The policy uses no nonces, because the pages are static or ISR. A few entries need care:
-
-- `blob:` in `script-src` and `worker-src` lets the 3D text library (troika) start its worker.
-- `img-src` allows any `https:` host, because README images redirect through several GitHub CDN hosts.
-- `connect-src 'self'` blocks troika's fallback-font download from a CDN. If a sign title used a character missing from the sign font, the whole 3D scene would stay blank, so `toSignText()` replaces such characters with `?`. The sign fonts are subsets; see [public/fonts](public/fonts/LICENSE-fonts.md) before changing them.
-
-Check the browser console for CSP violations after adding any third-party script, font, or API call.
-
-```text
-src/
-  app/                  Routes, layouts, global styles, and Server Actions
-  components/           Interface components and README rendering
-    three/              Signpost scene, model parts, and interaction
-  data/                 Profile, site copy, and sample projects
-  db/                   Database client and schema
-  lib/                  Project loaders, geometry, validation, and service logic
-  styles/               Shared font declarations and design tokens
-public/                 Bundled fonts, icons, and the signpost model
-drizzle/                Database migrations and schema metadata
-tests/                  Unit and regression tests
-```
-
-Edit `src/data/profile.ts` and `src/data/site-copy.ts` for identity and interface copy, `src/data/projects.ts` for sample concepts, and `src/styles/` for shared typography and colors. [Signpost architecture](docs/signpost.md) explains sizing and interaction boundaries.
-
-## Deployment
-
-Deploy with a server-capable Next.js host. The included `vercel.json` configures a frozen-lockfile installation, the production build, and the Singapore function region. The step-by-step guide, including the limited database user, which variables go where, and the checks to run afterwards, is in the [deployment runbook](docs/deployment.md). Pushes to `main` deploy to production once Vercel is connected.
-
-Static export, including plain GitHub Pages hosting, does not support this application's hourly revalidation or Server Actions. For self-hosting, run `pnpm build` followed by `pnpm start`; the start script binds to loopback, so configure the host binding and reverse proxy for your environment. `netlify.toml.example` is provided as an optional deployment template.
-
-## Asset attribution
-
-Google Sans and Fraunces are bundled under the SIL Open Font License. Their original notices and license texts are preserved in [public/fonts](public/fonts/LICENSE-fonts.md).
+The home page's [animated shader background](https://github.com/ruucm/shadergradient) is from ruucm. Google Sans and Fraunces are bundled under the SIL Open Font License; the notices are in [public/fonts](public/fonts/LICENSE-fonts.md). The code is released under the [MIT License](LICENSE).
