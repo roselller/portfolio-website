@@ -826,6 +826,19 @@ h2.section-label {
   line-height: 1.5;
   letter-spacing: -0.01em;
 }
+/* The Chinese line has no italic, and the bundled fonts hold no Chinese glyphs,
+   so the device's own Chinese font draws it (upright, never a slanted fake). */
+.about-note .note-original {
+  font-style: normal;
+  font-size: 30px;
+  letter-spacing: 0.08em;
+}
+.about-note .note-translation {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.55;
+}
 .about-note span {
   display: block;
   margin-top: 26px;
@@ -1421,6 +1434,12 @@ h2.section-label {
   }
   .about-note p {
     font-size: 19px;
+  }
+  .about-note .note-original {
+    font-size: 26px;
+  }
+  .about-note .note-translation {
+    font-size: 15px;
   }
   .contact-layout {
     grid-template-columns: 1fr;

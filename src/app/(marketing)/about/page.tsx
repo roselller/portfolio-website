@@ -44,16 +44,15 @@ export default function AboutPage() {
           <div className="note-mark" aria-hidden="true">
             “
           </div>
-          <p>
-            Make it work beautifully.
+          <p className="note-original" lang="zh-Hans">
+            千里之行，
             <br />
-            Make it feel effortless.
-            <br />
-            Leave a little room
-            <br />
-            for surprise.
+            始于足下
           </p>
-          <span>A FEW WORDS TO BUILD BY</span>
+          <p className="note-translation">
+            A journey of a thousand li begins with a single step.
+          </p>
+          <span>A FEW WORDS I BUILD BY</span>
         </NeumorphicCard>
       </div>
       <div className="about-sections">
