@@ -19,6 +19,8 @@ At 599 px and narrower, `getSignpostPlacement` in `signpost-fit.ts` replaces the
 
 Because the signs are fitted at rest, pointer tilt is disabled at phone widths (`signpost-pointer.ts`), and resizing down to a phone width returns the signpost to rest. CSS (`@media (max-width: 599px)`) lifts the context card so it covers the foot of the pole, as on desktop. The overlap is `32px + 12vw`: the foot sits 32 px above the stage bottom, and its height grows with the zoom, which grows with the screen width.
 
+The pole box (`.hero-work`) is also `16vw` taller than `--signpost-height`, which leaves bare pole under the last sign before the card starts; the pole's length follows the box's height. The canvas (`.scene-stage`) must be exactly as tall as the box, and is deliberately not capped by the screen height. If the canvas were shorter, `fitSignpostBoards` would count the difference as scroll drift (`documentHeight - height`) and trim the outer signs, which on a short screen would pull them off the card edges. Both heights come from one CSS rule so they cannot diverge, and a test covers the fit with the lengthened box.
+
 ## Interaction and accessibility
 
 `signpost-pointer.ts` bounds reversed cursor rotation to +10°/−20° around the resting orientation. GSAP smooths updates over 0.18 seconds. Inactive windows and hidden tabs pause interaction; touch movement does not rotate the object, and neither does a mouse in a phone-width window.

@@ -125,6 +125,45 @@ test("on phones the outermost signs meet the card edges without shrinking", () =
   }
 });
 
+test("on phones a canvas as tall as the lengthened pole box trims no sign", () => {
+  // CSS makes the pole box (and the canvas, by the same rule) 16vw taller than
+  // the signpost. Equal heights mean no scroll drift reaches the fit code.
+  for (const width of [320, 360, 390, 430, 540, PHONE_MAX_WIDTH]) {
+    for (const count of [1, 3, 6]) {
+      const layout = layoutFor(count);
+      const edges = { left: Math.round(width * 0.06), right: 0 };
+      edges.right = width - edges.left;
+      const rotation = rotationFor(width);
+      const placement = getSignpostPlacement(
+        layout,
+        width,
+        750,
+        edges,
+        rotation,
+        restOffset,
+      );
+      const boxHeight = placement.contentHeight + 0.16 * width;
+      const boards = fitSignpostBoards(layout, {
+        width,
+        height: boxHeight,
+        documentHeight: boxHeight,
+        leftInset: placement.leftEdge ?? 0,
+        rightEdge: placement.rightEdge,
+        restOnly: placement.restOnly,
+        pixelsPerUnit: placement.pixelsPerUnit,
+        topX: placement.topX,
+        rotation,
+        restOffset,
+      });
+      for (const [index, board] of boards.entries())
+        assert.ok(
+          Math.abs(board.scaleX - layout.boards[index].scaleX) < 1e-6,
+          `${width}px, ${count} signs: ${board.title} was shrunk`,
+        );
+    }
+  }
+});
+
 test("phone placement stays finite and bounded for any number of signs", () => {
   for (const count of [0, 1, 2, 3, 6]) {
     const layout = layoutFor(count);
