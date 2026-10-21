@@ -1214,8 +1214,13 @@ h2.section-label {
      translate leaves the layout alone, so nothing below it moves. */
   --note-shift-x: -14px;
   --note-shift-y: 14px;
+  /* Padding, and the width of the Chinese line (5 characters in the 42px type).
+     The photo print is sized from the space these leave on its right. */
+  --note-pad: 37px;
+  --zh-width: 238px;
+  container-type: inline-size;
   position: relative;
-  padding: 37px;
+  padding: var(--note-pad);
   margin-top: 40px;
   transform: rotate(2deg);
   translate: var(--note-shift-x) var(--note-shift-y);
@@ -1255,16 +1260,18 @@ h2.section-label {
   color: var(--muted);
   font-size: 13px;
 }
-/* The photo print stuck over the card's top-right corner. The card tilts +2deg,
-   so -7deg here reads as about -5deg on screen. It must stay clear of the quote:
-   by default it is lifted so its bottom edge ends above the first Chinese line;
-   on wide screens (below) it sits beside that line instead. */
+/* The photo print stuck on the card's top-right. The card tilts +2deg, so -7deg
+   here reads as about -5deg on screen. It must stay clear of the quote. Two
+   placements: on a narrow card it is small and lifted so its bottom edge ends
+   above the first Chinese line (this default); on a card with room to spare it
+   is larger and sits in the empty space right of the Chinese lines (the
+   container rules at the end of this file). */
 .about-polaroid {
   --polaroid-w: 84px;
   --polaroid-border: calc(var(--polaroid-w) * 0.07);
   position: absolute;
   top: calc(var(--polaroid-w) * -0.5);
-  right: calc(var(--polaroid-w) * -0.15);
+  right: calc(var(--polaroid-w) * 0.04);
   width: var(--polaroid-w);
   margin: 0;
   padding: var(--polaroid-border) var(--polaroid-border)
@@ -1281,12 +1288,6 @@ h2.section-label {
   display: block;
   width: 100%;
   height: auto;
-}
-@media (min-width: 1280px) {
-  .about-polaroid {
-    --polaroid-w: 116px;
-    top: calc(var(--polaroid-w) * -0.27);
-  }
 }
 .about-sections {
   margin-top: 100px;
@@ -1937,7 +1938,8 @@ h2.section-label {
   }
   .about-note {
     --note-shift-x: -8px;
-    padding: 29px;
+    --note-pad: 29px;
+    --zh-width: 210px;
   }
   .about-note p {
     font-size: 21px;
@@ -2686,4 +2688,41 @@ body {
   cursor: pointer;
   color: var(--text);
   padding: 12px 0;
+}
+
+/* About photo print, roomy placement. When the card is wide enough, the print
+   fills the empty space to the right of the Chinese lines instead of hanging
+   above the card. Its width is whatever that space allows: card width, minus
+   the Chinese line and the padding it already clears, plus a little overhang
+   past the card's edge, divided by 1.16 (what the -7deg tilt adds to a print's
+   box). The upper limit keeps the print above the translation line (the two
+   Chinese lines are shorter in the smaller type, hence 148px and 130px).
+   Below the thresholds the lifted default above applies. The thresholds are
+   the card widths at which this size reaches 100px; container queries cannot
+   read variables, so there is one for each type size. */
+@media (min-width: 900px) {
+  @container (min-width: 313px) {
+    .about-polaroid {
+      --polaroid-w: clamp(
+        100px,
+        calc((100cqw - var(--zh-width) + var(--note-pad) + 14px) / 1.16),
+        148px
+      );
+      top: calc(var(--polaroid-w) * 0.06);
+      right: calc(var(--polaroid-w) * -0.02);
+    }
+  }
+}
+@media (max-width: 899px) {
+  @container (min-width: 281px) {
+    .about-polaroid {
+      --polaroid-w: clamp(
+        100px,
+        calc((100cqw - var(--zh-width) + var(--note-pad) + 4px) / 1.16),
+        130px
+      );
+      top: calc(var(--polaroid-w) * 0.06);
+      right: calc(var(--polaroid-w) * -0.02);
+    }
+  }
 }

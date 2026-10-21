@@ -59,7 +59,7 @@ export default function AboutPage() {
               alt={profile.portrait.alt}
               width={profile.portrait.width}
               height={profile.portrait.height}
-              sizes="(min-width: 1280px) 116px, 86px"
+              sizes="150px"
             />
           </figure>
         </NeumorphicCard>
