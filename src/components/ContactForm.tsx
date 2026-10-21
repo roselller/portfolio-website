@@ -7,6 +7,12 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Check, LoaderCircle } from "lucide-react";
 import { submitContact } from "@/app/actions/contact";
 import {
+  clearDraft,
+  getDraftStorage,
+  loadDraft,
+  saveDraft,
+} from "@/lib/contact-draft";
+import {
   contactSchema,
   type ContactInput,
   type ContactResult,
@@ -74,12 +80,33 @@ export function ContactForm({ configured }: { configured: boolean }) {
     register,
     handleSubmit,
     setError,
+    setValue,
+    subscribe,
     reset,
     formState: { errors },
   } = useForm<ContactInput, unknown, z.output<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
     defaultValues: { name: "", email: "", message: "", website: "" },
   });
+
+  // Keep an unsent draft in this tab (sessionStorage) so a refresh or a visit
+  // to another page does not lose it. The page is prerendered with empty
+  // fields, so the draft is restored after mount. Restore first, then start
+  // saving, so the first save cannot overwrite the draft. setValue is used
+  // (not reset) so the form's defaults stay empty for the resets below.
+  useEffect(() => {
+    const storage = getDraftStorage();
+    const draft = loadDraft(storage);
+    if (draft) {
+      setValue("name", draft.name, { shouldDirty: true });
+      setValue("email", draft.email, { shouldDirty: true });
+      setValue("message", draft.message, { shouldDirty: true });
+    }
+    return subscribe({
+      formState: { values: true },
+      callback: ({ values }) => saveDraft(storage, values),
+    });
+  }, [setValue, subscribe]);
 
   // The button holds its green or red state for a moment, then moves on: to
   // the thank-you panel after a send, back to normal after a miss.
@@ -118,6 +145,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
         }
         if (response.ok) {
           reset();
+          clearDraft(getDraftStorage());
           setFeedback("success");
         } else {
           setFeedback("error");
@@ -155,6 +183,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
             <Button
               onClick={() => {
                 reset();
+                clearDraft(getDraftStorage());
                 setSent(false);
                 setResult(null);
               }}
