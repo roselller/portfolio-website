@@ -658,22 +658,15 @@ h6,
 .button::after {
   content: "";
   position: absolute;
-  /* A soft ellipse a little larger than the button. It is fully clear by its
-     edge, so the glow stays close, and is faint to start with. */
-  inset: -14px -10px;
+  inset: -1px;
   z-index: -3;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    var(--button-glow) 35%,
-    transparent 100%
-  );
-  opacity: calc(var(--glow) * 0.95);
-  scale: calc(1 + var(--glow) * 0.04);
+  border-radius: 10px;
+  /* A halo that traces the button's whole outline and fades to clear about
+     18px out. Only the shadow shows; the face covers the middle. */
+  box-shadow: 0 0 16px 2px var(--button-glow);
+  opacity: var(--glow);
   pointer-events: none;
-  transition:
-    opacity 0.3s,
-    scale 0.3s;
+  transition: opacity 0.3s;
 }
 .button-ascii {
   position: absolute;
@@ -718,13 +711,10 @@ h6,
 .button[data-status] {
   --glow: 0;
 }
-/* Glow and ASCII stay; nothing moves. */
+/* The glow stays; nothing moves (ButtonAscii never starts the characters). */
 @media (prefers-reduced-motion: reduce) {
   .button {
     translate: none;
-    scale: none;
-  }
-  .button::after {
     scale: none;
   }
 }
