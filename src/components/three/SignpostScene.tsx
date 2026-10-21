@@ -12,6 +12,7 @@ import {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PCFShadowMap, Euler, Vector3, type Group } from "three";
 import { OrthographicCamera } from "@react-three/drei";
+import { SignHoverFx } from "@/lib/sign-hover-fx";
 import { Pole } from "./Pole";
 import { SignArm } from "./SignArm";
 import { ProjectGrid } from "@/components/ProjectGrid";
@@ -43,6 +44,7 @@ function Assembly({
   documentHeight,
   leftInset,
   phoneEdges,
+  fx,
 }: {
   projects: Project[];
   rotation: RefObject<number>;
@@ -51,11 +53,15 @@ function Assembly({
   documentHeight: number;
   leftInset: number;
   phoneEdges: { left: number; right: number } | null;
+  fx: RefObject<SignHoverFx | null>;
 }) {
   const assembly = useRef<Group>(null);
   const position = useRef<Group>(null);
   const size = useThree((state) => state.size);
   const invalidate = useThree((state) => state.invalidate);
+  const getState = useThree((state) => state.get);
+  const lastScroll = useRef(0);
+  const lookAgain = useRef(false);
   const theme = useSignpostTheme();
   const layout = useMemo(() => getSignpostLayout(projects), [projects]);
   const lean = size.width >= 900 ? 0.1 : 0.08;
@@ -142,6 +148,18 @@ function Assembly({
         -(layout.height + extension) * up.z +
         (scrollOffset.current / presentation.pixelsPerUnit) * (up.z / up.y);
     }
+    // Scrolling moves the signs under a pointer that stays still, and the scene
+    // only looks for what is under the pointer when the pointer moves. So after
+    // the last scroll step has been drawn, ask it to look once more; otherwise
+    // the hover (and its glow) would stay on a sign that has moved away.
+    if (scrollOffset.current !== lastScroll.current) {
+      lastScroll.current = scrollOffset.current;
+      lookAgain.current = true;
+      invalidate();
+    } else if (lookAgain.current) {
+      lookAgain.current = false;
+      getState().events.update?.();
+    }
   });
   return (
     <>
@@ -157,7 +175,12 @@ function Assembly({
           <group>
             <Pole top={layout.poleTop + extension} />
             {boards.map((board) => (
-              <SignArm key={board.project.slug} board={board} theme={theme} />
+              <SignArm
+                key={board.project.slug}
+                board={board}
+                theme={theme}
+                fx={fx}
+              />
             ))}
           </group>
         </group>
@@ -193,8 +216,23 @@ export default function SignpostScene({
       <ProjectGrid projects={projects} sample={sample} />
     </div>
   );
+  // The glow and characters of a hovered sign are drawn on a 2D canvas under
+  // the WebGL canvas (see SignHoverFx).
+  const fxCanvas = useRef<HTMLCanvasElement>(null);
+  const fx = useRef<SignHoverFx | null>(null);
+  useEffect(() => {
+    const canvas = fxCanvas.current;
+    if (!canvas) return;
+    const effects = new SignHoverFx(canvas);
+    fx.current = effects;
+    return () => {
+      effects.dispose();
+      fx.current = null;
+    };
+  }, []);
   return (
     <SceneBoundary fallback={fallback}>
+      <canvas ref={fxCanvas} className="sign-fx" aria-hidden="true" />
       <Canvas
         shadows={{ type: PCFShadowMap }}
         frameloop="demand"
@@ -231,6 +269,7 @@ export default function SignpostScene({
             documentHeight={documentHeight}
             leftInset={leftInset}
             phoneEdges={phoneEdges}
+            fx={fx}
           />
         </Suspense>
       </Canvas>

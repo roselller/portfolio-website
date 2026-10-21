@@ -25,6 +25,8 @@ The pole box (`.hero-work`) is also `16vw` taller than `--signpost-height`, whic
 
 `signpost-pointer.ts` bounds reversed cursor rotation to +10°/−20° around the resting orientation. GSAP smooths updates over 0.18 seconds. Inactive windows and hidden tabs pause interaction; touch movement does not rotate the object, and neither does a mouse in a phone-width window.
 
+Hovering a sign with a mouse (any hovering fine pointer; not touch, pens or reduced motion) gives it the button hover on top of the existing slide-out: it lifts 3 px, grows 3% about its middle, and gets a rose halo and drifting ASCII characters. The numbers are the `.button` ones, shared in `src/lib/hover-effect.ts` and `src/lib/ascii-burst.ts`. Lift and pop live in `SignArm`. The halo and characters are drawn by `SignHoverFx` on a 2D canvas (`.sign-fx`) that sits behind the WebGL canvas, from the board's projected outline (`sign-outline.ts`), so they pass behind the sign as they do behind a button. After a scroll, `Assembly` asks the scene to look under the pointer again (`events.update`), because it otherwise only looks when the pointer moves and a sign that has scrolled away would keep its hover.
+
 The scene renders on demand when input, hover, scrolling, or resizing requires an update. Event listeners, observers, and tweens clean up when the view changes. The explicit card view, reduced-motion preference, keyboard project navigation, and WebGL fallback all provide access to the same project collection.
 
 ## Presentation
