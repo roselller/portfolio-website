@@ -4,9 +4,10 @@ import {
   loadGitHubProjects,
   parsePinnedRepositories,
   parseRepositoryDetails,
-  parseRepositoryHomepage,
 } from "../src/lib/github-projects";
 import { sampleProjects } from "../src/data/projects";
+
+const homepageOf = (html: string) => parseRepositoryDetails(html).homepage;
 
 // Structure verified against GitHub's public profile markup on 25 September 2026.
 function card(owner: string, name: string, details = true) {
@@ -73,25 +74,25 @@ test("public profile parsing preserves pin order, decodes text, and ignores othe
 
 test("repository homepages come from the About metadata, not README links", () => {
   assert.equal(
-    parseRepositoryHomepage(homepage("https://example.com/app")),
+    homepageOf(homepage("https://example.com/app")),
     "https://example.com/app",
   );
   assert.equal(
-    parseRepositoryHomepage(
+    homepageOf(
       '<div class="BorderGrid"><div><svg class="octicon-link"></svg><a href="https://example.com/legacy">Website</a></div></div>',
     ),
     "https://example.com/legacy",
   );
   assert.equal(
-    parseRepositoryHomepage(
+    homepageOf(
       '<article><a href="https://example.com/readme">README link</a></article>',
     ),
     null,
   );
-  assert.equal(parseRepositoryHomepage(homepage("javascript:alert(1)")), null);
-  assert.equal(parseRepositoryHomepage(homepage(null)), null);
+  assert.equal(homepageOf(homepage("javascript:alert(1)")), null);
+  assert.equal(homepageOf(homepage(null)), null);
   assert.equal(
-    parseRepositoryHomepage(
+    homepageOf(
       '<react-app app-name="code-view"><script data-target="react-app.embeddedData">invalid JSON</script></react-app>',
     ),
     null,

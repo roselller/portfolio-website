@@ -1821,9 +1821,6 @@ h2.section-label {
   .hero-list {
     grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
   }
-  .hero-list .project-grid {
-    grid-template-columns: 1fr;
-  }
   .intro-section {
     grid-template-columns: 25% 75%;
     padding-left: 5.5%;
@@ -1916,9 +1913,6 @@ h2.section-label {
   }
   .hero-list .scene-stage {
     height: auto;
-  }
-  .hero-list .project-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .intro-section {
     padding: 75px 6%;
@@ -2118,8 +2112,7 @@ h2.section-label {
   .contact-form {
     padding: 25px 20px;
   }
-  .project-grid,
-  .hero-list .project-grid {
+  .project-grid {
     grid-template-columns: 1fr;
     gap: 15px;
   }
@@ -2396,20 +2389,6 @@ h2.section-label {
 .hero-list .hero-intro-column {
   position: sticky;
   top: 124px;
-}
-.hero-list .project-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
-  gap: 24px;
-  align-items: stretch;
-}
-.hero-list .project-card {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-}
-.hero-list .project-card .tag-list {
-  margin-top: auto;
-  padding-top: 20px;
 }
 .hero-list .intro-section.neu-card {
   grid-column: 1 / -1;

@@ -121,10 +121,6 @@ export function parseRepositoryDetails(html: string): RepositoryDetails {
   return { homepage: safeExternalUrl(href || null), stars: null };
 }
 
-export function parseRepositoryHomepage(html: string): string | null {
-  return parseRepositoryDetails(html).homepage;
-}
-
 export function withSampleProjects(
   pinned: readonly Project[],
 ): ProjectCollection {
