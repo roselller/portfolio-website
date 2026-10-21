@@ -1167,7 +1167,9 @@ h6,
   }
   .hero-list .carousel-card {
     aspect-ratio: auto;
-    height: var(--intro-card-height, 420px);
+    /* The fallback is the intro card's usual height (462-473px at 900px and wider),
+       for the first paint before SignpostHero has measured it. */
+    height: var(--intro-card-height, 470px);
   }
 }
 .scene-fallback {

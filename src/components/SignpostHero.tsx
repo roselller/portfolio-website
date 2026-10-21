@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -62,8 +63,10 @@ export function SignpostHero({
   }, [grid, projects.length]);
 
   // List view: the focused project card is as tall as the intro card beside
-  // it, whatever its text makes of that, so its height is handed to CSS.
-  useEffect(() => {
+  // it, whatever its text makes of that, so its height is handed to CSS. This
+  // runs before paint, so switching to the list view never shows a first frame
+  // at the CSS fallback height.
+  useLayoutEffect(() => {
     if (!grid) return;
     const root = hero.current;
     const card = root?.querySelector<HTMLElement>(".hero-copy");
