@@ -4,8 +4,10 @@ import {
   alphaFor,
   ASCII_RAMP,
   glyphFor,
+  MAX_SPREAD_ANGLE,
   particlePosition,
   spawnParticle,
+  spawnParticleOnPolygon,
   stepParticles,
   type Box,
   type Particle,
@@ -113,4 +115,77 @@ test("alpha starts at zero, peaks early and ends at zero", () => {
     const alpha = alphaFor(i / 100);
     assert.ok(alpha >= 0 && alpha <= 1);
   }
+});
+
+test("polygon particles are born on the outline and drift outwards", () => {
+  const random = seeded(7);
+  // A tilted rectangle, like a sign seen at an angle, in either winding.
+  const tilted = [
+    { x: 100, y: 40 },
+    { x: 260, y: 70 },
+    { x: 250, y: 120 },
+    { x: 90, y: 90 },
+  ];
+  for (const polygon of [tilted, [...tilted].reverse()]) {
+    const cx = polygon.reduce((sum, p) => sum + p.x, 0) / 4;
+    const cy = polygon.reduce((sum, p) => sum + p.y, 0) / 4;
+    for (let i = 0; i < 400; i++) {
+      const particle = spawnParticleOnPolygon(polygon, spread, random)!;
+      // Born on an edge: find the nearest one and its outward normal.
+      let nearest = { distance: Infinity, nx: 0, ny: 0 };
+      polygon.forEach((a, k) => {
+        const b = polygon[(k + 1) % 4];
+        const length = Math.hypot(b.x - a.x, b.y - a.y);
+        const t = Math.max(
+          0,
+          Math.min(
+            1,
+            ((particle.x0 - a.x) * (b.x - a.x) +
+              (particle.y0 - a.y) * (b.y - a.y)) /
+              length ** 2,
+          ),
+        );
+        const px = a.x + t * (b.x - a.x);
+        const py = a.y + t * (b.y - a.y);
+        const distance = Math.hypot(particle.x0 - px, particle.y0 - py);
+        if (distance >= nearest.distance) return;
+        let nx = -(b.y - a.y) / length;
+        let ny = (b.x - a.x) / length;
+        if (nx * (px - cx) + ny * (py - cy) < 0) {
+          nx = -nx;
+          ny = -ny;
+        }
+        nearest = { distance, nx, ny };
+      });
+      assert.ok(
+        nearest.distance < 1e-6,
+        `off the outline by ${nearest.distance}`,
+      );
+      // A unit direction within the spread angle of the outward normal.
+      assert.ok(Math.abs(Math.hypot(particle.dx, particle.dy) - 1) < 1e-9);
+      assert.ok(
+        particle.dx * nearest.nx + particle.dy * nearest.ny >=
+          Math.cos(MAX_SPREAD_ANGLE) - 1e-9,
+      );
+      assert.ok(
+        particle.travel >= spread * 0.45 && particle.travel <= spread * 0.95,
+      );
+    }
+  }
+});
+
+test("a shape with no outline spawns nothing", () => {
+  assert.equal(spawnParticleOnPolygon([], spread), null);
+  assert.equal(spawnParticleOnPolygon([{ x: 1, y: 1 }], spread), null);
+  assert.equal(
+    spawnParticleOnPolygon(
+      [
+        { x: 1, y: 1 },
+        { x: 1, y: 1 },
+        { x: 1, y: 1 },
+      ],
+      spread,
+    ),
+    null,
+  );
 });

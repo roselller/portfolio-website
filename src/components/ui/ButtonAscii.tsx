@@ -3,18 +3,20 @@
 import { useEffect, useRef } from "react";
 import {
   alphaFor,
+  ASCII_FONT,
+  DEFAULT_SPREAD,
   glyphFor,
+  MAX_FRAME_SECONDS,
+  MAX_PARTICLES,
+  PARTICLE_ALPHA,
   particlePosition,
   progressOf,
   spawnParticle,
+  spawnRate,
   stepParticles,
   type Particle,
 } from "@/lib/ascii-burst";
 
-const FONT_SIZE = 11;
-const FONT = `${FONT_SIZE}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-const MAX_PARTICLES = 160;
-const MAX_FRAME_SECONDS = 0.05;
 // Below this much room beside the button, skip the characters.
 const MIN_SPREAD = 10;
 
@@ -46,7 +48,7 @@ export function ButtonAscii() {
     let frame = 0;
     let last = 0;
     let carry = 0;
-    let spread = 40;
+    let spread = DEFAULT_SPREAD;
     let color = "#fb7185";
     let box = { width: 0, height: 0 };
 
@@ -62,7 +64,7 @@ export function ButtonAscii() {
       host!.style.removeProperty("--ascii-spread");
       const style = getComputedStyle(host!);
       const configured =
-        parseFloat(style.getPropertyValue("--ascii-spread")) || 40;
+        parseFloat(style.getPropertyValue("--ascii-spread")) || DEFAULT_SPREAD;
       color = style.getPropertyValue("--button-glow").trim() || color;
       // A full-width button on a narrow screen has less room beside it than the
       // configured spread. Shrink the burst so the canvas never makes the page
@@ -105,14 +107,14 @@ export function ButtonAscii() {
     function draw() {
       if (!canvas || !context) return;
       context.clearRect(0, 0, canvas.width, canvas.height);
-      context.font = FONT;
+      context.font = ASCII_FONT;
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillStyle = color;
       for (const particle of particles) {
         const progress = progressOf(particle);
         const { x, y } = particlePosition(particle);
-        context.globalAlpha = alphaFor(progress) * 0.9;
+        context.globalAlpha = alphaFor(progress) * PARTICLE_ALPHA;
         context.fillText(glyphFor(progress), x + spread, y + spread);
       }
       context.globalAlpha = 1;
@@ -125,7 +127,7 @@ export function ButtonAscii() {
       particles = stepParticles(particles, dt);
       if (spawning) {
         const perimeter = 2 * (box.width + box.height);
-        carry += Math.min(110, Math.max(40, perimeter / 4)) * dt;
+        carry += spawnRate(perimeter) * dt;
         while (carry >= 1 && particles.length < MAX_PARTICLES) {
           particles.push(spawnParticle(box, spread));
           carry -= 1;
