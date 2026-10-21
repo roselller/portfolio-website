@@ -678,7 +678,7 @@ h6,
   display: none;
   pointer-events: none;
 }
-.button[data-fx] .button-ascii {
+[data-fx] > .button-ascii {
   display: block;
 }
 .button-ascii canvas {
@@ -835,6 +835,286 @@ h6,
 }
 .project-card .tag-list {
   margin-top: 20px;
+}
+/* Project carousel (list view). Registered so the fade can animate smoothly
+   when a card moves between the middle and the side. */
+@property --fade-keep {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --fade-end {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+/* Every strength is one variable here, so there is one value to turn:
+   --carousel-tilt (how far the focused card leans), --carousel-blur and
+   --carousel-fade-end (how far the side cards fade), --carousel-side-scale. */
+.carousel {
+  --carousel-card-width: 70%;
+  --carousel-side-scale: 0.88;
+  --carousel-gap: 16px;
+  --carousel-tilt: 4deg;
+  --carousel-blur: 2px;
+  --carousel-fade-end: 19%;
+  position: relative;
+}
+/* All cards share one grid cell and are moved by --offset (set per card in
+   ProjectCarousel). The track clips sideways so the side cards stay inside the
+   column; the padding above and below leaves room for glow and tilt. */
+.carousel-track {
+  display: grid;
+  /* Exactly the container's width: otherwise the column grows to fit the
+     longest project name (which never wraps) and the cards slide out of view. */
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
+  padding: 30px 0;
+  overflow-x: clip;
+  touch-action: pan-y;
+}
+/* The slide carries position, lift and glow, like .button does, so the
+   position (translate/scale) never fights the focused card's tilt (transform).
+   Layers, bottom to top: shadow, glow, ASCII characters, card face. */
+.carousel-slide {
+  --button-glow: var(--accent-glow);
+  --ascii-spread: 40px;
+  --state-scale: 1;
+  --lift: 0px;
+  --pop: 1;
+  --glow: 0;
+  --fade-dir: to right;
+  --fade-keep: 0%;
+  --fade-end: var(--carousel-fade-end);
+  --card-blur: var(--carousel-blur);
+  --shadow-opacity: 0;
+  grid-area: 1 / 1;
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+  width: var(--carousel-card-width);
+  translate: calc(
+      var(--offset, 0) *
+        ((0.5 + 0.5 * var(--carousel-side-scale)) * 100% + var(--carousel-gap))
+    )
+    var(--lift);
+  scale: calc(var(--state-scale) * var(--pop));
+  transition:
+    translate 0.55s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.4s,
+    visibility 0.55s;
+}
+.carousel-slide[data-side="left"] {
+  --fade-dir: to left;
+}
+.carousel-slide[data-state="active"] {
+  --state-scale: 1;
+  --fade-keep: 100%;
+  --fade-end: 100%;
+  --card-blur: 0px;
+  --shadow-opacity: 1;
+  z-index: 2;
+}
+.carousel-slide[data-state="side"] {
+  --state-scale: var(--carousel-side-scale);
+}
+/* Cards further away wait out of sight just past the side cards. */
+.carousel-slide[data-state="hidden"] {
+  --state-scale: 0.8;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.carousel-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  border-radius: 16px;
+  box-shadow: var(--neumorphic);
+  opacity: var(--shadow-opacity);
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+.carousel-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  border-radius: 16px;
+  /* The same halo as .button::after, tracing the card's whole outline. */
+  box-shadow: 0 0 16px 2px var(--button-glow);
+  opacity: calc(var(--glow) * 0.8);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+/* Hovering a side card does what hovering a button does: lift, pop, glow and a
+   burst of ASCII characters (ButtonAscii). Keep these numbers equal to .button. */
+@media (hover: hover) and (pointer: fine) {
+  .carousel-slide[data-state="side"]:hover {
+    --lift: -3px;
+    --pop: 1.03;
+    --glow: 0.65;
+  }
+  .carousel-slide[data-state="side"] .carousel-card {
+    cursor: pointer;
+  }
+}
+.carousel-card {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* Shape comes from the ratio alone. A min-height here would be turned into a
+     minimum width by the ratio and push the card out of its slide. */
+  aspect-ratio: 7 / 4;
+  padding: clamp(18px, 2.2vw, 28px);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 70% 10%, var(--glass-start), transparent 65%),
+    var(--panel);
+  color: inherit;
+  text-decoration: none;
+  /* The side cards fade outwards to nothing and blur a little. The mask and
+     blur are on the face only, so the glow and characters are not touched. */
+  filter: blur(var(--card-blur));
+  mask-image: linear-gradient(
+    var(--fade-dir),
+    #000 var(--fade-keep),
+    transparent var(--fade-end)
+  );
+  transition:
+    filter 0.5s,
+    --fade-keep 0.55s,
+    --fade-end 0.55s,
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.carousel-slide[data-state="active"] .carousel-card {
+  filter: none;
+  transform: perspective(1100px)
+    rotateX(calc(var(--tilt-y, 0) * var(--carousel-tilt) * -1))
+    rotateY(calc(var(--tilt-x, 0) * var(--carousel-tilt)));
+}
+.carousel-card:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 3px;
+}
+.carousel-card-number {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.carousel-card-arrow {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--accent-glow);
+}
+.carousel-card-main {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: center;
+  min-width: 0;
+  text-align: center;
+}
+.carousel-card .project-visual-title {
+  margin-bottom: 8px;
+}
+.carousel-card .project-visual-word {
+  font-size: clamp(30px, 3.6vw, 58px);
+}
+.carousel-card-about {
+  max-width: 34ch;
+  margin: 0 auto;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.carousel-card-meta {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.carousel-card-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-label);
+  font-size: 12px;
+  color: var(--muted);
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.carousel-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.carousel-dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted) 45%, transparent);
+  transition:
+    background-color 0.3s,
+    scale 0.3s;
+}
+.carousel-dot:hover::before {
+  background: var(--muted);
+}
+.carousel-dot[aria-current="true"]::before {
+  background: var(--accent-glow);
+  scale: 1.15;
+}
+.carousel-dot:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: -2px;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .carousel-slide,
+  .carousel-slide::before,
+  .carousel-slide::after,
+  .carousel-card,
+  .carousel-dot::before {
+    transition: none;
+  }
+}
+@media (max-width: 599px) {
+  .carousel {
+    --carousel-card-width: 78%;
+    --carousel-gap: 10px;
+    --carousel-fade-end: 10%;
+  }
+  .carousel-card {
+    aspect-ratio: 4 / 3;
+  }
+  .carousel-card .project-visual-word {
+    font-size: 40px;
+  }
 }
 .hero-list {
   height: auto;

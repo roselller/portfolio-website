@@ -11,7 +11,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { SignpostSceneClient } from "./three/SignpostSceneClient";
-import { ProjectGrid } from "./ProjectGrid";
+import { ProjectCarousel } from "./ProjectCarousel";
 import { profile } from "@/data/profile";
 import { siteCopy } from "@/data/site-copy";
 import type { Project } from "@/data/projects";
@@ -196,7 +196,7 @@ export function SignpostHero({
           {projects.length === 0 ? (
             <div className="scene-loading">{siteCopy.hero.empty}</div>
           ) : grid ? (
-            <ProjectGrid projects={projects} sample={sample} />
+            <ProjectCarousel projects={projects} sample={sample} />
           ) : (
             <SignpostSceneClient
               projects={projects}

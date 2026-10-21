@@ -2,7 +2,17 @@
 
 import { useLayoutEffect, useRef } from "react";
 
-export function ProjectCoverTitle({ title }: { title: string }) {
+/**
+ * The project name set large and shrunk to fit its box. `as` picks the heading
+ * level: the project page uses the page's single h1, cards use h3.
+ */
+export function ProjectCoverTitle({
+  title,
+  as: Heading = "h1",
+}: {
+  title: string;
+  as?: "h1" | "h3";
+}) {
   const container = useRef<HTMLHeadingElement>(null);
   const text = useRef<HTMLSpanElement>(null);
 
@@ -14,8 +24,12 @@ export function ProjectCoverTitle({ title }: { title: string }) {
     function fit() {
       if (!active || !frame || !word) return;
       word.style.fontSize = "";
-      const size = Number.parseFloat(getComputedStyle(word).fontSize);
-      const width = word.getBoundingClientRect().width;
+      const style = getComputedStyle(word);
+      const size = Number.parseFloat(style.fontSize);
+      // The used layout width, which ignores transforms: a card that is scaled
+      // down or tilted must be fitted by its real size, not its drawn size.
+      const width = Number.parseFloat(style.width);
+      if (!(width > 0)) return;
       if (width > frame.clientWidth) {
         word.style.fontSize = `${size * ((frame.clientWidth - 1) / width)}px`;
       }
@@ -31,11 +45,11 @@ export function ProjectCoverTitle({ title }: { title: string }) {
   }, [title]);
 
   return (
-    <h1 className="project-visual-title" ref={container}>
+    <Heading className="project-visual-title" ref={container}>
       <span className="project-visual-word" ref={text}>
         {title}
         <span style={{ color: "var(--accent-glow)" }}>.</span>
       </span>
-    </h1>
+    </Heading>
   );
 }

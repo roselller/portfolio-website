@@ -23,7 +23,9 @@ const MIN_SPREAD = 10;
  * button. It sits inside the button (the parent element), is hidden from
  * assistive technology, and does nothing on touch screens or when the visitor
  * prefers reduced motion. The canvas is only created on first use, and the
- * animation loop stops once the last character has faded.
+ * animation loop stops once the last character has faded. A host can opt out
+ * for a while with `data-ascii="off"` (the focused carousel card tilts
+ * instead), and the effect picks up again when the attribute is removed.
  */
 export function ButtonAscii() {
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -52,7 +54,8 @@ export function ButtonAscii() {
       finePointer.matches &&
       !reducedMotion.matches &&
       !host.matches(":disabled") &&
-      host.getAttribute("aria-disabled") !== "true";
+      host.getAttribute("aria-disabled") !== "true" &&
+      host.dataset.ascii !== "off";
 
     /** Sizes the canvas. Returns false when there is no room for a burst. */
     function measure() {
@@ -64,11 +67,16 @@ export function ButtonAscii() {
       // A full-width button on a narrow screen has less room beside it than the
       // configured spread. Shrink the burst so the canvas never makes the page
       // scroll sideways (the 8px covers the button's hover pop), and skip it
-      // when the gutter is too small to be worth drawing in.
+      // when the gutter is too small to be worth drawing in. A host inside a
+      // clipping container (`data-ascii-contained`) cannot widen the page, so
+      // the room beside it does not matter.
       const rect = host!.getBoundingClientRect();
-      const room =
-        Math.min(rect.left, document.documentElement.clientWidth - rect.right) -
-        8;
+      const room = host!.hasAttribute("data-ascii-contained")
+        ? Infinity
+        : Math.min(
+            rect.left,
+            document.documentElement.clientWidth - rect.right,
+          ) - 8;
       spread = Math.min(configured, Math.floor(room));
       if (spread < MIN_SPREAD) return false;
       host!.style.setProperty("--ascii-spread", `${spread}px`);
@@ -170,7 +178,7 @@ export function ButtonAscii() {
     const observer = new MutationObserver(onStateChange);
     observer.observe(host, {
       attributes: true,
-      attributeFilter: ["disabled", "aria-disabled"],
+      attributeFilter: ["disabled", "aria-disabled", "data-ascii"],
     });
 
     host.addEventListener("pointerenter", onEnter);
