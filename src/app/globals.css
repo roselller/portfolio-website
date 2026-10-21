@@ -649,7 +649,7 @@ h6,
     );
   box-shadow:
     var(--neumorphic),
-    0 calc(var(--glow) * 14px) calc(var(--glow) * 30px) var(--shadow-dark);
+    0 calc(var(--glow) * 6px) calc(var(--glow) * 14px) var(--shadow-dark);
   transition:
     box-shadow 0.3s,
     border-color 0.25s,
@@ -658,13 +658,18 @@ h6,
 .button::after {
   content: "";
   position: absolute;
-  inset: -4px;
+  /* A soft ellipse a little larger than the button. It is fully clear by its
+     edge, so the glow stays close, and is faint to start with. */
+  inset: -14px -10px;
   z-index: -3;
-  border-radius: 14px;
-  background: var(--button-glow);
-  filter: blur(18px);
-  opacity: var(--glow);
-  scale: calc(1 + var(--glow) * 0.2);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(--button-glow) 35%,
+    transparent 100%
+  );
+  opacity: calc(var(--glow) * 0.95);
+  scale: calc(1 + var(--glow) * 0.04);
   pointer-events: none;
   transition:
     opacity 0.3s,
@@ -709,9 +714,9 @@ h6,
 .button[aria-disabled="true"] {
   cursor: default;
 }
-/* The send button keeps a steady glow while it shows green or red. */
+/* No glow while the send button shows green or red. */
 .button[data-status] {
-  --glow: 0.6;
+  --glow: 0;
 }
 /* Glow and ASCII stay; nothing moves. */
 @media (prefers-reduced-motion: reduce) {
