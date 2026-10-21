@@ -61,6 +61,27 @@ export function SignpostHero({
     };
   }, [grid, projects.length]);
 
+  // List view: the focused project card is as tall as the intro card beside
+  // it, whatever its text makes of that, so its height is handed to CSS.
+  useEffect(() => {
+    if (!grid) return;
+    const root = hero.current;
+    const card = root?.querySelector<HTMLElement>(".hero-copy");
+    if (!root || !card) return;
+    const measure = () =>
+      root.style.setProperty(
+        "--intro-card-height",
+        `${card.getBoundingClientRect().height}px`,
+      );
+    const observer = new ResizeObserver(measure);
+    observer.observe(card);
+    measure();
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--intro-card-height");
+    };
+  }, [grid]);
+
   useEffect(() => {
     if (grid) return;
     const work = hero.current?.querySelector<HTMLElement>(".hero-work");
@@ -186,7 +207,7 @@ export function SignpostHero({
       </div>
       <div className="hero-work">
         <div className="scene-meta">
-          <span>{siteCopy.hero.collectionLabel}</span>
+          {!grid && <span>{siteCopy.hero.collectionLabel}</span>}
           <span>
             {String(projects.length).padStart(2, "0")}{" "}
             {siteCopy.hero.projectLabel}
@@ -211,13 +232,16 @@ export function SignpostHero({
             />
           )}
         </div>
-        <div className="scene-bottom">
-          <span className="scene-instruction">
-            {sample
-              ? siteCopy.hero.sampleInstruction
-              : siteCopy.hero.instruction}
-          </span>
-        </div>
+        {/* The list view drops the slogan, but keeps the sample-concepts notice. */}
+        {(!grid || sample) && (
+          <div className="scene-bottom">
+            <span className="scene-instruction">
+              {sample
+                ? siteCopy.hero.sampleInstruction
+                : siteCopy.hero.instruction}
+            </span>
+          </div>
+        )}
       </div>
       {children}
     </section>

@@ -836,28 +836,18 @@ h6,
 .project-card .tag-list {
   margin-top: 20px;
 }
-/* Project carousel (list view). Registered so the fade can animate smoothly
-   when a card moves between the middle and the side. */
-@property --fade-keep {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 100%;
-}
-@property --fade-end {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 100%;
-}
-/* Every strength is one variable here, so there is one value to turn:
-   --carousel-tilt (how far the focused card leans), --carousel-blur and
-   --carousel-fade-end (how far the side cards fade), --carousel-side-scale. */
+/* Project carousel (list view). Every strength is one variable here, so there
+   is one value to turn: --carousel-tilt (how far the focused card leans),
+   --carousel-blur (how soft the side cards are), --carousel-gap (the space
+   between the focused card and its neighbours), --carousel-side-scale. */
 .carousel {
   --carousel-card-width: 70%;
   --carousel-side-scale: 0.88;
-  --carousel-gap: 16px;
+  --carousel-gap: clamp(24px, 3vw, 48px);
   --carousel-tilt: 4deg;
   --carousel-blur: 2px;
-  --carousel-fade-end: 19%;
+  /* Room above and below the cards for their shadow, glow and tilt. */
+  --carousel-pad: 36px;
   position: relative;
 }
 /* All cards share one grid cell and are moved by --offset (set per card in
@@ -870,9 +860,27 @@ h6,
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   align-items: center;
-  padding: 30px 0;
+  padding: var(--carousel-pad) 0;
   overflow-x: clip;
   touch-action: pan-y;
+  /* The side cards fade to nothing towards the track's edge, so they never end
+     in a hard cut. The fade runs over the strip between the edge and the gap
+     beside the focused card (--carousel-edge), so the focused card, its shadow
+     and its glow stay untouched. The mask is on the track, so a card fades by
+     where it is, including while it slides in and out. */
+  --carousel-edge: max(
+    calc((100% - var(--carousel-card-width)) / 2 - var(--carousel-gap)),
+    24px
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    rgb(0 0 0 / 0.3) calc(var(--carousel-edge) * 0.5),
+    #000 var(--carousel-edge),
+    #000 calc(100% - var(--carousel-edge)),
+    rgb(0 0 0 / 0.3) calc(100% - var(--carousel-edge) * 0.5),
+    transparent 100%
+  );
 }
 /* The slide carries position, lift and glow, like .button does, so the
    position (translate/scale) never fights the focused card's tilt (transform).
@@ -884,9 +892,6 @@ h6,
   --lift: 0px;
   --pop: 1;
   --glow: 0;
-  --fade-dir: to right;
-  --fade-keep: 0%;
-  --fade-end: var(--carousel-fade-end);
   --card-blur: var(--carousel-blur);
   --shadow-opacity: 0;
   grid-area: 1 / 1;
@@ -906,13 +911,8 @@ h6,
     opacity 0.4s,
     visibility 0.55s;
 }
-.carousel-slide[data-side="left"] {
-  --fade-dir: to left;
-}
 .carousel-slide[data-state="active"] {
   --state-scale: 1;
-  --fade-keep: 100%;
-  --fade-end: 100%;
   --card-blur: 0px;
   --shadow-opacity: 1;
   z-index: 2;
@@ -980,18 +980,11 @@ h6,
     var(--panel);
   color: inherit;
   text-decoration: none;
-  /* The side cards fade outwards to nothing and blur a little. The mask and
-     blur are on the face only, so the glow and characters are not touched. */
+  /* The side cards blur a little. The blur is on the face only, so the glow
+     and characters are not touched. */
   filter: blur(var(--card-blur));
-  mask-image: linear-gradient(
-    var(--fade-dir),
-    #000 var(--fade-keep),
-    transparent var(--fade-end)
-  );
   transition:
     filter 0.5s,
-    --fade-keep 0.55s,
-    --fade-end 0.55s,
     transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .carousel-slide[data-state="active"] .carousel-card {
@@ -1058,9 +1051,12 @@ h6,
   color: var(--muted);
 }
 .carousel-dots {
+  position: relative;
+  z-index: 3;
   display: flex;
   justify-content: center;
   gap: 2px;
+  margin-top: -8px;
 }
 .carousel-dot {
   display: grid;
@@ -1106,8 +1102,7 @@ h6,
 @media (max-width: 599px) {
   .carousel {
     --carousel-card-width: 78%;
-    --carousel-gap: 10px;
-    --carousel-fade-end: 10%;
+    --carousel-gap: 12px;
   }
   .carousel-card {
     aspect-ratio: 4 / 3;
@@ -1143,6 +1138,22 @@ h6,
 .hero-list .scene-bottom {
   padding-left: 0;
   padding-right: 0;
+}
+/* The list view only keeps the project count, at the right. */
+.hero-list .scene-meta {
+  justify-content: flex-end;
+}
+/* Beside the intro card the focused project card lines up with it: same top,
+   same height (SignpostHero measures the intro card into --intro-card-height).
+   The track starts one pad higher so the card, not the track, meets the top. */
+@media (min-width: 900px) {
+  .hero-list .carousel-track {
+    margin-top: calc(var(--carousel-pad) * -1);
+  }
+  .hero-list .carousel-card {
+    aspect-ratio: auto;
+    height: var(--intro-card-height, 420px);
+  }
 }
 .scene-fallback {
   height: 100%;
