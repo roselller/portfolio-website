@@ -1,5 +1,6 @@
 node_modules
 .next
+.claude
 pnpm-lock.yaml
 drizzle/meta
 # Verbatim upstream notice
