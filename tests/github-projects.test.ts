@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   loadGitHubProjects,
   parsePinnedRepositories,
+  parseRepositoryDetails,
   parseRepositoryHomepage,
 } from "../src/lib/github-projects";
 import { sampleProjects } from "../src/data/projects";
@@ -28,8 +29,8 @@ function profile(cards: string, heading = "Pinned") {
   </body></html>`;
 }
 
-function homepage(website: string | null) {
-  return `<react-app app-name="code-view"><script type="application/json" data-target="react-app.embeddedData">${JSON.stringify({ payload: { sidebarAbout: { website } } })}</script></react-app>`;
+function homepage(website: string | null, stargazerCount?: unknown) {
+  return `<react-app app-name="code-view"><script type="application/json" data-target="react-app.embeddedData">${JSON.stringify({ payload: { sidebarAbout: { website, stargazerCount } } })}</script></react-app>`;
 }
 
 function html(body: string, status = 200) {
@@ -138,6 +139,7 @@ test("zero, one, three, and six pins produce six correctly marked projects with 
         thumbnailUrl: null,
         projectUrl: "https://example.com/app",
         repoUrl: "https://github.com/owner/repo-0",
+        stars: null,
         signOrder: 0,
         isSample: false,
       });
@@ -319,4 +321,54 @@ test("sample-only results carry no retrieval time", async () => {
 
   const noUsername = await loadGitHubProjects("", async () => html(""));
   assert.equal(noUsername.retrievedAt, undefined);
+});
+
+test("repository pages report the exact star count, or null when unknown", () => {
+  assert.deepEqual(parseRepositoryDetails(homepage("https://example.com", 0)), {
+    homepage: "https://example.com/",
+    stars: 0,
+  });
+  assert.equal(parseRepositoryDetails(homepage(null, 12345)).stars, 12345);
+  // Absent, malformed, negative or fractional counts are unknown, and never
+  // cost the project its website link.
+  for (const bad of [undefined, "12", -3, 1.5, null]) {
+    assert.deepEqual(
+      parseRepositoryDetails(homepage("https://example.com/app", bad)),
+      { homepage: "https://example.com/app", stars: null },
+    );
+  }
+  assert.equal(
+    parseRepositoryDetails(
+      '<div class="BorderGrid"><div><svg class="octicon-link"></svg><a href="https://example.com/legacy">Website</a></div></div>',
+    ).stars,
+    null,
+  );
+});
+
+test("loaded projects carry their star count; samples and failed lookups have none", async () => {
+  const collection = await loadGitHubProjects("owner", async (url) => {
+    const target = String(url);
+    if (target === "https://github.com/owner") {
+      return html(
+        profile(
+          card("owner", "starred") +
+            card("owner", "unstarred") +
+            card("owner", "broken"),
+        ),
+      );
+    }
+    if (target.endsWith("/broken")) return html("Unavailable", 503);
+    return html(homepage(null, target.endsWith("/starred") ? 1250 : 0));
+  });
+  const byTitle = Object.fromEntries(
+    collection.projects.map((project) => [project.title, project]),
+  );
+  assert.equal(byTitle.starred.stars, 1250);
+  assert.equal(byTitle.unstarred.stars, 0);
+  assert.equal(byTitle.broken.stars, null);
+  assert.ok(
+    collection.projects
+      .filter((p) => p.isSample)
+      .every((p) => p.stars === undefined),
+  );
 });

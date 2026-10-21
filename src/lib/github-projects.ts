@@ -8,7 +8,17 @@ const usernamePattern = /^[a-z\d](?:[a-z\d-]{0,38})$/i;
 const repositoryPattern = /^[a-z\d_.-]{1,100}$/i;
 const repositoryPage = z.object({
   payload: z.object({
-    sidebarAbout: z.object({ website: z.string().nullable().optional() }),
+    sidebarAbout: z.object({
+      website: z.string().nullable().optional(),
+      // A malformed count must not cost the project its website link, so it
+      // falls back to "unknown" instead of failing the whole parse.
+      stargazerCount: z
+        .number()
+        .int()
+        .nonnegative()
+        .optional()
+        .catch(undefined),
+    }),
   }),
 });
 
@@ -79,7 +89,14 @@ export function parsePinnedRepositories(html: string): PinnedRepository[] {
   return repositories;
 }
 
-export function parseRepositoryHomepage(html: string): string | null {
+export type RepositoryDetails = {
+  homepage: string | null;
+  /** Exact star count, or null when the page does not expose it. */
+  stars: number | null;
+};
+
+/** Reads the About sidebar of a repository page: website link and star count. */
+export function parseRepositoryDetails(html: string): RepositoryDetails {
   const root = parse(html);
   for (const script of root.querySelectorAll(
     'react-app[app-name="code-view"] script[data-target="react-app.embeddedData"]',
@@ -87,9 +104,11 @@ export function parseRepositoryHomepage(html: string): string | null {
     try {
       const result = repositoryPage.safeParse(JSON.parse(script.rawText));
       if (result.success) {
-        return safeExternalUrl(
-          result.data.payload.sidebarAbout.website || null,
-        );
+        const { website, stargazerCount } = result.data.payload.sidebarAbout;
+        return {
+          homepage: safeExternalUrl(website || null),
+          stars: stargazerCount ?? null,
+        };
       }
     } catch {
       // Older repository pages expose the website in the About sidebar instead.
@@ -99,7 +118,11 @@ export function parseRepositoryHomepage(html: string): string | null {
     .querySelector(".BorderGrid .octicon-link")
     ?.parentNode?.querySelector("a[href]")
     ?.getAttribute("href");
-  return safeExternalUrl(href || null);
+  return { homepage: safeExternalUrl(href || null), stars: null };
+}
+
+export function parseRepositoryHomepage(html: string): string | null {
+  return parseRepositoryDetails(html).homepage;
 }
 
 export function withSampleProjects(
@@ -156,11 +179,13 @@ export async function loadGitHubProjects(
         const { owner, name, description, language } = repository;
         const repoUrl = `https://github.com/${owner}/${name}`;
         let projectUrl = repoUrl;
+        let stars: number | null = null;
         try {
-          projectUrl =
-            parseRepositoryHomepage(await readPage(repoUrl)) || repoUrl;
+          const details = parseRepositoryDetails(await readPage(repoUrl));
+          projectUrl = details.homepage || repoUrl;
+          stars = details.stars;
         } catch {
-          // Homepage enrichment is optional; keep the successfully discovered pin.
+          // Homepage and star enrichment is optional; keep the discovered pin.
         }
         return {
           id: `github:${owner}/${name}`.toLowerCase(),
@@ -173,6 +198,7 @@ export async function loadGitHubProjects(
           thumbnailUrl: null,
           projectUrl,
           repoUrl,
+          stars,
           signOrder,
           isSample: false,
         };

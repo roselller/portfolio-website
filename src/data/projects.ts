@@ -8,6 +8,8 @@ export type Project = {
   thumbnailUrl: string | null;
   projectUrl: string | null;
   repoUrl: string | null;
+  /** GitHub star count; null when unknown, absent for sample concepts. */
+  stars?: number | null;
   signOrder: number;
   isSample?: boolean;
 };

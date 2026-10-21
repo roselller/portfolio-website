@@ -12,7 +12,7 @@ import {
 // This project does not enable Cache Components; use its existing cache model.
 const getCachedGitHubProjects = unstable_cache(
   (username: string) => loadGitHubProjects(username),
-  ["github-pinned-projects-v2"],
+  ["github-pinned-projects-v3"],
   { revalidate: 3600 },
 );
 
