@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpLeft, ArrowUpRight, Asterisk } from "lucide-react";
 import { getProjectBySlug, getProjectReadme } from "@/lib/projects";
 import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
 import { ProjectReadme } from "@/components/ProjectReadme";
+import { ButtonAnchor } from "@/components/ui/NeumorphicButton";
 import { safeExternalUrl } from "@/lib/utils";
 import { projectImageUrl } from "@/lib/images";
 import { profile } from "@/data/profile";
@@ -108,24 +109,22 @@ export default async function ProjectPage({ params }: Props) {
           {(projectUrl || repoUrl) && (
             <div className="project-links">
               {repoUrl && (
-                <a
-                  className="button button-solid"
+                <ButtonAnchor
                   href={repoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   View repository <ArrowUpRight size={17} />
-                </a>
+                </ButtonAnchor>
               )}
               {projectUrl && projectUrl !== repoUrl && (
-                <a
-                  className={`button ${repoUrl ? "button-outline" : "button-solid"}`}
+                <ButtonAnchor
                   href={projectUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   View live project <ArrowUpRight size={17} />
-                </a>
+                </ButtonAnchor>
               )}
             </div>
           )}

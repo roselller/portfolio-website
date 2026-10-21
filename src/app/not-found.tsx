@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { ButtonLink } from "@/components/ui/NeumorphicButton";
 
 export default function NotFound() {
   return (
@@ -10,9 +10,9 @@ export default function NotFound() {
         This page isn’t here, but there’s plenty to explore back at the
         signpost.
       </p>
-      <Link className="button button-solid" href="/">
+      <ButtonLink href="/">
         Back to the work <ArrowUpRight size={17} />
-      </Link>
+      </ButtonLink>
     </main>
   );
 }

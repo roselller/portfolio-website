@@ -1,45 +1,53 @@
 "use client";
 
-import { m, useReducedMotion, type HTMLMotionProps } from "framer-motion";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
+import { ButtonAscii } from "./ButtonAscii";
 
-const MotionLink = m.create(Link);
+// One button look for the whole site. The hover glow, lift and ASCII burst live
+// in CSS (`.button` in globals.css) and ButtonAscii, so every element below
+// behaves the same. Pick by what the button does:
+//   ButtonLink   - navigates inside the site
+//   ButtonAnchor - external link (pass target and rel yourself)
+//   Button       - runs an action or submits a form
 
-export function NeumorphicLink({
+export function ButtonLink({
   className,
   children,
-  variant = "solid",
   ...props
-}: ComponentProps<typeof MotionLink> & { variant?: "solid" | "outline" }) {
-  const reduced = useReducedMotion();
+}: ComponentProps<typeof Link>) {
   return (
-    <MotionLink
-      className={cn("button", `button-${variant}`, className)}
-      whileHover={reduced ? undefined : { y: -2 }}
-      whileTap={reduced ? undefined : { scale: 0.98 }}
-      {...props}
-    >
+    <Link className={cn("button", className)} {...props}>
+      <ButtonAscii />
       {children}
-    </MotionLink>
+    </Link>
   );
 }
 
-export function NeumorphicButton({
+export function ButtonAnchor({
   className,
   children,
   ...props
-}: HTMLMotionProps<"button">) {
-  const reduced = useReducedMotion();
+}: ComponentProps<"a">) {
   return (
-    <m.button
-      className={cn("button button-solid", className)}
-      whileHover={reduced ? undefined : { y: -2 }}
-      whileTap={reduced ? undefined : { scale: 0.98 }}
-      {...props}
-    >
+    <a className={cn("button", className)} {...props}>
+      <ButtonAscii />
       {children}
-    </m.button>
+    </a>
+  );
+}
+
+export function Button({
+  className,
+  children,
+  type = "button",
+  ...props
+}: ComponentProps<"button">) {
+  return (
+    <button type={type} className={cn("button", className)} {...props}>
+      <ButtonAscii />
+      {children}
+    </button>
   );
 }

@@ -592,7 +592,24 @@ h6,
   flex-wrap: wrap;
   gap: 16px;
 }
+/* One button for the whole site. The visible face is ::before and the rose
+   backlight is ::after, both behind the label, so the ASCII canvas
+   (.button-ascii, drawn by ButtonAscii) can sit between them. A background on
+   the button itself would paint over the canvas. Hover and focus only change
+   the custom properties below, so translate/scale (lift) stay separate from
+   transform (the send-error shake). */
 .button {
+  --button-bg: var(--surface);
+  --button-fg: #1c1f23;
+  --button-border: var(--line);
+  --button-glow: var(--accent-glow);
+  --ascii-spread: 40px;
+  --lift: 0px;
+  --pop: 1;
+  --glow: 0;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -602,27 +619,121 @@ h6,
   line-height: 1.5;
   padding: 15px 23px;
   border-radius: 9px;
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--button-fg);
+  translate: 0 var(--lift);
+  scale: var(--pop);
   transition:
-    border-color 0.2s,
-    color 0.2s,
-    background 0.2s;
+    translate 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color 0.2s;
 }
-.button:hover {
-  border-color: #fb718577;
+/* Light mode inverts the button, like the signpost boards do. */
+[data-theme="light"] .button {
+  --button-bg: var(--surface-dark);
+  --button-fg: #f2f3f5;
 }
-.button-outline {
-  background: var(--glass-end);
+.button::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--button-bg);
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--button-glow) calc(var(--glow) * 100%),
+      var(--button-border)
+    );
+  box-shadow:
+    var(--neumorphic),
+    0 calc(var(--glow) * 14px) calc(var(--glow) * 30px) var(--shadow-dark);
+  transition:
+    box-shadow 0.3s,
+    border-color 0.25s,
+    background-color 0.25s;
 }
-.button-solid {
-  background: var(--surface);
-  color: #1c1f23;
-  box-shadow: var(--neumorphic);
+.button::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -3;
+  border-radius: 14px;
+  background: var(--button-glow);
+  filter: blur(18px);
+  opacity: var(--glow);
+  scale: calc(1 + var(--glow) * 0.2);
+  pointer-events: none;
+  transition:
+    opacity 0.3s,
+    scale 0.3s;
 }
-/* Light mode inverts the primary button, like the signpost boards do. */
-[data-theme="light"] .button-solid {
-  background: var(--surface-dark);
-  color: #f2f3f5;
+.button-ascii {
+  position: absolute;
+  inset: calc(-1px - var(--ascii-spread));
+  z-index: -2;
+  display: none;
+  pointer-events: none;
+}
+.button[data-fx] .button-ascii {
+  display: block;
+}
+.button-ascii canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Two buttons side by side: the idle one paints over the active one's glow and
+   characters, not the other way round. */
+.button:is(:hover, :focus-visible, [data-fx]) {
+  z-index: 0;
+}
+.button:focus-visible:not(:disabled, [aria-disabled="true"]) {
+  --lift: -3px;
+  --pop: 1.03;
+  --glow: 0.65;
+}
+@media (hover: hover) and (pointer: fine) {
+  .button:hover:not(:disabled, [aria-disabled="true"]) {
+    --lift: -3px;
+    --pop: 1.03;
+    --glow: 0.65;
+  }
+}
+.button:active:not(:disabled, [aria-disabled="true"]) {
+  --lift: 0px;
+  --pop: 0.98;
+}
+.button[aria-disabled="true"] {
+  cursor: default;
+}
+/* The send button keeps a steady glow while it shows green or red. */
+.button[data-status] {
+  --glow: 0.6;
+}
+/* Glow and ASCII stay; nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    translate: none;
+    scale: none;
+  }
+  .button::after {
+    scale: none;
+  }
+}
+/* Characters drift behind these neighbours instead of over their text. */
+.intro-actions .text-link,
+.intro-copy :is(h2, p),
+.form-success :is(h2, p),
+.project-brief-heading h2,
+.not-found :is(h1, p),
+.form-field,
+.form-note,
+.form-feedback {
+  position: relative;
+  z-index: 1;
 }
 .neu-card {
   background: var(--panel);
@@ -1053,6 +1164,59 @@ h2.section-label {
 }
 .sending-spinner {
   animation: spin 1s linear infinite;
+}
+/* Send button: green with a drawn check once the message is sent, red with a
+   drawn X and a shake when it is not. (Three classes/attributes so these beat
+   the light-theme button colours.) */
+.button.form-submit[data-status="success"] {
+  --button-bg: #15803d;
+  --button-fg: #ffffff;
+  --button-border: #16a34a;
+  --button-glow: #22c55e;
+}
+.button.form-submit[data-status="error"] {
+  --button-bg: #b91c1c;
+  --button-fg: #ffffff;
+  --button-border: #dc2626;
+  --button-glow: #ef4444;
+  animation: button-shake 0.5s both;
+}
+.draw-icon path {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1.05;
+  animation: draw-stroke 0.4s ease-out 0.05s both;
+}
+.draw-icon path:nth-child(2) {
+  animation-delay: 0.25s;
+}
+@keyframes draw-stroke {
+  from {
+    stroke-dashoffset: 1.05;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes button-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-8px);
+  }
+  30% {
+    transform: translateX(7px);
+  }
+  45% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
 }
 .form-note {
   color: var(--muted);
@@ -1717,15 +1881,6 @@ h2.section-label {
   padding-top: 80px;
   max-width: 800px;
 }
-.contact-socials {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
-}
-.contact-socials .button {
-  gap: 10px;
-}
 @media (max-width: 899px) {
   .hero:not(.hero-list) {
     min-height: 0;
@@ -2043,13 +2198,15 @@ body {
   gap: 16px;
 }
 .hero .intro-actions > a {
-  min-height: 52px;
-  padding: 14px 20px;
   margin: 0;
-  gap: 12px;
-  line-height: 1.5;
   justify-content: center;
   white-space: nowrap;
+}
+.hero .intro-actions > .text-link {
+  min-height: 53px;
+  padding: 14px 20px;
+  gap: 12px;
+  line-height: 1.5;
 }
 .hero .intro-actions > a svg {
   width: 17px;

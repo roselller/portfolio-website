@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowUpRight, Asterisk } from "lucide-react";
+import { ButtonLink } from "@/components/ui/NeumorphicButton";
 import { NeumorphicCard } from "@/components/ui/NeumorphicCard";
 import { profile } from "@/data/profile";
 import { formatMonth, sortedJourney } from "@/data/journey";
@@ -124,9 +124,9 @@ export default function AboutPage() {
         <div className="intro-copy">
           <h2>Let’s see where an idea takes us.</h2>
           <div className="intro-actions">
-            <Link className="button button-solid" href="/contact">
+            <ButtonLink href="/contact">
               Start a conversation <ArrowUpRight size={17} />
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       </section>

@@ -3,7 +3,7 @@ import { ArrowUpRight, Asterisk } from "lucide-react";
 import { SignpostHero } from "@/components/SignpostHero";
 import { getProjectCollection } from "@/lib/projects";
 import { siteCopy } from "@/data/site-copy";
-import { NeumorphicLink } from "@/components/ui/NeumorphicButton";
+import { ButtonLink } from "@/components/ui/NeumorphicButton";
 
 export const revalidate = 3600;
 
@@ -24,10 +24,10 @@ export default async function HomePage() {
             </h2>
             <p>{siteCopy.intro.bio}</p>
             <div className="intro-actions">
-              <NeumorphicLink href="/about" variant="outline">
+              <ButtonLink href="/about">
                 {siteCopy.intro.aboutCta}{" "}
                 <ArrowUpRight size={17} aria-hidden="true" />
-              </NeumorphicLink>
+              </ButtonLink>
               <Link href="/contact" className="text-link">
                 {siteCopy.intro.contactCta}{" "}
                 <ArrowUpRight size={17} aria-hidden="true" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, useEffect } from "react";
+import { useCallback, useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
@@ -11,13 +11,64 @@ import {
   type ContactInput,
   type ContactResult,
 } from "@/lib/validations";
-import { NeumorphicButton } from "./ui/NeumorphicButton";
+import { Button } from "./ui/NeumorphicButton";
 import type { z } from "zod";
+
+// How long the send button shows green (sent) or red (not sent) before the
+// thank-you panel appears or the button returns to normal.
+const SUCCESS_MS = 1400;
+const ERROR_MS = 1600;
+
+type SendFeedback = "success" | "error" | null;
+
+function DrawnCheck() {
+  return (
+    <svg
+      className="draw-icon"
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12.5l5.5 5.5L20 6.5" pathLength="1" />
+    </svg>
+  );
+}
+
+function DrawnCross() {
+  return (
+    <svg
+      className="draw-icon"
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M6 6l12 12" pathLength="1" />
+      <path d="M18 6L6 18" pathLength="1" />
+    </svg>
+  );
+}
 
 export function ContactForm({ configured }: { configured: boolean }) {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<ContactResult | null>(null);
-  const successHeading = useRef<HTMLHeadingElement>(null);
+  const [feedback, setFeedback] = useState<SendFeedback>(null);
+  const [sent, setSent] = useState(false);
+  // The thank-you panel mounts after the form has faded out, so focus its
+  // heading when it appears (a stable callback runs once, on mount).
+  const focusOnMount = useCallback((element: HTMLHeadingElement | null) => {
+    element?.focus();
+  }, []);
   const reduced = useReducedMotion();
   const {
     register,
@@ -30,12 +81,28 @@ export function ContactForm({ configured }: { configured: boolean }) {
     defaultValues: { name: "", email: "", message: "", website: "" },
   });
 
+  // The button holds its green or red state for a moment, then moves on: to
+  // the thank-you panel after a send, back to normal after a miss.
   useEffect(() => {
-    if (result?.ok) successHeading.current?.focus();
-  }, [result]);
+    if (!feedback) return;
+    const timer = window.setTimeout(
+      () => {
+        setFeedback(null);
+        if (feedback === "success") setSent(true);
+      },
+      feedback === "success" ? SUCCESS_MS : ERROR_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  // A field was left empty or is not valid: the button shakes red too.
+  function onInvalid() {
+    if (pending || feedback) return;
+    setFeedback("error");
+  }
 
   function onSubmit(values: z.output<typeof contactSchema>) {
-    if (pending) return;
+    if (pending || feedback) return;
     setResult(null);
     startTransition(async () => {
       try {
@@ -49,13 +116,19 @@ export function ContactForm({ configured }: { configured: boolean }) {
               setError(field as keyof ContactInput, { message: messages[0] });
           }
         }
-        if (response.ok) reset();
+        if (response.ok) {
+          reset();
+          setFeedback("success");
+        } else {
+          setFeedback("error");
+        }
       } catch {
         setResult({
           ok: false,
           message:
             "The connection was interrupted. Please refresh the page and try again.",
         });
+        setFeedback("error");
       }
     });
   }
@@ -63,7 +136,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
   return (
     <div className="contact-form neu-card">
       <AnimatePresence mode="wait" initial={false}>
-        {result?.ok ? (
+        {sent ? (
           <m.div
             key="success"
             className="form-success"
@@ -72,21 +145,26 @@ export function ContactForm({ configured }: { configured: boolean }) {
             transition={{ duration: reduced ? 0 : 0.25 }}
           >
             <Check size={34} strokeWidth={1.5} color="var(--accent-glow)" />
-            <h2 ref={successHeading} tabIndex={-1}>
+            <h2 ref={focusOnMount} tabIndex={-1}>
               Message received.
             </h2>
             <p>
               Thanks for sharing what you have in mind. I’m looking forward to
               reading it.
             </p>
-            <NeumorphicButton onClick={() => setResult(null)}>
+            <Button
+              onClick={() => {
+                setSent(false);
+                setResult(null);
+              }}
+            >
               Send another message <ArrowUpRight size={16} />
-            </NeumorphicButton>
+            </Button>
           </m.div>
         ) : (
           <m.form
             key="form"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
             noValidate
             aria-busy={pending}
             initial={{ opacity: 0 }}
@@ -169,22 +247,32 @@ export function ContactForm({ configured }: { configured: boolean }) {
                 </m.p>
               )}
             </AnimatePresence>
-            <NeumorphicButton
+            <Button
               type="submit"
               className="form-submit"
               disabled={pending}
+              aria-disabled={feedback ? true : undefined}
+              data-status={feedback ?? undefined}
             >
               {pending ? (
                 <>
                   Sending…{" "}
                   <LoaderCircle size={17} className="sending-spinner" />
                 </>
+              ) : feedback === "success" ? (
+                <>
+                  Sent <DrawnCheck />
+                </>
+              ) : feedback === "error" ? (
+                <>
+                  Not sent <DrawnCross />
+                </>
               ) : (
                 <>
                   Send message <ArrowUpRight size={17} />
                 </>
               )}
-            </NeumorphicButton>
+            </Button>
             <p className="form-note" aria-live="polite">
               {!configured
                 ? "This preview is not accepting messages yet."
