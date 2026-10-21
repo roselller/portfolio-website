@@ -11,7 +11,7 @@ import {
   type ContactInput,
   type ContactResult,
 } from "@/lib/validations";
-import { Button } from "./ui/NeumorphicButton";
+import { Button } from "./ui/Button";
 import type { z } from "zod";
 
 // How long the send button shows green (sent) or red (not sent) before the
@@ -154,6 +154,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
             </p>
             <Button
               onClick={() => {
+                reset();
                 setSent(false);
                 setResult(null);
               }}
@@ -167,6 +168,9 @@ export function ContactForm({ configured }: { configured: boolean }) {
             onSubmit={handleSubmit(onSubmit, onInvalid)}
             noValidate
             aria-busy={pending}
+            // After a send the emptied form stays up while the button shows
+            // green; nothing in it can be used until the thank-you panel.
+            inert={feedback === "success"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: reduced ? 0 : 0.25 }}
@@ -250,22 +254,22 @@ export function ContactForm({ configured }: { configured: boolean }) {
             <Button
               type="submit"
               className="form-submit"
-              disabled={pending}
+              disabled={pending && !feedback}
               aria-disabled={feedback ? true : undefined}
               data-status={feedback ?? undefined}
             >
-              {pending ? (
-                <>
-                  Sending…{" "}
-                  <LoaderCircle size={17} className="sending-spinner" />
-                </>
-              ) : feedback === "success" ? (
+              {feedback === "success" ? (
                 <>
                   Sent <DrawnCheck />
                 </>
               ) : feedback === "error" ? (
                 <>
                   Not sent <DrawnCross />
+                </>
+              ) : pending ? (
+                <>
+                  Sending…{" "}
+                  <LoaderCircle size={17} className="sending-spinner" />
                 </>
               ) : (
                 <>

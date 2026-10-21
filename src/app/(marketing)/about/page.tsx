@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { ArrowUpRight, Asterisk } from "lucide-react";
-import { ButtonLink } from "@/components/ui/NeumorphicButton";
+import { ButtonLink } from "@/components/ui/Button";
 import { NeumorphicCard } from "@/components/ui/NeumorphicCard";
 import { profile } from "@/data/profile";
 import { formatMonth, sortedJourney } from "@/data/journey";

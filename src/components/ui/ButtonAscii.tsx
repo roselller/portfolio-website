@@ -15,6 +15,8 @@ const FONT_SIZE = 11;
 const FONT = `${FONT_SIZE}px ui-monospace, SFMono-Regular, Menlo, monospace`;
 const MAX_PARTICLES = 160;
 const MAX_FRAME_SECONDS = 0.05;
+// Below this much room beside the button, skip the characters.
+const MIN_SPREAD = 10;
 
 /**
  * ASCII characters that drift outward from behind a hovered or keyboard-focused
@@ -43,6 +45,7 @@ export function ButtonAscii() {
     let last = 0;
     let carry = 0;
     let spread = 40;
+    let color = "#fb7185";
     let box = { width: 0, height: 0 };
 
     const canRun = () =>
@@ -51,20 +54,23 @@ export function ButtonAscii() {
       !host.matches(":disabled") &&
       host.getAttribute("aria-disabled") !== "true";
 
+    /** Sizes the canvas. Returns false when there is no room for a burst. */
     function measure() {
       host!.style.removeProperty("--ascii-spread");
+      const style = getComputedStyle(host!);
       const configured =
-        parseFloat(
-          getComputedStyle(host!).getPropertyValue("--ascii-spread"),
-        ) || 40;
+        parseFloat(style.getPropertyValue("--ascii-spread")) || 40;
+      color = style.getPropertyValue("--button-glow").trim() || color;
       // A full-width button on a narrow screen has less room beside it than the
       // configured spread. Shrink the burst so the canvas never makes the page
-      // scroll sideways (the 8px covers the button's hover pop).
+      // scroll sideways (the 8px covers the button's hover pop), and skip it
+      // when the gutter is too small to be worth drawing in.
       const rect = host!.getBoundingClientRect();
       const room =
         Math.min(rect.left, document.documentElement.clientWidth - rect.right) -
         8;
-      spread = Math.max(12, Math.min(configured, Math.floor(room)));
+      spread = Math.min(configured, Math.floor(room));
+      if (spread < MIN_SPREAD) return false;
       host!.style.setProperty("--ascii-spread", `${spread}px`);
       box = { width: host!.offsetWidth, height: host!.offsetHeight };
       if (!canvas) {
@@ -76,6 +82,7 @@ export function ButtonAscii() {
       canvas.width = Math.ceil((box.width + spread * 2) * ratio);
       canvas.height = Math.ceil((box.height + spread * 2) * ratio);
       context?.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return true;
     }
 
     function stopLoop() {
@@ -89,10 +96,6 @@ export function ButtonAscii() {
 
     function draw() {
       if (!canvas || !context) return;
-      // Re-read each frame so the green and red send states recolour it.
-      const color =
-        getComputedStyle(host!).getPropertyValue("--button-glow").trim() ||
-        "#fb7185";
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.font = FONT;
       context.textAlign = "center";
@@ -130,9 +133,8 @@ export function ButtonAscii() {
     }
 
     function start() {
-      if (!canRun()) return;
+      if (!canRun() || !measure()) return;
       host!.dataset.fx = "on";
-      measure();
       if (!frame) {
         last = performance.now();
         frame = requestAnimationFrame(tick);
@@ -156,11 +158,27 @@ export function ButtonAscii() {
       focused = false;
     };
 
+    // A button that was disabled (sending, or showing green/red) while hovered
+    // can come back with the pointer still over it and no new pointerenter.
+    // Browsers also skip pointerleave/blur on disabled controls, so re-read
+    // the truth from :hover and :focus-visible whenever the state changes.
+    const onStateChange = () => {
+      hovering = host.matches(":hover");
+      focused = host.matches(":focus-visible");
+      if (hovering || focused) start();
+    };
+    const observer = new MutationObserver(onStateChange);
+    observer.observe(host, {
+      attributes: true,
+      attributeFilter: ["disabled", "aria-disabled"],
+    });
+
     host.addEventListener("pointerenter", onEnter);
     host.addEventListener("pointerleave", onLeave);
     host.addEventListener("focus", onFocus);
     host.addEventListener("blur", onBlur);
     return () => {
+      observer.disconnect();
       host.removeEventListener("pointerenter", onEnter);
       host.removeEventListener("pointerleave", onLeave);
       host.removeEventListener("focus", onFocus);

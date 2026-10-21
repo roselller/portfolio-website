@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { ButtonLink } from "@/components/ui/NeumorphicButton";
+import { ButtonLink } from "@/components/ui/Button";
 
 export default function NotFound() {
   return (

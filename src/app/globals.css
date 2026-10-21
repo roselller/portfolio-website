@@ -691,28 +691,24 @@ h6,
 .button:is(:hover, :focus-visible, [data-fx]) {
   z-index: 0;
 }
-.button:focus-visible:not(:disabled, [aria-disabled="true"]) {
+.button:focus-visible:not(:disabled, [aria-disabled="true"], [data-status]) {
   --lift: -3px;
   --pop: 1.03;
   --glow: 0.65;
 }
 @media (hover: hover) and (pointer: fine) {
-  .button:hover:not(:disabled, [aria-disabled="true"]) {
+  .button:hover:not(:disabled, [aria-disabled="true"], [data-status]) {
     --lift: -3px;
     --pop: 1.03;
     --glow: 0.65;
   }
 }
-.button:active:not(:disabled, [aria-disabled="true"]) {
+.button:active:not(:disabled, [aria-disabled="true"], [data-status]) {
   --lift: 0px;
   --pop: 0.98;
 }
 .button[aria-disabled="true"] {
   cursor: default;
-}
-/* No glow while the send button shows green or red. */
-.button[data-status] {
-  --glow: 0;
 }
 /* The glow stays; nothing moves (ButtonAscii never starts the characters). */
 @media (prefers-reduced-motion: reduce) {
@@ -721,11 +717,14 @@ h6,
     scale: none;
   }
 }
-/* Characters drift behind these neighbours instead of over their text. */
+/* Characters drift behind these neighbours instead of over their text. A
+   button's glow and characters live inside its own stacking context, so any
+   text that can sit within about 40px of a button has to be listed here. */
 .intro-actions .text-link,
 .intro-copy :is(h2, p),
 .form-success :is(h2, p),
 .project-brief-heading h2,
+.project-story > div + div,
 .not-found :is(h1, p),
 .form-field,
 .form-note,

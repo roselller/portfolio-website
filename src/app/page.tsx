@@ -3,7 +3,7 @@ import { ArrowUpRight, Asterisk } from "lucide-react";
 import { SignpostHero } from "@/components/SignpostHero";
 import { getProjectCollection } from "@/lib/projects";
 import { siteCopy } from "@/data/site-copy";
-import { ButtonLink } from "@/components/ui/NeumorphicButton";
+import { ButtonLink } from "@/components/ui/Button";
 
 export const revalidate = 3600;
 

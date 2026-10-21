@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowUpLeft, ArrowUpRight, Asterisk } from "lucide-react";
 import { getProjectBySlug, getProjectReadme } from "@/lib/projects";
 import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
 import { ProjectReadme } from "@/components/ProjectReadme";
-import { ButtonAnchor } from "@/components/ui/NeumorphicButton";
+import { ButtonAnchor } from "@/components/ui/Button";
 import { safeExternalUrl } from "@/lib/utils";
 import { projectImageUrl } from "@/lib/images";
 import { profile } from "@/data/profile";
