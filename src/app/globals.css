@@ -1251,6 +1251,18 @@ h2.section-label {
   transform: rotate(2deg);
   translate: var(--note-shift-x) var(--note-shift-y);
 }
+/* On a wide screen the text column is taller than the card. The card sits at
+   the bottom of that row, and the shift lifts it by a line and a half of the
+   lead paragraph (16px x 1.9 per line), so its bottom edge is level with the
+   second-to-last line of the last paragraph however the text above wraps. At
+   1100px and below the card is nearly as tall as the text, so it keeps its
+   place. */
+@media (min-width: 1101px) {
+  .about-note {
+    --note-shift-y: calc(-1.5 * 1.9 * 16px);
+    align-self: end;
+  }
+}
 .about-note .note-mark {
   font-family: var(--font-display);
   color: var(--accent-glow);
