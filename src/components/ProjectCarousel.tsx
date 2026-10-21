@@ -2,10 +2,13 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
+  type MouseEvent,
   type PointerEvent,
 } from "react";
 import Link from "next/link";
@@ -28,6 +31,13 @@ import { useProjectView } from "./ProjectViewProvider";
 const AUTO_ADVANCE_MS = 5000;
 // A click that lands right after a swipe is the swipe's own, not a tap.
 const SWIPE_CLICK_GUARD_MS = 350;
+// Mouse effects only for devices that really hover, like ButtonAscii.
+const FINE_POINTER = "(hover: hover) and (pointer: fine)";
+
+function subscribeToVisibility(callback: () => void) {
+  document.addEventListener("visibilitychange", callback);
+  return () => document.removeEventListener("visibilitychange", callback);
+}
 
 function CardContent({
   project,
@@ -92,11 +102,18 @@ export function ProjectCarousel({
   const [hovering, setHovering] = useState(false);
   const [focusWithin, setFocusWithin] = useState(false);
   const [onScreen, setOnScreen] = useState(true);
-  const [tabVisible, setTabVisible] = useState(true);
+  // A page opened in a background tab starts out paused, not playing.
+  const tabVisible = useSyncExternalStore(
+    subscribeToVisibility,
+    () => !document.hidden,
+    () => true,
+  );
   const region = useRef<HTMLElement>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const justSwiped = useRef(false);
   const tiltFrame = useRef(0);
+  // Set by a key press made on a card, so focus follows the card that takes over.
+  const refocusCard = useRef(false);
 
   const current = count ? ((active % count) + count) % count : 0;
   const autoplay = !reduced && !stopped && count > 1;
@@ -119,14 +136,33 @@ export function ProjectCarousel({
       { threshold: 0.2 },
     );
     observer.observe(element);
-    const onVisibility = () => setTabVisible(!document.hidden);
-    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       observer.disconnect();
-      document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(tiltFrame.current);
     };
   }, []);
+
+  // A card that stops being the focused one drops its lean, so it does not
+  // carry a stale angle into its next turn; a key press made on a card moves
+  // keyboard focus to the card that took over (the old one is now a side card).
+  useLayoutEffect(() => {
+    const root = region.current;
+    if (!root) return;
+    cancelAnimationFrame(tiltFrame.current);
+    for (const slide of root.querySelectorAll<HTMLElement>(
+      '.carousel-slide:not([data-state="active"])',
+    )) {
+      slide.style.removeProperty("--tilt-x");
+      slide.style.removeProperty("--tilt-y");
+    }
+    if (!refocusCard.current) return;
+    refocusCard.current = false;
+    root
+      .querySelector<HTMLElement>(
+        '.carousel-slide[data-state="active"] .carousel-card',
+      )
+      ?.focus({ preventScroll: true });
+  }, [current]);
 
   // Anything the visitor does hands the carousel over to them for good.
   function goTo(index: number) {
@@ -139,11 +175,24 @@ export function ProjectCarousel({
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
+    // Browser and system shortcuts (Alt+Left for back, Cmd+Arrow, ...) are not ours.
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+      return;
     const move = keyMove(event.key);
     if (!move) return;
     event.preventDefault();
-    if ("step" in move) stepBy(move.step);
-    else goTo(move.to === "first" ? 0 : count - 1);
+    const target =
+      "step" in move
+        ? stepIndex(current, move.step, count)
+        : move.to === "first"
+          ? 0
+          : count - 1;
+    // Only when the focused card changes will the layout effect above run.
+    refocusCard.current =
+      target !== current &&
+      event.target instanceof Element &&
+      event.target.closest(".carousel-card") !== null;
+    goTo(target);
   }
 
   function onPointerDown(event: PointerEvent<HTMLElement>) {
@@ -164,26 +213,44 @@ export function ProjectCarousel({
     }, SWIPE_CLICK_GUARD_MS);
   }
 
-  // The focused card leans towards the pointer. The pointer's place on the card
-  // is handed to CSS as two numbers from -1 to 1; the angle limit lives in CSS
-  // (--carousel-tilt), so there is one value to turn.
+  // The focused card leans towards the pointer. The pointer's place on its slide
+  // is handed to CSS as two numbers from -1 to 1 (set on the slide, which never
+  // tilts, so the pointer is measured against a box that stays put; the card
+  // inherits them. Never register them with @property: that stops the
+  // inheriting). The angle limit lives in CSS (--carousel-tilt).
   function onTiltMove(event: PointerEvent<HTMLElement>) {
-    if (reduced || event.pointerType !== "mouse") return;
-    const card = event.currentTarget;
-    const box = card.parentElement?.getBoundingClientRect();
-    if (!box || !box.width || !box.height) return;
-    const x = ((event.clientX - box.left) / box.width) * 2 - 1;
-    const y = ((event.clientY - box.top) / box.height) * 2 - 1;
+    if (
+      reduced ||
+      event.pointerType !== "mouse" ||
+      !window.matchMedia(FINE_POINTER).matches
+    ) {
+      return;
+    }
+    // React clears these after the handler returns, so take them now.
+    const slide = event.currentTarget;
+    const { clientX, clientY } = event;
     cancelAnimationFrame(tiltFrame.current);
     tiltFrame.current = requestAnimationFrame(() => {
-      card.style.setProperty("--tilt-x", String(Math.max(-1, Math.min(1, x))));
-      card.style.setProperty("--tilt-y", String(Math.max(-1, Math.min(1, y))));
+      const box = slide.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      const x = ((clientX - box.left) / box.width) * 2 - 1;
+      const y = ((clientY - box.top) / box.height) * 2 - 1;
+      slide.style.setProperty("--tilt-x", String(Math.max(-1, Math.min(1, x))));
+      slide.style.setProperty("--tilt-y", String(Math.max(-1, Math.min(1, y))));
     });
   }
   function onTiltEnd(event: PointerEvent<HTMLElement>) {
     cancelAnimationFrame(tiltFrame.current);
     event.currentTarget.style.removeProperty("--tilt-x");
     event.currentTarget.style.removeProperty("--tilt-y");
+  }
+  // A click on a side card brings it into focus; with a modifier held it is
+  // an ordinary link again (new tab and so on).
+  function onSideCardClick(event: MouseEvent<HTMLElement>, index: number) {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    event.preventDefault();
+    goTo(index);
   }
 
   return (
@@ -238,32 +305,28 @@ export function ProjectCarousel({
               data-ascii-contained=""
               inert={state === "hidden"}
               style={{ "--offset": parkedOffset(offset) } as CSSProperties}
+              onPointerMove={state === "active" ? onTiltMove : undefined}
+              onPointerLeave={onTiltEnd}
             >
               <ButtonAscii />
-              {state === "active" ? (
-                <Link
-                  className="carousel-card"
-                  href={`/projects/${project.slug}`}
-                  onPointerMove={onTiltMove}
-                  onPointerLeave={onTiltEnd}
-                >
-                  <CardContent
-                    project={project}
-                    index={index}
-                    sample={sample}
-                  />
-                </Link>
-              ) : (
-                // Side cards are for the pointer only; keyboard and screen
-                // reader users move with the dots, the arrow keys and the link.
-                <div className="carousel-card" onClick={() => goTo(index)}>
-                  <CardContent
-                    project={project}
-                    index={index}
-                    sample={sample}
-                  />
-                </div>
-              )}
+              {/* One element for every state, so keyboard focus stays on the
+                  card when it changes places and its blur and tilt can ease.
+                  Side cards are for the pointer only (no tab stop, not
+                  announced); keyboard and screen reader users move with the
+                  dots, the arrow keys and the focused card's link. */}
+              <Link
+                className="carousel-card"
+                href={`/projects/${project.slug}`}
+                prefetch={state === "active" ? undefined : false}
+                tabIndex={state === "active" ? undefined : -1}
+                onClick={
+                  state === "active"
+                    ? undefined
+                    : (event) => onSideCardClick(event, index)
+                }
+              >
+                <CardContent project={project} index={index} sample={sample} />
+              </Link>
             </div>
           );
         })}
