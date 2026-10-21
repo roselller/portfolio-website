@@ -818,6 +818,9 @@ h2.section-label {
   color: var(--accent-glow);
   font-size: 80px;
   line-height: 1;
+  /* The mark sits at the top of its line box; cut the empty space beneath it so
+     the larger quote below does not make the card taller. */
+  height: 48px;
 }
 .about-note p {
   font-family: var(--font-display);
@@ -830,13 +833,13 @@ h2.section-label {
    so the device's own Chinese font draws it (upright, never a slanted fake). */
 .about-note .note-original {
   font-style: normal;
-  font-size: 30px;
+  font-size: 38px;
   letter-spacing: 0.08em;
 }
 .about-note .note-translation {
   margin-top: 14px;
   color: var(--muted);
-  font-size: 17px;
+  font-size: 21px;
   line-height: 1.55;
 }
 .about-note span {
@@ -1436,10 +1439,10 @@ h2.section-label {
     font-size: 19px;
   }
   .about-note .note-original {
-    font-size: 26px;
+    font-size: 34px;
   }
   .about-note .note-translation {
-    font-size: 15px;
+    font-size: 18px;
   }
   .contact-layout {
     grid-template-columns: 1fr;
