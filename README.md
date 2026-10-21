@@ -1,14 +1,14 @@
 # Portfolio Website
 
-The personal portfolio of **Roseller Armirola**, designer and developer. An interactive 3D signpost introduces selected work, with project details drawn from public GitHub repositories.
+This is my personal portfolio, containing an interactive 3D signpost introduces selected work, with projects drawn from my pinned GitHub repositories.
 
 ## Features
 
 - **Interactive project navigation:** responsive 3D signs with pointer interaction, individual title fitting, and an alternative card view.
 - **GitHub integration without a token:** pinned repositories appear in profile order, with server-side caching and hourly revalidation. Clearly labeled sample concepts fill remaining places up to six projects.
 - **Repository briefs:** project pages display README content with readable tables, code blocks, images, and previous/next navigation.
-- **Adaptive presentation:** dark and light themes, bundled fonts, an animated shader background on the home page (about 30 fps; other pages use a static CSS gradient), keyboard-accessible project links, reduced-motion support, and a WebGL fallback.
-- **Optional contact form:** validated submissions, honeypot protection, and Redis rate limiting (per visitor and a site-wide daily cap). Messages are stored in PostgreSQL through an insert-only database user, then emailed to the owner through Resend.
+- **Adaptive presentation:** dark and light themes, bundled fonts, an [animated shader background](https://github.com/ruucm/shadergradient) from ruucm on the home page, keyboard-accessible project links, reduced-motion support, and a WebGL fallback.
+- **Optional contact form:** validated submissions, honeypot protection, and Redis rate limiting. Messages are stored in PostgreSQL through an insert-only database user, then emailed to the owner through Resend.
 - **Security and search:** a Content Security Policy with standard hardening headers, a sitemap that includes the pinned projects, `robots.txt`, and Open Graph metadata.
 
 ## Stack
@@ -64,16 +64,6 @@ The server reads pinned repositories directly from public GitHub pages, avoiding
 One to five pins are padded with sample concepts to reach six projects. Missing configuration, zero pins, timeouts, or an unavailable profile produce a complete sample fallback. An unavailable README falls back to the project description and repository link. GitHub markup changes may require parser updates.
 
 See [GitHub project data](docs/github-pinned-projects.md) for field mapping, parsing, and cache details.
-
-### Contact form
-
-Configure Neon, Upstash, and Resend, generate a private salt with `openssl rand -hex 32`, then apply the committed database migration:
-
-```sh
-pnpm db:migrate
-```
-
-Successful submissions are stored in the `messages` table, then Resend emails a copy to `CONTACT_TO_EMAIL`. If the email fails, the message is still saved and the visitor still sees success. There is no administrative interface. `pnpm db:prune` deletes old messages (a dry run unless you pass `--confirm`). The contact page is prerendered, so it checks the contact settings at build time: rebuild after changing them. See [contact setup](docs/contact.md) for operational details and database commands.
 
 ## Development
 
