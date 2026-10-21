@@ -53,6 +53,15 @@ export default function AboutPage() {
             A journey of a thousand li begins with a single step.
           </p>
           <span>A FEW WORDS I BUILD BY</span>
+          <figure className="about-polaroid">
+            <Image
+              src={profile.portrait.src}
+              alt={profile.portrait.alt}
+              width={profile.portrait.width}
+              height={profile.portrait.height}
+              sizes="(max-width: 899px) 90px, 116px"
+            />
+          </figure>
         </NeumorphicCard>
       </div>
       <div className="about-sections">

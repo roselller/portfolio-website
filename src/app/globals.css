@@ -1192,28 +1192,36 @@ h2.section-label {
 }
 .about-layout {
   display: grid;
-  grid-template-columns: 1.3fr 0.7fr;
-  gap: 8%;
+  /* The note column is 1.1 x its old share (0.7fr of a row with an 8% gap); the
+     text column keeps its old width, so the extra comes out of the gap. */
+  grid-template-columns: 1.256fr 0.744fr;
+  gap: 4.8%;
   align-items: start;
 }
 .about-note {
-  padding: 34px;
+  /* Nudge the card left and down from its grid position (one place to turn).
+     translate leaves the layout alone, so nothing below it moves. */
+  --note-shift-x: -14px;
+  --note-shift-y: 14px;
+  position: relative;
+  padding: 37px;
   margin-top: 40px;
   transform: rotate(2deg);
+  translate: var(--note-shift-x) var(--note-shift-y);
 }
 .about-note .note-mark {
   font-family: var(--font-display);
   color: var(--accent-glow);
-  font-size: 80px;
+  font-size: 88px;
   line-height: 1;
   /* The mark sits at the top of its line box; cut the empty space beneath it so
      the larger quote below does not make the card taller. */
-  height: 48px;
+  height: 53px;
 }
 .about-note p {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 27px;
+  font-size: 30px;
   line-height: 1.5;
   letter-spacing: -0.01em;
 }
@@ -1221,20 +1229,46 @@ h2.section-label {
    so the device's own Chinese font draws it (upright, never a slanted fake). */
 .about-note .note-original {
   font-style: normal;
-  font-size: 38px;
+  font-size: 42px;
   letter-spacing: 0.08em;
 }
 .about-note .note-translation {
-  margin-top: 14px;
+  margin-top: 15px;
   color: var(--muted);
-  font-size: 21px;
+  font-size: 23px;
   line-height: 1.55;
 }
 .about-note span {
   display: block;
-  margin-top: 26px;
+  margin-top: 29px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
+}
+/* The photo print stuck over the card's top-right corner. The card tilts +2deg,
+   so -7deg here reads as about -5deg on screen. It sits above the first Chinese
+   line (or to the right of it), never over the quote. */
+.about-polaroid {
+  --polaroid-w: clamp(96px, 8.1vw, 116px);
+  --polaroid-border: calc(var(--polaroid-w) * 0.07);
+  position: absolute;
+  top: calc(var(--polaroid-w) * -0.27);
+  right: calc(var(--polaroid-w) * -0.15);
+  width: var(--polaroid-w);
+  margin: 0;
+  padding: var(--polaroid-border) var(--polaroid-border)
+    calc(var(--polaroid-w) * 0.24);
+  background: #fbfaf8;
+  border-radius: 2px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  rotate: -7deg;
+}
+[data-theme="light"] .about-polaroid {
+  box-shadow: 0 6px 16px rgba(28, 31, 35, 0.22);
+}
+.about-polaroid img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 .about-sections {
   margin-top: 100px;
@@ -1879,20 +1913,25 @@ h2.section-label {
     justify-content: center;
   }
   .about-layout {
-    gap: 6%;
-    grid-template-columns: 1.15fr 0.85fr;
+    /* Note column 1.1 x its old share (0.85fr with a 6% gap). */
+    gap: 4.5%;
+    grid-template-columns: 1.17fr 1fr;
   }
   .about-note {
-    padding: 26px;
+    --note-shift-x: -8px;
+    padding: 29px;
   }
   .about-note p {
-    font-size: 19px;
+    font-size: 21px;
   }
   .about-note .note-original {
-    font-size: 34px;
+    font-size: 37px;
   }
   .about-note .note-translation {
-    font-size: 18px;
+    font-size: 20px;
+  }
+  .about-polaroid {
+    --polaroid-w: 90px;
   }
   .contact-layout {
     grid-template-columns: 1fr;
@@ -2001,8 +2040,18 @@ h2.section-label {
     grid-template-columns: 1fr;
     row-gap: 0;
   }
+  /* One column: the card is as wide as the screen allows (3px past the text
+     column on the right; 110% would not fit beside the photo print). The
+     bottom margin adds twice the downward shift, so the visible space above
+     and below the card stays equal. */
   .about-note {
-    margin: 56px 5px 0;
+    --note-shift-x: -4px;
+    --note-shift-y: 6px;
+    margin: 56px -3px calc(var(--note-shift-y) * 2) 0;
+  }
+  .about-polaroid {
+    --polaroid-w: clamp(72px, 24vw, 86px);
+    right: 0;
   }
   /* The note sits midway between the last paragraph and the first section
      label (the label's cap height leaves ~5px less visible space below). */
