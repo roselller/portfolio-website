@@ -1321,13 +1321,22 @@ h2.section-label {
   font-weight: 450;
   color: color-mix(in srgb, var(--text) 88%, var(--bg));
 }
-.project-visual-number {
+.project-visual-number,
+.project-visual-retrieved {
   position: absolute;
   bottom: var(--project-visual-padding);
-  left: var(--project-visual-padding);
   font-family: var(--font-label);
   font-size: 12px;
   color: var(--muted);
+}
+.project-visual-number {
+  left: var(--project-visual-padding);
+}
+.project-visual-retrieved {
+  right: var(--project-visual-padding);
+  /* Leaves room for the number on the left; wraps instead of overlapping. */
+  max-width: calc(100% - 2 * var(--project-visual-padding) - 64px);
+  text-align: right;
 }
 .project-visual-caption {
   text-align: center;

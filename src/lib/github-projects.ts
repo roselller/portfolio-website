@@ -19,7 +19,12 @@ type PinnedRepository = {
   language: string;
 };
 
-export type ProjectCollection = { projects: Project[]; sample: boolean };
+export type ProjectCollection = {
+  projects: Project[];
+  sample: boolean;
+  /** ISO time GitHub's pinned repositories were read; absent for sample-only results. */
+  retrievedAt?: string;
+};
 
 export function parsePinnedRepositories(html: string): PinnedRepository[] {
   const section = parse(html).querySelector(
@@ -173,7 +178,13 @@ export async function loadGitHubProjects(
         };
       }),
     );
-    return withSampleProjects(projects);
+    const collection = withSampleProjects(projects);
+    // Recorded here, inside the cached loader, so the time stays tied to the
+    // data however long the cached result is reused. Sample-only results have
+    // nothing retrieved, so they carry no time.
+    return projects.length
+      ? { ...collection, retrievedAt: new Date().toISOString() }
+      : collection;
   } catch {
     return withSampleProjects([]);
   }

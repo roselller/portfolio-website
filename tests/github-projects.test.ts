@@ -282,3 +282,41 @@ test("an oversized source response cannot add more than six pins", async () => {
   assert.equal(collection.projects.length, 6);
   assert.equal(collection.sample, false);
 });
+
+test("a load that finds pins records when they were retrieved", async () => {
+  const before = Date.now();
+  const collection = await loadGitHubProjects("owner", async (url) =>
+    html(
+      String(url) === "https://github.com/owner"
+        ? profile(card("owner", "repo-0") + card("owner", "repo-1"))
+        : homepage(null),
+    ),
+  );
+  const after = Date.now();
+  assert.ok(collection.retrievedAt);
+  const retrieved = new Date(collection.retrievedAt).getTime();
+  assert.equal(new Date(retrieved).toISOString(), collection.retrievedAt);
+  assert.ok(retrieved >= before && retrieved <= after);
+  // A cache stores the collection as JSON, so the time must survive that.
+  assert.equal(
+    JSON.parse(JSON.stringify(collection)).retrievedAt,
+    collection.retrievedAt,
+  );
+});
+
+test("sample-only results carry no retrieval time", async () => {
+  const noPins = await loadGitHubProjects("owner", async () =>
+    html(profile("")),
+  );
+  assert.equal(noPins.sample, true);
+  assert.equal(noPins.retrievedAt, undefined);
+
+  const unavailable = await loadGitHubProjects("owner", async () =>
+    html("Unavailable", 503),
+  );
+  assert.equal(unavailable.sample, true);
+  assert.equal(unavailable.retrievedAt, undefined);
+
+  const noUsername = await loadGitHubProjects("", async () => html(""));
+  assert.equal(noUsername.retrievedAt, undefined);
+});

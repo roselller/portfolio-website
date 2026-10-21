@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpLeft, ArrowUpRight, Asterisk } from "lucide-react";
 import { getProjectBySlug, getProjectReadme } from "@/lib/projects";
 import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
 import { ProjectReadme } from "@/components/ProjectReadme";
+import { RetrievedAt } from "@/components/RetrievedAt";
 import { ButtonAnchor } from "@/components/ui/Button";
 import { safeExternalUrl } from "@/lib/utils";
 import { projectImageUrl } from "@/lib/images";
@@ -33,7 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const { project, projects, sample } = await getProjectBySlug(slug);
+  const { project, projects, sample, retrievedAt } =
+    await getProjectBySlug(slug);
   if (!project) notFound();
   const position = projects.findIndex((item) => item.slug === slug);
   const previous =
@@ -86,6 +88,7 @@ export default async function ProjectPage({ params }: Props) {
               {String(position + 1).padStart(2, "0")} /{" "}
               {String(projects.length).padStart(2, "0")}
             </span>
+            {!sample && retrievedAt && <RetrievedAt iso={retrievedAt} />}
           </>
         )}
       </div>
