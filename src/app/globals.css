@@ -1245,13 +1245,14 @@ h2.section-label {
   font-size: 13px;
 }
 /* The photo print stuck over the card's top-right corner. The card tilts +2deg,
-   so -7deg here reads as about -5deg on screen. It sits above the first Chinese
-   line (or to the right of it), never over the quote. */
+   so -7deg here reads as about -5deg on screen. It must stay clear of the quote:
+   by default it is lifted so its bottom edge ends above the first Chinese line;
+   on wide screens (below) it sits beside that line instead. */
 .about-polaroid {
-  --polaroid-w: clamp(96px, 8.1vw, 116px);
+  --polaroid-w: 84px;
   --polaroid-border: calc(var(--polaroid-w) * 0.07);
   position: absolute;
-  top: calc(var(--polaroid-w) * -0.27);
+  top: calc(var(--polaroid-w) * -0.5);
   right: calc(var(--polaroid-w) * -0.15);
   width: var(--polaroid-w);
   margin: 0;
@@ -1269,6 +1270,12 @@ h2.section-label {
   display: block;
   width: 100%;
   height: auto;
+}
+@media (min-width: 1280px) {
+  .about-polaroid {
+    --polaroid-w: 116px;
+    top: calc(var(--polaroid-w) * -0.27);
+  }
 }
 .about-sections {
   margin-top: 100px;
@@ -1931,7 +1938,7 @@ h2.section-label {
     font-size: 20px;
   }
   .about-polaroid {
-    --polaroid-w: 90px;
+    top: calc(var(--polaroid-w) * -0.56);
   }
   .contact-layout {
     grid-template-columns: 1fr;
@@ -2041,13 +2048,14 @@ h2.section-label {
     row-gap: 0;
   }
   /* One column: the card is as wide as the screen allows (3px past the text
-     column on the right; 110% would not fit beside the photo print). The
-     bottom margin adds twice the downward shift, so the visible space above
-     and below the card stays equal. */
+     column on the right; 110% would not fit beside the photo print). It was
+     56px from the paragraph; 14px more makes room for the print that sticks up
+     above the card. The bottom margin adds those 14px and twice the downward
+     shift, so the visible space above and below the card stays equal. */
   .about-note {
     --note-shift-x: -4px;
     --note-shift-y: 6px;
-    margin: 56px -3px calc(var(--note-shift-y) * 2) 0;
+    margin: 70px -3px calc(var(--note-shift-y) * 2 + 14px) 0;
   }
   .about-polaroid {
     --polaroid-w: clamp(72px, 24vw, 86px);
