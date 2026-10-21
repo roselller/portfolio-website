@@ -622,11 +622,18 @@ h6,
   border: 1px solid transparent;
   background: transparent;
   color: var(--button-fg);
+  /* The shadows live on the button itself, which paints beneath the glow
+     (::after). On the face (::before) they would cover the glow unevenly,
+     more at the bottom and right. */
+  box-shadow:
+    var(--neumorphic),
+    0 calc(var(--glow) * 6px) calc(var(--glow) * 14px) var(--shadow-dark);
   translate: 0 var(--lift);
   scale: var(--pop);
   transition:
     translate 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
     scale 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s,
     color 0.2s;
 }
 /* Light mode inverts the button, like the signpost boards do. */
@@ -647,11 +654,7 @@ h6,
       var(--button-glow) calc(var(--glow) * 100%),
       var(--button-border)
     );
-  box-shadow:
-    var(--neumorphic),
-    0 calc(var(--glow) * 6px) calc(var(--glow) * 14px) var(--shadow-dark);
   transition:
-    box-shadow 0.3s,
     border-color 0.25s,
     background-color 0.25s;
 }
@@ -664,7 +667,7 @@ h6,
   /* A halo that traces the button's whole outline and fades to clear about
      18px out. Only the shadow shows; the face covers the middle. */
   box-shadow: 0 0 16px 2px var(--button-glow);
-  opacity: var(--glow);
+  opacity: calc(var(--glow) * 0.8);
   pointer-events: none;
   transition: opacity 0.3s;
 }
