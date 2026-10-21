@@ -2691,25 +2691,22 @@ body {
 }
 
 /* About photo print, roomy placement. When the card is wide enough, the print
-   fills the empty space to the right of the Chinese lines instead of hanging
-   above the card. Its width is whatever that space allows: card width, minus
-   the Chinese line and the padding it already clears, plus a little overhang
-   past the card's edge, divided by 1.16 (what the -7deg tilt adds to a print's
-   box). The upper limit keeps the print above the translation line (the two
-   Chinese lines are shorter in the smaller type, hence 148px and 130px).
-   Below the thresholds the lifted default above applies. The thresholds are
-   the card widths at which this size reaches 100px; container queries cannot
-   read variables, so there is one for each type size. */
+   is stuck over the card's top-right: larger, tilted about 12 degrees on screen,
+   rising above the card's top edge, with its left edge just right of the
+   Chinese comma and its bottom just above the English line (placed to match
+   the user's drawing at a ~1700px window). The Chinese line has a fixed width,
+   so the print's width is the card's width minus a fixed amount; that keeps
+   the gap to the comma the same at every card width. The thresholds are the
+   card widths at which the print is about 110px; container queries cannot read
+   variables, so there is one for each type size. Narrower cards keep the small
+   lifted print (the default rules above). */
 @media (min-width: 900px) {
-  @container (min-width: 313px) {
+  @container (min-width: 305px) {
     .about-polaroid {
-      --polaroid-w: clamp(
-        100px,
-        calc((100cqw - var(--zh-width) + var(--note-pad) + 14px) / 1.16),
-        148px
-      );
-      top: calc(var(--polaroid-w) * 0.06);
-      right: calc(var(--polaroid-w) * -0.02);
+      --polaroid-w: clamp(100px, calc(100cqw - 195px), 205px);
+      top: calc(var(--polaroid-w) * -0.37);
+      right: calc(var(--polaroid-w) * 0.075);
+      rotate: -13.5deg;
     }
   }
 }
