@@ -1277,14 +1277,16 @@ h2.section-label {
   color: var(--muted);
   font-size: 13px;
 }
-/* The photo print stuck on the card's top-right. The card tilts +2deg, so -7deg
-   here reads as about -5deg on screen. It must stay clear of the quote. Two
+/* The photo print stuck on the card's top-right. The card tilts +2deg, so -2deg
+   here reads as level on screen. Its paper is the inverse of the theme, like the
+   buttons: light in dark mode, dark in light mode. It must stay clear of the quote. Two
    placements: on a narrow card it is small and lifted so its bottom edge ends
    above the first Chinese line (this default); on a card with room to spare it
    is larger and sits in the empty space right of the Chinese lines (the
    container rules at the end of this file). */
 .about-polaroid {
   --polaroid-w: 84px;
+  --polaroid-paper: #fbfaf8;
   --polaroid-border: calc(var(--polaroid-w) * 0.07);
   position: absolute;
   top: calc(var(--polaroid-w) * -0.5);
@@ -1293,12 +1295,13 @@ h2.section-label {
   margin: 0;
   padding: var(--polaroid-border) var(--polaroid-border)
     calc(var(--polaroid-w) * 0.24);
-  background: #fbfaf8;
+  background: var(--polaroid-paper);
   border-radius: 2px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-  rotate: -7deg;
+  rotate: -2deg;
 }
 [data-theme="light"] .about-polaroid {
+  --polaroid-paper: var(--surface-dark);
   box-shadow: 0 6px 16px rgba(28, 31, 35, 0.22);
 }
 .about-polaroid img {
@@ -2687,7 +2690,7 @@ body {
 }
 
 /* About photo print, roomy placement. When the card is wide enough, the print
-   is stuck over the card's top-right: larger, tilted about 12 degrees on screen,
+   is stuck over the card's top-right: larger, tilted about 7 degrees on screen,
    rising above the card's top edge, with its left edge just right of the
    Chinese comma and its bottom just above the English line (placed to match
    the user's drawing at a ~1700px window). The Chinese line has a fixed width,
@@ -2707,7 +2710,7 @@ body {
       );
       top: calc(var(--polaroid-w) * -0.37);
       right: calc(var(--polaroid-w) * 0.075);
-      rotate: -13.5deg;
+      rotate: -8.5deg;
     }
   }
 }
