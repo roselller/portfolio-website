@@ -1,6 +1,6 @@
 # Portfolio Website
 
-The personal portfolio of **Roseller Armirola**, a designer and developer. See it live at **[roseller.vercel.app](https://roseller.vercel.app)**.
+Welcome to my portfolio, in a website! See it live at **[roseller.vercel.app](https://roseller.vercel.app)**.
 
 Instead of a plain list, my projects hang on a 3D signpost. Pick a sign to read about the project behind it.
 
