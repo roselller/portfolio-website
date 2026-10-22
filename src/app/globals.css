@@ -1247,10 +1247,21 @@ h2.section-label {
      translate leaves the layout alone, so nothing below it moves. */
   --note-shift-x: -14px;
   --note-shift-y: 14px;
-  /* Padding, and the width of the Chinese line (5 characters in the 42px type).
-     The photo print is sized from the space these leave on its right. */
+  /* Padding, then the type. The sizes below are for a card at least 305px wide
+     inside its padding (the width the layout was drawn for), in px without the
+     unit. On a narrower card they shrink in proportion (cqw = 1% of that inner
+     width), so the whole quote scales down together. --zh-width is the width of
+     the Chinese line (5.6667 x its font size); the photo print is sized from the
+     space that leaves on its right. */
   --note-pad: 37px;
-  --zh-width: 238px;
+  --zh-max: 42;
+  --tr-max: 23;
+  --zh-font: clamp(
+    24px,
+    calc(var(--zh-max) / 305 * 100cqw),
+    calc(var(--zh-max) * 1px)
+  );
+  --zh-width: calc(var(--zh-font) * 5.6667);
   container-type: inline-size;
   position: relative;
   padding: var(--note-pad);
@@ -1273,11 +1284,11 @@ h2.section-label {
 .about-note .note-mark {
   font-family: var(--font-display);
   color: var(--accent-glow);
-  font-size: 88px;
+  font-size: clamp(56px, 28.85cqw, 88px);
   line-height: 1;
   /* The mark sits at the top of its line box; cut the empty space beneath it so
      the larger quote below does not make the card taller. */
-  height: 53px;
+  height: clamp(34px, 17.38cqw, 53px);
 }
 .about-note p {
   font-family: var(--font-display);
@@ -1290,35 +1301,46 @@ h2.section-label {
    so the device's own Chinese font draws it (upright, never a slanted fake). */
 .about-note .note-original {
   font-style: normal;
-  font-size: 42px;
+  font-size: var(--zh-font);
   letter-spacing: 0.08em;
 }
 .about-note .note-translation {
-  margin-top: 15px;
+  margin-top: clamp(10px, 4.92cqw, 15px);
   color: var(--muted);
-  font-size: 23px;
+  font-size: clamp(
+    15px,
+    calc(var(--tr-max) / 305 * 100cqw),
+    calc(var(--tr-max) * 1px)
+  );
   line-height: 1.55;
 }
 .about-note span {
   display: block;
-  margin-top: 29px;
+  margin-top: clamp(18px, 9.5cqw, 29px);
   color: var(--muted);
-  font-size: 13px;
+  font-size: clamp(11px, 4.26cqw, 13px);
 }
-/* The photo print stuck on the card's top-right. The card tilts +2deg, so -2deg
-   here reads as level on screen. Its paper is the inverse of the theme, like the
-   buttons: light in dark mode, dark in light mode. It must stay clear of the quote. Two
-   placements: on a narrow card it is small and lifted so its bottom edge ends
-   above the first Chinese line (this default); on a card with room to spare it
-   is larger and sits in the empty space right of the Chinese lines (the
-   container rules at the end of this file). */
+/* The photo print stuck over the card's top-right, on every screen. It is placed
+   to match the user's drawing at a ~1700px window: tilted about 7 degrees on
+   screen (the card itself tilts +2deg), rising above the card's top edge, with
+   its left edge just right of the Chinese comma and its bottom just above the
+   English line. Its width is the card's inner width minus the Chinese line's
+   width (less the padding and 6px), so the gap to the comma stays the same at
+   every card width; the type shrinks with a narrow card (see .about-note), and
+   the print shrinks with it. Its largest size (205px next to the 42px type)
+   also follows the type size. Its paper is the inverse of the theme, like the
+   buttons: light in dark mode, dark in light mode. */
 .about-polaroid {
-  --polaroid-w: 84px;
+  --polaroid-w: clamp(
+    64px,
+    calc(100cqw - var(--zh-width) + var(--note-pad) + 6px),
+    calc(var(--zh-max) * 4.881px)
+  );
   --polaroid-paper: #fbfaf8;
   --polaroid-border: calc(var(--polaroid-w) * 0.07);
   position: absolute;
-  top: calc(var(--polaroid-w) * -0.5);
-  right: calc(var(--polaroid-w) * 0.04);
+  top: calc(var(--polaroid-w) * -0.37);
+  right: calc(var(--polaroid-w) * 0.075);
   width: var(--polaroid-w);
   margin: 0;
   padding: var(--polaroid-border) var(--polaroid-border)
@@ -1326,7 +1348,7 @@ h2.section-label {
   background: var(--polaroid-paper);
   border-radius: 2px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-  rotate: -2deg;
+  rotate: -8.5deg;
 }
 [data-theme="light"] .about-polaroid {
   --polaroid-paper: var(--surface-dark);
@@ -1981,19 +2003,11 @@ h2.section-label {
   .about-note {
     --note-shift-x: -8px;
     --note-pad: 29px;
-    --zh-width: 210px;
+    --zh-max: 37;
+    --tr-max: 20;
   }
   .about-note p {
     font-size: 21px;
-  }
-  .about-note .note-original {
-    font-size: 37px;
-  }
-  .about-note .note-translation {
-    font-size: 20px;
-  }
-  .about-polaroid {
-    top: calc(var(--polaroid-w) * -0.56);
   }
   .contact-layout {
     grid-template-columns: 1fr;
@@ -2103,19 +2117,23 @@ h2.section-label {
     grid-template-columns: 1fr;
     row-gap: 0;
   }
-  /* One column: the card is as wide as the screen allows (3px past the text
-     column on the right; 110% would not fit beside the photo print). It was
-     56px from the paragraph; 14px more makes room for the print that sticks up
-     above the card. The bottom margin adds those 14px and twice the downward
-     shift, so the visible space above and below the card stays equal. */
+  /* One column: the card sits a little inside the text column, so the tilted
+     card (and the print, which stays within it) keeps some whitespace on both
+     sides, and it is centred (no sideways shift). Its type and print shrink
+     with its width. It was 56px from the paragraph; 14px more makes room for
+     the print that sticks up above the card. The bottom margin adds those 14px
+     and twice the downward shift, so the visible space above and below the
+     card stays equal. */
   .about-note {
-    --note-shift-x: -4px;
+    --note-shift-x: 0px;
     --note-shift-y: 6px;
-    margin: 70px -3px calc(var(--note-shift-y) * 2 + 14px) 0;
-  }
-  .about-polaroid {
-    --polaroid-w: clamp(72px, 24vw, 86px);
-    right: 0;
+    --note-pad: clamp(20px, 6.7vw, 29px);
+    --note-inset: clamp(6px, 2.4vw, 12px);
+    /* 413px is the width at which the print reaches its full size (180px, in
+       the 37px type used here). A wider card would run the English line under
+       it, so on a big phone the card stays 413px and is centred. */
+    width: min(100% - 2 * var(--note-inset), 413px);
+    margin: 70px auto calc(var(--note-shift-y) * 2 + 14px);
   }
   /* The note sits midway between the last paragraph and the first section
      label (the label's cap height leaves ~5px less visible space below). */
@@ -2716,43 +2734,4 @@ body {
   cursor: pointer;
   color: var(--text);
   padding: 12px 0;
-}
-
-/* About photo print, roomy placement. When the card is wide enough, the print
-   is stuck over the card's top-right: larger, tilted about 7 degrees on screen,
-   rising above the card's top edge, with its left edge just right of the
-   Chinese comma and its bottom just above the English line (placed to match
-   the user's drawing at a ~1700px window). The Chinese line has a fixed width,
-   so the print's width is the card's width minus a fixed amount (the Chinese
-   line's width, less the card's padding and 6px); that keeps
-   the gap to the comma the same at every card width. The thresholds are the
-   card widths at which the print is about 110px; container queries cannot read
-   variables, so there is one for each type size. Narrower cards keep the small
-   lifted print (the default rules above). */
-@media (min-width: 900px) {
-  @container (min-width: 305px) {
-    .about-polaroid {
-      --polaroid-w: clamp(
-        100px,
-        calc(100cqw - var(--zh-width) + var(--note-pad) + 6px),
-        205px
-      );
-      top: calc(var(--polaroid-w) * -0.37);
-      right: calc(var(--polaroid-w) * 0.075);
-      rotate: -8.5deg;
-    }
-  }
-}
-@media (max-width: 899px) {
-  @container (min-width: 281px) {
-    .about-polaroid {
-      --polaroid-w: clamp(
-        100px,
-        calc((100cqw - var(--zh-width) + var(--note-pad) + 4px) / 1.16),
-        130px
-      );
-      top: calc(var(--polaroid-w) * 0.06);
-      right: calc(var(--polaroid-w) * -0.02);
-    }
-  }
 }
