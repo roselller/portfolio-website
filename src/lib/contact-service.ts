@@ -1,3 +1,4 @@
+import { flattenError } from "zod/mini";
 import { contactSchema, type ContactResult } from "./validations";
 
 // Returned by the rate limiter when the whole site (not just this visitor) has
@@ -23,7 +24,7 @@ export async function processContact(
     return {
       ok: false,
       message: "Please check the highlighted fields.",
-      fieldErrors: parsed.error.flatten().fieldErrors,
+      fieldErrors: flattenError(parsed.error).fieldErrors,
     };
   if (parsed.data.website) return { ok: true };
   if (!dependencies.available)

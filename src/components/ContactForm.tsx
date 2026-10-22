@@ -18,7 +18,7 @@ import {
   type ContactResult,
 } from "@/lib/validations";
 import { Button } from "./ui/Button";
-import type { z } from "zod";
+import type { output } from "zod/mini";
 
 // How long the send button shows green (sent) or red (not sent) before the
 // thank-you panel appears or the button returns to normal.
@@ -84,7 +84,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
     subscribe,
     reset,
     formState: { errors },
-  } = useForm<ContactInput, unknown, z.output<typeof contactSchema>>({
+  } = useForm<ContactInput, unknown, output<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
     defaultValues: { name: "", email: "", message: "", website: "" },
   });
@@ -128,7 +128,7 @@ export function ContactForm({ configured }: { configured: boolean }) {
     setFeedback("error");
   }
 
-  function onSubmit(values: z.output<typeof contactSchema>) {
+  function onSubmit(values: output<typeof contactSchema>) {
     if (pending || feedback) return;
     setResult(null);
     startTransition(async () => {
