@@ -65,8 +65,8 @@ export function useSignpostTheme() {
   const theme = useSyncExternalStore(
     subscribeTheme,
     () =>
-      document.documentElement.dataset.theme === "light" ? "light" : "dark",
-    () => "dark",
+      document.documentElement.dataset.theme === "dark" ? "dark" : "light",
+    () => "light",
   );
   return signpostThemes[theme as keyof typeof signpostThemes];
 }

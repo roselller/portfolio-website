@@ -46,7 +46,7 @@ export function Navbar() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   return (
-    <header className="site-header">
+    <header className="site-header neu-card">
       <Link href="/" className="wordmark" aria-label={`${profile.name}, home`}>
         {profile.initials}
         <span aria-hidden="true">.</span>

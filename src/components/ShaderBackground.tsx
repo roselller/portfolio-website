@@ -20,7 +20,7 @@ function subscribe(notify: () => void) {
   };
 }
 function snapshot() {
-  return `${document.documentElement.dataset.theme}|${window.matchMedia("(prefers-reduced-motion: reduce)").matches}|${document.visibilityState}`;
+  return `${document.documentElement.dataset.theme === "dark" ? "dark" : "light"}|${window.matchMedia("(prefers-reduced-motion: reduce)").matches}|${document.visibilityState}`;
 }
 
 // The gradient follows clock time, so drawing ~30 frames a second instead of
@@ -44,7 +44,7 @@ export default function ShaderBackground() {
   const state = useSyncExternalStore(
     subscribe,
     snapshot,
-    () => "dark|true|hidden",
+    () => "light|true|hidden",
   );
   const [theme, reduced, visibility] = state.split("|");
   const light = theme === "light";

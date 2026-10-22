@@ -10,7 +10,7 @@ function subscribe(notify: () => void) {
   function onStorage(event: StorageEvent) {
     if (event.key !== storageKey && event.key !== null) return;
     document.documentElement.dataset.theme =
-      event.newValue === "light" ? "light" : "dark";
+      event.newValue === "dark" ? "dark" : "light";
     notify();
   }
   window.addEventListener(themeEvent, notify);
@@ -26,8 +26,8 @@ export function ThemeToggle() {
   const reduced = useReducedMotion();
   const light = useSyncExternalStore(
     subscribe,
-    () => document.documentElement.dataset.theme === "light",
-    () => false,
+    () => document.documentElement.dataset.theme !== "dark",
+    () => true,
   );
   const label = `Switch to ${light ? "dark" : "light"} mode`;
 

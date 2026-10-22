@@ -6,9 +6,16 @@ const spacing = 0.71;
 const lowestBoard = 2.33;
 const angles = [42, 18, 48, 14, 44, 20, 40, 16];
 
+// `pole` recolours the charcoal parts of the pole to the opposite of the boards:
+// null keeps the model's own charcoal (dark mode, light boards).
 export const signpostThemes = {
-  dark: { board: "#e7e9ec", ink: "#16181c", arrow: "#9f1239" },
-  light: { board: "#16181c", ink: "#f2f3f5", arrow: "#fb7185" },
+  dark: { board: "#e7e9ec", ink: "#16181c", arrow: "#9f1239", pole: null },
+  light: {
+    board: "#16181c",
+    ink: "#f2f3f5",
+    arrow: "#fb7185",
+    pole: "#e7e9ec",
+  },
 } as const;
 
 export type SignpostTheme =

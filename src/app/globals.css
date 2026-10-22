@@ -89,20 +89,20 @@ h6,
 .sign-label > span:nth-child(2) {
   font-family: var(--font-heading);
 }
+/* A floating card like the intro card (.neu-card gives it the surface, border,
+   shadow and radius). Its side gutter lines up with the home page's intro card. */
 .site-header {
+  --header-gutter: max(10px, 3%);
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 12px;
+  left: var(--header-gutter);
+  right: var(--header-gutter);
   z-index: 80;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 24px;
-  padding: 24px 4%;
+  padding: 12px clamp(14px, 2vw, 28px);
 }
 .wordmark {
   justify-self: start;
@@ -150,14 +150,12 @@ h6,
   font-size: 14px;
   font-weight: 500;
   color: var(--muted);
+  background: var(--glass-end);
   padding: 9px 23px;
   border-radius: 24px;
   transition:
     color 0.2s,
     background 0.2s;
-}
-.main-nav a:hover {
-  color: var(--text);
 }
 .main-nav a[aria-current] {
   color: var(--text);
@@ -201,9 +199,15 @@ h6,
     background 0.2s,
     color 0.2s;
 }
-.theme-toggle:hover {
-  color: var(--accent-glow);
-  background: var(--panel-hover);
+/* One hover for the theme switch, the nav links and the view switch: the icon
+   or text turns rose and the fill moves from --glass-end to --panel-hover. */
+@media (hover: hover) {
+  .theme-toggle:hover,
+  .main-nav a:hover,
+  .view-toggle button:not(:disabled, [aria-pressed="true"]):hover {
+    color: var(--accent-glow);
+    background: var(--panel-hover);
+  }
 }
 .eyebrow {
   font-family: var(--font-label);
@@ -370,10 +374,13 @@ h6,
   place-items: center;
   color: var(--muted);
   border: 0;
-  background: none;
+  background: var(--glass-end);
   width: 40px;
   height: 36px;
   border-radius: 999px;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 .view-toggle button[aria-pressed="true"] {
   cursor: default;
@@ -1999,7 +2006,8 @@ h2.section-label {
 }
 @media (max-width: 600px) {
   .site-header {
-    padding: 18px 4%;
+    top: 8px;
+    padding: 8px 10px;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     justify-content: space-between;
     gap: 8px;
