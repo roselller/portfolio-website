@@ -7,3 +7,8 @@ allowBuilds:
 overrides:
   "source-map-js@<1.2.2": ">=1.2.2"
   "@esbuild-kit/core-utils>esbuild": "^0.25.0"
+
+# Do not install a package version published in the last day. Most hijacked or
+# malicious releases are pulled within hours; this keeps a fresh one out of
+# `pnpm add` and `pnpm update`. Installs from the lockfile are not affected.
+minimumReleaseAge: 1440

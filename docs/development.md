@@ -52,3 +52,9 @@ Edit `src/data/profile.ts` and `src/data/site-copy.ts` for identity and interfac
 - `connect-src 'self'` blocks troika's fallback-font download from a CDN. If a sign title used a character missing from the sign font, the whole 3D scene would stay blank, so `toSignText()` replaces such characters with `?`. The sign fonts are subsets; see [public/fonts](../public/fonts/LICENSE-fonts.md) before changing them.
 
 Check the browser console for CSP violations after adding any third-party script, font, or API call.
+
+The other headers are `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a strict `Referrer-Policy`, `Cross-Origin-Opener-Policy: same-origin` (pages from other origins cannot keep a handle on this one), and a `Permissions-Policy` that switches off the camera, microphone, location, payment and USB.
+
+## Installing packages
+
+`pnpm-workspace.yaml` sets `minimumReleaseAge: 1440`, so `pnpm add` and `pnpm update` skip any package version published in the last 24 hours (most hijacked releases are pulled within hours). Installs from the lockfile are not affected. If you need a brand-new release, wait a day or name the package in `minimumReleaseAgeExclude`.

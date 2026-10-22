@@ -124,7 +124,8 @@ Replace `SITE` with the `vercel.app` address Vercel gave you.
 
 1. **Build log:** pnpm 11.19.0, Node 24, function region Singapore (`sin1`).
 2. **Headers:** `curl -sI https://SITE/` shows `content-security-policy`, `strict-transport-security`,
-   `x-frame-options: DENY`, `x-content-type-options: nosniff`, and no `x-powered-by`.
+   `x-frame-options: DENY`, `x-content-type-options: nosniff`, `cross-origin-opener-policy: same-origin`, and no
+   `x-powered-by`.
 3. **CSP in a real browser:** open the home page, About, Contact, and one project page with the developer console open.
    There must be no "Refused to ..." messages, the 3D signpost must show, and the signs must be your real GitHub pins
    rather than the sample projects.
