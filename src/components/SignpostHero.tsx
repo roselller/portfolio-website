@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
-import gsap from "gsap";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { SignpostSceneClient } from "./three/SignpostSceneClient";
 import { ProjectCarousel } from "./ProjectCarousel";
@@ -19,6 +18,7 @@ import type { Project } from "@/data/projects";
 
 import { useProjectView } from "./ProjectViewProvider";
 import { bindSignpostPointer } from "@/lib/signpost-pointer";
+import { createQuickTween } from "@/lib/quick-tween";
 import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
 
 export function SignpostHero({
@@ -48,17 +48,17 @@ export function SignpostHero({
     rotation.current = 0;
     renderSceneRef.current?.();
     if (grid || projects.length === 0) return;
-    const turn = gsap.quickTo(rotation, "current", {
-      duration: 0.18,
-      ease: "power1.out",
+    const turn = createQuickTween({
+      read: () => rotation.current,
+      write: (angle) => {
+        rotation.current = angle;
+      },
       onUpdate: () => renderSceneRef.current?.(),
     });
-    const unbind = bindSignpostPointer(window, document, turn, () =>
-      turn.tween.pause(),
-    );
+    const unbind = bindSignpostPointer(window, document, turn.to, turn.pause);
     return () => {
       unbind();
-      turn.tween.kill();
+      turn.kill();
     };
   }, [grid, projects.length]);
 
