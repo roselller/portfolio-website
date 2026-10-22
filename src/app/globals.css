@@ -1898,6 +1898,11 @@ h2.section-label {
   }
 }
 @media (max-width: 899px) {
+  /* The hero's cards are inset 6% from each side here (3% above 900px), so the
+     header card takes the same gutter and its edges line up with theirs. */
+  .site-header {
+    --header-gutter: 6%;
+  }
   .header-cta {
     display: none;
   }
