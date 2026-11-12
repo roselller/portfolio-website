@@ -109,17 +109,15 @@ test("dates read the same in every time zone", () => {
   assert.equal(formatWritingDate("2026-01-01"), "1 Jan 2026");
 });
 
-test("writing links allow web, mail and /writing/ files only", () => {
+test("writing links allow web addresses, mail and pages of this site only", () => {
   assert.equal(
     writingUrl("https://doi.org/10.1/x", false),
     "https://doi.org/10.1/x",
   );
   assert.equal(writingUrl("mailto:a@b.co", false), "mailto:a@b.co");
   assert.equal(writingUrl("mailto:a@b.co", true), undefined);
-  assert.equal(
-    writingUrl("/writing/figure-1.png", true),
-    "/writing/figure-1.png",
-  );
+  // The content repository has no files to serve, so site images are refused.
+  assert.equal(writingUrl("/writing/figure-1.png", true), undefined);
   assert.equal(writingUrl("/writing/../secret", true), undefined);
   assert.equal(writingUrl("/about", false), "/about");
   assert.equal(writingUrl("/about", true), undefined);

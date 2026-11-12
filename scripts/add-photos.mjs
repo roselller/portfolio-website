@@ -64,6 +64,14 @@ if (!cover) fail(`No cover.(${EXTENSIONS.join("|")}) in ${folder}`);
 const files = [["cover", cover]];
 for (let n = 1; find(String(n)); n++) files.push([String(n), find(String(n))]);
 
+// A photo numbered past a gap (1, 2, 4) would be left out without a word.
+for (let n = files.length; n < files.length + 30; n++) {
+  if (find(String(n)))
+    fail(
+      `Photo ${n} follows a gap: ${files.length} is missing. Number the photos 1, 2, 3... with no gaps.`,
+    );
+}
+
 // content.md: KEY:value lines.
 const content = {};
 const contentFile = path.join(folder, "content.md");

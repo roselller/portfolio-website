@@ -1,4 +1,5 @@
 import "server-only";
+import { homedir } from "node:os";
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { loadContent, type Content } from "@/lib/content-loader";
@@ -18,7 +19,10 @@ const EMPTY: Content = { posts: [], writings: [] };
  * simply no content.
  */
 export function getContentSource(): ContentSource | null {
-  const directory = process.env.CONTENT_DIR?.trim();
+  const directory = process.env.CONTENT_DIR?.trim().replace(
+    /^~(?=\/|$)/,
+    homedir(),
+  );
   if (process.env.NODE_ENV !== "production" && directory) {
     return folderSource(directory);
   }
@@ -46,7 +50,13 @@ export const getContent = cache(async (): Promise<Content> => {
     return await (process.env.NODE_ENV === "production"
       ? loadCached()
       : loadFromSource());
-  } catch {
+  } catch (error) {
+    // Visible in the host's logs (an expired token shows up here). The message
+    // holds no secret: the token is only ever sent in a header.
+    console.error(
+      "Content store unreadable:",
+      error instanceof Error ? error.message : "unknown error",
+    );
     return EMPTY;
   }
 });

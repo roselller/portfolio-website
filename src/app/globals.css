@@ -3123,9 +3123,6 @@ body {
   text-indent: -2em;
   color: var(--muted);
 }
-.writing-paper .writing-pdf {
-  margin-top: 32px;
-}
 .writing-paper > .page-lead {
   margin-top: 0;
 }

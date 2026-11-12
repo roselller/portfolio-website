@@ -27,16 +27,24 @@ export async function GET(
   const sha = posts.find((post) => post.id === id)?.versions[name];
   const source = getContentSource();
   if (!sha || !source) return new Response(null, { status: 404 });
+  // Only the address that names this exact file is served. Any other `v` (or
+  // none) is sent to it without touching the store, so a made-up query string
+  // cannot make the site read the repository.
+  const version = sha.slice(0, 12);
+  if (new URL(request.url).searchParams.get("v") !== version) {
+    return new Response(null, {
+      status: 308,
+      headers: {
+        Location: `/photography/${id}/${name}.webp?v=${version}`,
+        "Cache-Control": SHORT,
+      },
+    });
+  }
   try {
     const bytes = await source.readBytes(sha);
     if (!isWebp(bytes)) return new Response(null, { status: 404 });
-    const version = new URL(request.url).searchParams.get("v");
     return new Response(bytes as BodyInit, {
-      headers: {
-        "Content-Type": "image/webp",
-        // The long cache only for the address that names this exact file.
-        "Cache-Control": version === sha.slice(0, 12) ? FOREVER : SHORT,
-      },
+      headers: { "Content-Type": "image/webp", "Cache-Control": FOREVER },
     });
   } catch {
     return new Response(null, { status: 502 });

@@ -210,3 +210,10 @@ test("github source: refuses odd repository names and failed answers", async () 
     Response.json({ truncated: true, tree: [] })) as unknown as typeof fetch;
   await assert.rejects(githubSource("o/r", "t", truncated).list());
 });
+
+test("post.json: repeated hashtags are listed once", () => {
+  assert.deepEqual(
+    parse({ ...good, hashtags: ["a", "#a", "b", "a"] })?.hashtags,
+    ["a", "b"],
+  );
+});

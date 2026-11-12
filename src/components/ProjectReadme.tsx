@@ -94,15 +94,12 @@ type ResolveUrl = (
 ) => string | undefined;
 
 /**
- * Links and images in the site's own writing: full web addresses, mail links,
- * pages of this site, and files under /writing/ (for images kept in
- * public/writing/).
+ * Links and images in the site's own writing: full web addresses, mail links
+ * and pages of this site. Images must be web addresses: the content
+ * repository holds text and photos only.
  */
 export function writingUrl(value: string | undefined, image: boolean) {
   if (!value) return undefined;
-  if (/^\/writing\/[\w./-]+$/.test(value) && !value.includes("..")) {
-    return value;
-  }
   // A page of this site (/about), but never //host or /\\host.
   if (!image && /^\/(?![/\\])[\w./#?=&%-]*$/.test(value)) return value;
   try {

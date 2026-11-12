@@ -13,8 +13,8 @@ import { workPath } from "@/lib/work-path";
 export const revalidate = 3600;
 type Props = { params: Promise<{ slug: string }> };
 
-// Nothing is built ahead of time (the content store is not reachable while
-// building); each page is built on its first visit and then cached.
+// Pages are built on their first visit and then cached for an hour, so a new
+// piece needs no deploy.
 export function generateStaticParams() {
   return [];
 }
@@ -42,12 +42,14 @@ export default async function WritingPage({ params }: Props) {
   const { writing, writings } = await getWritingBySlug(slug);
   if (!writing) notFound();
   const position = writings.findIndex((item) => item.slug === slug);
+  // The list is newest first. As on the photo pages, "previous" is the older
+  // piece and "next" the newer one, and the links go round.
   const previous =
+    writings.length > 1 ? writings[(position + 1) % writings.length] : null;
+  const next =
     writings.length > 1
       ? writings[(position - 1 + writings.length) % writings.length]
       : null;
-  const next =
-    writings.length > 1 ? writings[(position + 1) % writings.length] : null;
   return (
     <main id="main" className="page-shell writing-page">
       <Link href="/#writing" className="project-back">
@@ -56,12 +58,13 @@ export default async function WritingPage({ params }: Props) {
       <div className="project-heading-row">
         <p className="eyebrow work-path">
           <span className="accent-line" aria-hidden="true" />{" "}
-          {workPath("writing", position + 1, writing.slug)}
+          {/* Counted from the oldest, so a new piece does not renumber the others. */}
+          {workPath("writing", writings.length - position, writing.slug)}
         </p>
       </div>
       {/* The sheet holds the whole document, as the original file does: its
           title, its byline, then the text. All of it comes from the piece's
-          file in content/writing/. */}
+          file in the content repository (writing/<slug>.md). */}
       <article className="writing-article">
         <div className="writing-paper">
           <header className="writing-header">

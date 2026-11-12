@@ -90,10 +90,13 @@ export function parsePostFile(
     folder: text(data.folder, 80) || id,
     title,
     hashtags: Array.isArray(data.hashtags)
-      ? data.hashtags
-          .map((tag) => text(tag, 50).replace(/^#/, ""))
-          .filter(Boolean)
-          .slice(0, 30)
+      ? [
+          ...new Set(
+            data.hashtags
+              .map((tag) => text(tag, 50).replace(/^#/, ""))
+              .filter(Boolean),
+          ),
+        ].slice(0, 30)
       : [],
     location: text(data.location, 120),
     link: instagramPostUrl(link) ? link : "",
