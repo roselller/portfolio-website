@@ -15,6 +15,10 @@
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }
 
+/* The side gutter shared by the header card and the Work page's cards. */
+:root {
+  --page-gutter: max(10px, 3%);
+}
 * {
   box-sizing: border-box;
 }
@@ -92,7 +96,7 @@ h6,
 /* A floating card like the intro card (.neu-card gives it the surface, border,
    shadow and radius). Its side gutter lines up with the home page's intro card. */
 .site-header {
-  --header-gutter: max(10px, 3%);
+  --header-gutter: var(--page-gutter);
   position: fixed;
   top: 12px;
   left: var(--header-gutter);
@@ -1900,8 +1904,8 @@ h2.section-label {
 @media (max-width: 899px) {
   /* The hero's cards are inset 6% from each side here (3% above 900px), so the
      header card takes the same gutter and its edges line up with theirs. */
-  .site-header {
-    --header-gutter: 6%;
+  :root {
+    --page-gutter: 6%;
   }
   .header-cta {
     display: none;
@@ -2524,7 +2528,8 @@ body {
 @media (min-width: 900px) {
   .hero-list {
     grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
-    padding-inline: 4%;
+    /* The same side gutter as the header card, so their edges line up. */
+    padding-inline: var(--page-gutter);
     column-gap: 24px;
     overflow: clip;
   }

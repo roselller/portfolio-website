@@ -26,7 +26,8 @@ export function ProjectViewProvider({ children }: { children: ReactNode }) {
     () => window.matchMedia(query).matches,
     () => true,
   );
-  const [list, setList] = useState(false);
+  // Card mode is the default; the 3D signpost is the visitor's choice.
+  const [list, setList] = useState(true);
   return (
     <ProjectViewContext.Provider
       value={{ grid: reduced || list, reduced, setList }}

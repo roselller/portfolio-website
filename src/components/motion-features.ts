@@ -1,5 +1,6 @@
-// Loaded on demand by MotionProvider. domMax (not domAnimation) because the
-// navigation pill uses a shared `layoutId` transition.
-import { domMax } from "framer-motion";
+// Loaded on demand by MotionProvider. Nothing uses layout animations (the
+// navigation pill slides with the Web Animations API), so the smaller
+// domAnimation set is enough.
+import { domAnimation } from "framer-motion";
 
-export default domMax;
+export default domAnimation;

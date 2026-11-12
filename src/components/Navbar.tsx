@@ -1,7 +1,8 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import { m, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Box, List } from "lucide-react";
 import { profile } from "@/data/profile";
@@ -42,9 +43,50 @@ function ProjectViewSwitch({ className }: { className: string }) {
   );
 }
 
+// How long the active pill takes to slide from one link to the next.
+const PILL_SLIDE_MS = 380;
+
+function isActive(href: string, pathname: string) {
+  return (
+    pathname === href || (href === "/" && pathname.startsWith("/projects/"))
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
+  const nav = useRef<HTMLElement>(null);
+  const previous = useRef<{ left: number; width: number } | null>(null);
+  const activeHref = siteCopy.navigation.find(({ href }) =>
+    isActive(href, pathname),
+  )?.href;
+
+  // The pill slides from the link it was on to the new one. Both places are
+  // measured inside the nav (offsetLeft), never against the page: a page change
+  // also resets the scroll, and a slide measured against the page started a
+  // scroll's distance below the bar.
+  useLayoutEffect(() => {
+    const link = nav.current?.querySelector<HTMLElement>(
+      'a[aria-current="page"]',
+    );
+    const pill = link?.querySelector<HTMLElement>(".nav-active-indicator");
+    const from = previous.current;
+    previous.current = link
+      ? { left: link.offsetLeft, width: link.offsetWidth }
+      : null;
+    if (!link || !pill || !from || reduced) return;
+    const left = from.left - link.offsetLeft;
+    const right = link.offsetLeft + link.offsetWidth - from.left - from.width;
+    if (left === 0 && right === 0) return;
+    pill.animate(
+      [
+        { left: `${left}px`, right: `${right}px` },
+        { left: "0px", right: "0px" },
+      ],
+      { duration: PILL_SLIDE_MS, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
+    );
+  }, [activeHref, reduced]);
+
   return (
     <header className="site-header neu-card">
       <Link href="/" className="wordmark" aria-label={`${profile.name}, home`}>
@@ -52,30 +94,15 @@ export function Navbar() {
         <span aria-hidden="true">.</span>
       </Link>
       <GlassPanel className="nav-shell">
-        <nav className="main-nav" aria-label="Main navigation">
+        <nav ref={nav} className="main-nav" aria-label="Main navigation">
           {siteCopy.navigation.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              aria-current={
-                pathname === href ||
-                (href === "/" && pathname.startsWith("/projects/"))
-                  ? "page"
-                  : undefined
-              }
+              aria-current={isActive(href, pathname) ? "page" : undefined}
             >
-              {(pathname === href ||
-                (href === "/" && pathname.startsWith("/projects/"))) && (
-                <m.span
-                  className="nav-active-indicator"
-                  layoutId="main-navigation-active"
-                  transition={
-                    reduced
-                      ? { duration: 0 }
-                      : { type: "spring", stiffness: 420, damping: 34 }
-                  }
-                  aria-hidden="true"
-                />
+              {isActive(href, pathname) && (
+                <span className="nav-active-indicator" aria-hidden="true" />
               )}
               <span className="nav-label">{label}</span>
             </Link>
