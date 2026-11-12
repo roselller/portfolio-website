@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { SignpostSceneClient } from "./three/SignpostSceneClient";
@@ -23,13 +17,9 @@ import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
 export function SignpostHero({
   projects,
   sample,
-  children,
 }: {
   projects: Project[];
   sample: boolean;
-  /** The context card: under the pole in the 3D view, not shown in card mode
-      (there it closes the page, see CardModeOnly). */
-  children: ReactNode;
 }) {
   const hero = useRef<HTMLElement>(null);
   const rotation = useRef(0);
@@ -163,10 +153,6 @@ export function SignpostHero({
       ) : (
         <div className="hero-intro-column">
           <div className="hero-copy neu-card">
-            <p className="eyebrow">
-              <span className="accent-line" aria-hidden="true" />{" "}
-              {profile.role.toUpperCase()}
-            </p>
             <p className="hero-hello">
               {siteCopy.hero.greeting} {profile.name}.
             </p>
@@ -244,7 +230,6 @@ export function SignpostHero({
           </div>
         )}
       </div>
-      {!grid && children}
     </section>
   );
 }

@@ -95,14 +95,14 @@ test("the pole and framing contain every board for small and large collections",
   assert.equal(getSignpostLayout([]).height, 0);
 });
 
-test("all boards use the requested inverse theme colours and rose arrows, with the pole opposite the boards", () => {
-  assert.deepEqual(signpostThemes.dark, {
+test("all boards follow the theme (light boards in light mode, dark in dark) with rose arrows, and the pole opposite the boards", () => {
+  assert.deepEqual(signpostThemes.light, {
     board: "#e7e9ec",
     ink: "#16181c",
     arrow: "#9f1239",
     pole: null,
   });
-  assert.deepEqual(signpostThemes.light, {
+  assert.deepEqual(signpostThemes.dark, {
     board: "#16181c",
     ink: "#f2f3f5",
     arrow: "#fb7185",

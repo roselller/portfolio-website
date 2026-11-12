@@ -1347,7 +1347,7 @@ h2.section-label {
     calc(100cqw - var(--zh-width) + var(--note-pad) + 6px),
     calc(var(--zh-max) * 4.881px)
   );
-  --polaroid-paper: #fbfaf8;
+  --polaroid-paper: var(--surface-dark);
   --polaroid-border: calc(var(--polaroid-w) * 0.07);
   position: absolute;
   top: calc(var(--polaroid-w) * -0.37);
@@ -1362,7 +1362,7 @@ h2.section-label {
   rotate: -8.5deg;
 }
 [data-theme="light"] .about-polaroid {
-  --polaroid-paper: var(--surface-dark);
+  --polaroid-paper: #fbfaf8;
   box-shadow: 0 6px 16px rgba(28, 31, 35, 0.22);
 }
 .about-polaroid img {
@@ -2717,7 +2717,23 @@ body {
   padding: 12px 0;
 }
 
-/* The context card closes the Work page in card mode. */
+/* 3D view: the window rises over the foot of the signpost pole, which hides
+   behind it (the context card used to sit here). The overlap is what the card
+   covered: 420px from 900px up, and the hero's own 90px bottom padding below
+   that (so the window starts where the card did). */
+.hero:not(.hero-list) + .photo-scene {
+  position: relative;
+  z-index: 36;
+  padding-top: 0;
+  margin-top: -420px;
+}
+@media (max-width: 899px) {
+  .hero:not(.hero-list) + .photo-scene {
+    margin-top: -90px;
+  }
+}
+
+/* The context card closes the Work page. */
 .work-context {
   padding: 48px var(--page-gutter);
 }
@@ -2851,7 +2867,6 @@ body {
   width: 56%;
   aspect-ratio: 3 / 4;
   object-fit: cover;
-  border-radius: 3px;
   box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.45);
   opacity: 0;
   scale: 0.7;
@@ -3057,7 +3072,6 @@ body {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 10px;
   background: var(--control-active);
 }
 @media (max-width: 1099px) {

@@ -5,7 +5,6 @@ import { getProjectCollection } from "@/lib/projects";
 import { siteCopy } from "@/data/site-copy";
 import { ButtonLink } from "@/components/ui/Button";
 import { WorkExplorer } from "@/components/WorkExplorer";
-import { CardModeOnly } from "@/components/CardModeOnly";
 import { getPosts } from "@/lib/photos";
 import { toFolders } from "@/lib/photo-posts";
 import { getWritings } from "@/lib/writing";
@@ -26,7 +25,7 @@ export default async function HomePage() {
     date,
     type,
   }));
-  // Under the pole in the 3D view, at the end of the page in card mode.
+  // The last card of the page, under the photo and writing window.
   const context = (
     <section id="introduction" className="intro-section neu-card">
       <div className="intro-side">
@@ -54,11 +53,11 @@ export default async function HomePage() {
   );
   return (
     <main id="main">
-      <SignpostHero projects={projects} sample={sample}>
-        {context}
-      </SignpostHero>
+      <SignpostHero projects={projects} sample={sample} />
+      {/* In the 3D view this window rises over the foot of the pole (CSS:
+          .hero:not(.hero-list) + .photo-scene), so the signpost hides behind it. */}
       <WorkExplorer folders={folders} pieces={pieces} />
-      <CardModeOnly className="work-context">{context}</CardModeOnly>
+      <div className="work-context">{context}</div>
       <nav className="accessible-projects" aria-label="All projects">
         <h2>{siteCopy.hero.accessibleHeading}</h2>
         {projects.map((project) => (

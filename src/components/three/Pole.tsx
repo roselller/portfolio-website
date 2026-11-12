@@ -7,8 +7,9 @@ import { useSignpostParts, useSignpostTheme } from "./SignpostParts";
 
 /**
  * The pole is the opposite colour of the boards. The model's charcoal is kept
- * in dark mode; in light mode its charcoal parts become the theme's pole colour
- * (small clones, so the shared model materials are never touched).
+ * in light mode (light boards); in dark mode its charcoal parts become the
+ * theme's pole colour (small clones, so the shared model materials are never
+ * touched).
  */
 function recolour(
   material: Material | Material[],
