@@ -9,22 +9,21 @@ import {
   MapPin,
 } from "lucide-react";
 import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
-import { getLocalPosts } from "@/lib/photos";
-import { instagramPostUrl, postImages } from "@/lib/photo-posts";
+import { getPosts } from "@/lib/photos";
+import { instagramPostUrl, isPostId, postImages } from "@/lib/photo-posts";
 import { folderDate, workPath } from "@/lib/work-path";
 import { profile } from "@/data/profile";
 
-// Every post is a folder of files in the repository, so each page is built once.
-export const dynamicParams = false;
+// Posts come from the content repository: a page is built when first asked for
+// and refreshed hourly, so a new post needs no deploy.
+export const revalidate = 3600;
 type Props = { params: Promise<{ id: string }> };
-
-export function generateStaticParams() {
-  return getLocalPosts().map(({ id }) => ({ id }));
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const post = getLocalPosts().find((item) => item.id === id);
+  const post = isPostId(id)
+    ? (await getPosts()).find((item) => item.id === id)
+    : undefined;
   const title = post?.title || "Photos not found";
   const description = post?.alt || undefined;
   return {
@@ -42,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PhotoPostPage({ params }: Props) {
   const { id } = await params;
-  const posts = getLocalPosts();
+  const posts = isPostId(id) ? await getPosts() : [];
   const position = posts.findIndex((item) => item.id === id);
   const post = posts[position];
   if (!post) notFound();

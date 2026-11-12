@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getProjectCollection } from "@/lib/projects";
 import { getSiteUrl } from "@/lib/site-url";
 import { getWritings } from "@/lib/writing";
-import { getLocalPosts } from "@/lib/photos";
+import { getPosts } from "@/lib/photos";
 
 // Same cadence as the home page, so newly pinned repositories appear within an hour.
 export const revalidate = 3600;
@@ -10,9 +10,10 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = getSiteUrl();
   // Cached and never throws: falls back to the sample projects when GitHub is unreachable.
-  const [{ projects }, writings] = await Promise.all([
+  const [{ projects }, writings, posts] = await Promise.all([
     getProjectCollection(),
     getWritings(),
+    getPosts(),
   ]);
   return [
     { url: origin, priority: 1 },
@@ -22,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${origin}/projects/${encodeURIComponent(slug)}`,
       priority: 0.7,
     })),
-    ...getLocalPosts().map(({ id }) => ({
+    ...posts.map(({ id }) => ({
       url: `${origin}/photos/${id}`,
       priority: 0.6,
     })),

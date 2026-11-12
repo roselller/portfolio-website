@@ -1,7 +1,6 @@
-import { localPosts } from "@/data/photos";
-import { sortPosts } from "@/lib/photo-posts";
+import "server-only";
+import { cache } from "react";
+import { getContent } from "@/lib/content";
 
-/** The photo posts kept in the repository, latest (highest number) first. */
-export function getLocalPosts() {
-  return sortPosts(localPosts);
-}
+/** The photo posts, latest (highest number) first. Never throws. */
+export const getPosts = cache(async () => (await getContent()).posts);

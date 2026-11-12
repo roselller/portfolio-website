@@ -57,12 +57,6 @@ const nextConfig: NextConfig = {
       .filter(Boolean)
       .map((hostname) => ({ protocol: "https" as const, hostname })),
   },
-  // The writing is read from files at render time. The home page and the
-  // sitemap are rebuilt on the server every hour, so the files must be there.
-  outputFileTracingIncludes: {
-    "/": ["./content/writing/**/*"],
-    "/sitemap.xml": ["./content/writing/**/*"],
-  },
   experimental: { serverActions: { bodySizeLimit: "32kb" } },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];

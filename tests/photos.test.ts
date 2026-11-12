@@ -20,6 +20,7 @@ const folderPost = {
   alt: "A bookshop",
   photos: 3,
   landscape: [2],
+  versions: {},
 };
 const portrait = { width: 1080, height: 1440 };
 const landscape = { width: 1440, height: 1080 };
@@ -118,4 +119,15 @@ test("only an https instagram.com address is linked from a post", () => {
   ]) {
     assert.equal(instagramPostUrl(bad), null, bad);
   }
+});
+
+test("image addresses carry the start of the file's git id", () => {
+  const sha = "0123456789abcdef0123456789abcdef01234567";
+  const [cover] = postImages({
+    ...folderPost,
+    photos: 0,
+    versions: { cover: sha, "cover-s": sha },
+  });
+  assert.equal(cover.src, "/photography/17/cover.webp?v=0123456789ab");
+  assert.equal(cover.small, "/photography/17/cover-s.webp?v=0123456789ab");
 });

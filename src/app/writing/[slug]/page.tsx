@@ -4,18 +4,15 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpLeft, ArrowUpRight } from "lucide-react";
 import { SafeHtml, writingUrl } from "@/components/ProjectReadme";
 import { ButtonAnchor } from "@/components/ui/Button";
-import { getWritingBySlug, getWritings, writingHtml } from "@/lib/writing";
+import { getWritingBySlug, writingHtml } from "@/lib/writing";
 import { formatWritingDate } from "@/lib/writing-file";
 import { profile } from "@/data/profile";
 import { workPath } from "@/lib/work-path";
 
-// Every piece is a file in the repository, so each page is built once.
-export const dynamicParams = false;
+// Pieces come from the content repository: a page is built when first asked
+// for and refreshed hourly, so a new piece needs no deploy.
+export const revalidate = 3600;
 type Props = { params: Promise<{ slug: string }> };
-
-export async function generateStaticParams() {
-  return (await getWritings()).map(({ slug }) => ({ slug }));
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

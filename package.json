@@ -20,7 +20,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:prune": "tsx scripts/prune-messages.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "photos:add": "node scripts/add-photos.mjs",
+    "content:check": "tsx scripts/content-check.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",

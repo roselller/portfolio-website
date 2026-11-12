@@ -1,9 +1,9 @@
-// Pure helpers for the photo posts kept in the repository (no file system, so
-// they can be tested). A post's files live in public/photography/<id>/ as
+// Pure helpers for the photo posts (no file system, so they can be tested). A
+// post's files live in the content repository in photography/<id>/ as
 // cover.webp, then 1.webp, 2.webp, ...; scripts/add-photos.mjs writes each one
 // upright at POST_IMAGE_SHORT x POST_IMAGE_LONG (3:4), or the other way round
 // for a landscape photo (4:3), plus a half-size copy (name-s.webp).
-import type { PhotoPost } from "@/data/photos";
+import type { PhotoPost } from "@/lib/photo-post-file";
 
 export const POST_IMAGE_SHORT = 1080;
 export const POST_IMAGE_LONG = 1440;
@@ -15,8 +15,14 @@ export function isPostId(value: string) {
   return POST_ID.test(value);
 }
 
-function file(id: string, name: string) {
-  return `/photography/${id}/${name}.webp`;
+/**
+ * An image's address (served by app/photography/[id]/[file]/route.ts). The
+ * start of the file's git id is added so a replaced photo gets a new address
+ * and the long browser/CDN cache never shows the old one.
+ */
+function file(post: PhotoPost, name: string) {
+  const version = post.versions[name]?.slice(0, 12);
+  return `/photography/${post.id}/${name}.webp${version ? `?v=${version}` : ""}`;
 }
 
 /** Latest (highest number) first; entries with an unusable id are dropped. */
@@ -47,14 +53,14 @@ export function postImages(post: PhotoPost): PostImage[] {
   const total = count + 1;
   return [
     {
-      src: file(post.id, "cover"),
-      small: file(post.id, "cover-s"),
+      src: file(post, "cover"),
+      small: file(post, "cover-s"),
       alt: post.alt,
       ...sized(false),
     },
     ...Array.from({ length: count }, (_, index) => ({
-      src: file(post.id, String(index + 1)),
-      small: file(post.id, `${index + 1}-s`),
+      src: file(post, String(index + 1)),
+      small: file(post, `${index + 1}-s`),
       // The cover is photo 1, so the first numbered photo is photo 2.
       alt: `Photo ${index + 2} of ${total} from ${post.title}`,
       ...sized(post.landscape.includes(index + 1)),

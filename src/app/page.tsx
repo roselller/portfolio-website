@@ -6,18 +6,19 @@ import { siteCopy } from "@/data/site-copy";
 import { ButtonLink } from "@/components/ui/Button";
 import { WorkExplorer } from "@/components/WorkExplorer";
 import { CardModeOnly } from "@/components/CardModeOnly";
-import { getLocalPosts } from "@/lib/photos";
+import { getPosts } from "@/lib/photos";
 import { toFolders } from "@/lib/photo-posts";
 import { getWritings } from "@/lib/writing";
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [{ projects, sample }, writings] = await Promise.all([
+  const [{ projects, sample }, writings, posts] = await Promise.all([
     getProjectCollection(),
     getWritings(),
+    getPosts(),
   ]);
-  const folders = toFolders(getLocalPosts());
+  const folders = toFolders(posts);
   // Only what the window shows goes to the browser, not the full text.
   const pieces = writings.map(({ slug, title, date, type }) => ({
     slug,
