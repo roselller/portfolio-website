@@ -2334,6 +2334,17 @@ body {
 }
 .site-background > div {
   opacity: 0.85;
+  animation: background-in 0.9s ease-out;
+}
+@keyframes background-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-background > div {
+    animation: none;
+  }
 }
 [data-theme="light"] .site-background > div {
   opacity: 0.55;

@@ -60,4 +60,4 @@ More detail lives in `docs/`: [development guide](docs/development.md) (project 
 
 ## Credits and license
 
-The home page's [animated shader background](https://github.com/ruucm/shadergradient) is from ruucm. Google Sans and Fraunces are bundled under the SIL Open Font License; the notices are in [public/fonts](public/fonts/LICENSE-fonts.md). The code is released under the [MIT License](LICENSE).
+The [animated shader background](https://github.com/ruucm/shadergradient) is from ruucm. Google Sans and Fraunces are bundled under the SIL Open Font License; the notices are in [public/fonts](public/fonts/LICENSE-fonts.md). The code is released under the [MIT License](LICENSE).

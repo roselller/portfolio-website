@@ -12,15 +12,32 @@ function subscribe(notify: () => void) {
   });
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   motion.addEventListener("change", notify);
+  const connection = saveDataConnection();
+  connection?.addEventListener?.("change", notify);
   document.addEventListener("visibilitychange", notify);
   return () => {
     observer.disconnect();
     motion.removeEventListener("change", notify);
+    connection?.removeEventListener?.("change", notify);
     document.removeEventListener("visibilitychange", notify);
   };
 }
+type SaveDataConnection = EventTarget & { saveData?: boolean };
+function saveDataConnection() {
+  return (navigator as Navigator & { connection?: SaveDataConnection })
+    .connection;
+}
+// The gradient stands still (one drawn frame) when the visitor asks for
+// reduced motion or for less data. Both are signals that the page should not
+// keep the GPU busy.
+function stillWanted() {
+  return (
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    saveDataConnection()?.saveData === true
+  );
+}
 function snapshot() {
-  return `${document.documentElement.dataset.theme === "dark" ? "dark" : "light"}|${window.matchMedia("(prefers-reduced-motion: reduce)").matches}|${document.visibilityState}`;
+  return `${document.documentElement.dataset.theme === "dark" ? "dark" : "light"}|${stillWanted()}|${document.visibilityState}`;
 }
 
 // The gradient follows clock time, so drawing ~30 frames a second instead of

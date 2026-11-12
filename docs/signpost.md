@@ -33,6 +33,6 @@ The scene renders on demand when input, hover, scrolling, or resizing requires a
 
 Google Sans supplies all text, including the sign titles and numbers. Accent lines use Fraunces Italic (the `--font-display` token). Font licenses live beside the bundled assets.
 
-The shader background runs only on the home page, at about 30 fps; other pages keep the themed CSS gradient behind `.site-background` and never load the shader code. It supports both themes and pauses animation for reduced motion or hidden tabs. Camera position, assembly rotation, font assets, and theme tokens do not need to change when adding projects or adjusting label fitting.
+The shader background sits behind every page, at about 30 fps. It is one canvas in the root layout, so it is created once and kept across page changes; its code is fetched when the browser is idle, and the themed CSS gradient behind `.site-background` shows first and stays if WebGL is unavailable. It supports both themes. With reduced motion or the browser's data-saver on, it draws a single still frame instead of animating; hidden tabs pause it. Camera position, assembly rotation, font assets, and theme tokens do not need to change when adding projects or adjusting label fitting.
 
 Project detail covers measure the rendered title after fonts load and on resize, shrinking text as needed to keep the complete name on one line. README tables use intrinsic column sizing and normal word boundaries; wide tables scroll within their container.
