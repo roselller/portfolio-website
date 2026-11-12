@@ -10,17 +10,35 @@ import {
 
 const folderPost = {
   id: "17",
-  title: "[17] 18.05.26",
+  folder: "[17] 18.05.26",
+  title: "Postcards",
+  hashtags: ["travel"],
+  location: "",
   alt: "A bookshop",
   photos: 3,
+  landscape: [2],
 };
+const portrait = { width: 1080, height: 1440 };
+const landscape = { width: 1440, height: 1080 };
 
-test("a post lists its cover and then its numbered photos", () => {
+test("a post lists its cover and then its numbered photos, each in its shape", () => {
   assert.deepEqual(postImages(folderPost), [
-    { src: "/photography/17/cover.webp", alt: "A bookshop" },
-    { src: "/photography/17/1.webp", alt: "Photo 1 of 3 from [17] 18.05.26" },
-    { src: "/photography/17/2.webp", alt: "Photo 2 of 3 from [17] 18.05.26" },
-    { src: "/photography/17/3.webp", alt: "Photo 3 of 3 from [17] 18.05.26" },
+    { src: "/photography/17/cover.webp", alt: "A bookshop", ...portrait },
+    {
+      src: "/photography/17/1.webp",
+      alt: "Photo 1 of 3 from Postcards",
+      ...portrait,
+    },
+    {
+      src: "/photography/17/2.webp",
+      alt: "Photo 2 of 3 from Postcards",
+      ...landscape,
+    },
+    {
+      src: "/photography/17/3.webp",
+      alt: "Photo 3 of 3 from Postcards",
+      ...portrait,
+    },
   ]);
   assert.equal(postImages({ ...folderPost, photos: 0 }).length, 1);
   assert.equal(postImages({ ...folderPost, photos: -2 }).length, 1);
@@ -32,9 +50,9 @@ test("on the Work page a post is a folder with three preview photos", () => {
     title: "[17] 18.05.26",
     href: "/photos/17",
     previews: [
-      { src: "/photography/17/cover.webp", alt: "A bookshop" },
-      { src: "/photography/17/1.webp", alt: "Photo 1 of 3 from [17] 18.05.26" },
-      { src: "/photography/17/2.webp", alt: "Photo 2 of 3 from [17] 18.05.26" },
+      "/photography/17/cover.webp",
+      "/photography/17/1.webp",
+      "/photography/17/2.webp",
     ],
   });
   assert.equal(postToFolder({ ...folderPost, photos: 1 }).previews.length, 2);

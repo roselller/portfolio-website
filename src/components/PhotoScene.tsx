@@ -42,15 +42,17 @@ export function PhotoScene({ folders }: { folders: PostFolder[] }) {
                     so the photos rise out from between the two. */}
                 <span className="finder-folder" aria-hidden="true">
                   <span className="finder-folder-back" />
-                  {folder.previews.map((preview, index) => (
+                  {folder.previews.map((src, index) => (
                     // Plain images: the files are already sized by
-                    // scripts/add-photos.mjs.
+                    // scripts/add-photos.mjs. The cover comes up in the
+                    // middle, the next photo on the left, the third on the
+                    // right.
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      key={preview.src}
+                      key={src}
                       className="finder-preview"
-                      data-preview={index + 1}
-                      src={preview.src}
+                      data-place={["middle", "left", "right"][index]}
+                      src={src}
                       alt=""
                       loading="lazy"
                       decoding="async"

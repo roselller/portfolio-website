@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpLeft, ArrowUpRight, Asterisk } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpLeft,
+  ArrowUpRight,
+  Asterisk,
+  MapPin,
+} from "lucide-react";
 import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
 import { getLocalPosts } from "@/lib/photos";
-import {
-  POST_IMAGE_HEIGHT,
-  POST_IMAGE_WIDTH,
-  postImages,
-} from "@/lib/photo-posts";
+import { postImages } from "@/lib/photo-posts";
 import { profile } from "@/data/profile";
 
 // Every post is a folder of files in the repository, so each page is built once.
@@ -70,15 +72,31 @@ export default async function PhotoPostPage({ params }: Props) {
           aria-hidden="true"
         />
         <ProjectCoverTitle title={post.title} />
-        <span className="project-visual-caption">
-          @{profile.photography.handle.toUpperCase()}
-        </span>
+        <span className="project-visual-caption">{post.folder}</span>
         <span className="project-visual-number">
           {String(images.length).padStart(2, "0")}{" "}
           {images.length === 1 ? "PHOTO" : "PHOTOS"}
         </span>
       </div>
-      <ol className="photo-post-list">
+      {(post.location || post.hashtags.length > 0) && (
+        <div className="project-summary">
+          {post.location && (
+            <p className="photo-post-location">
+              <MapPin size={16} aria-hidden="true" />
+              <span className="sr-only">Location: </span>
+              {post.location}
+            </p>
+          )}
+          {post.hashtags.length > 0 && (
+            <div className="tag-list">
+              {post.hashtags.map((tag) => (
+                <span key={tag}>#{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <ol className="photo-post-gallery">
         {images.map((image, index) => (
           <li key={image.src}>
             {/* Plain images: the files are already sized and compressed by
@@ -87,9 +105,9 @@ export default async function PhotoPostPage({ params }: Props) {
             <img
               src={image.src}
               alt={image.alt}
-              width={POST_IMAGE_WIDTH}
-              height={POST_IMAGE_HEIGHT}
-              loading={index < 2 ? "eager" : "lazy"}
+              width={image.width}
+              height={image.height}
+              loading={index < 4 ? "eager" : "lazy"}
               decoding="async"
             />
           </li>
@@ -107,7 +125,7 @@ export default async function PhotoPostPage({ params }: Props) {
             <ArrowUpLeft size={42} strokeWidth={1} aria-hidden="true" />
             <div>
               <span className="section-label">EARLIER POST</span>
-              <h2>{earlier.title}</h2>
+              <h2>{earlier.folder}</h2>
             </div>
           </Link>
           <Link
@@ -116,7 +134,7 @@ export default async function PhotoPostPage({ params }: Props) {
           >
             <div>
               <span className="section-label">LATER POST</span>
-              <h2>{later.title}</h2>
+              <h2>{later.folder}</h2>
             </div>
             <ArrowUpRight size={42} strokeWidth={1} aria-hidden="true" />
           </Link>

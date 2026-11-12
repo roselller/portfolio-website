@@ -2795,7 +2795,7 @@ body {
    --folder-size (the icon's width), --preview-rise (how far the photos come
    up) and --preview-spread (how far the outer two move and turn). */
 .photo-scene {
-  --folder-size: 112px;
+  --folder-size: clamp(104px, 10.5vw, 168px);
   --preview-rise: 62%;
   --preview-spread: 1;
   --folder-back: color-mix(in srgb, var(--text) 42%, var(--panel));
@@ -2838,11 +2838,13 @@ body {
 }
 .finder-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 36px 8px;
+  /* Five folders to a row (three on tablets, two on phones). */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 44px 8px;
   margin: 0;
-  /* The top room is where a first-row folder's photos come up. */
-  padding: 56px clamp(8px, 1.6vw, 24px) 40px;
+  /* The top room is where a first-row folder's photos come up, so they stay
+     clear of the window's title. */
+  padding: calc(var(--folder-size) * 0.8 + 20px) clamp(8px, 1.6vw, 24px) 40px;
   list-style: none;
 }
 .finder-item {
@@ -2930,17 +2932,17 @@ body {
   user-select: none;
   pointer-events: none;
 }
-.finder-preview[data-preview="1"] {
+.finder-preview[data-place="left"] {
   --turn: -11deg;
   --slide: -58%;
 }
-.finder-preview[data-preview="3"] {
+.finder-preview[data-place="right"] {
   --turn: 11deg;
   --slide: 58%;
 }
-/* The cover (first photo) comes up in the middle, in front of the other two. */
-.finder-preview[data-preview="1"],
-.finder-preview[data-preview="3"] {
+/* The cover comes up in the middle, in front of the other two. */
+.finder-preview[data-place="left"],
+.finder-preview[data-place="right"] {
   z-index: 0;
 }
 .finder-folder-back {
@@ -2967,7 +2969,7 @@ body {
 }
 /* The outer two rise a little less, so the three make an arc. */
 .finder-item:is(:hover, :focus-visible)
-  .finder-preview:is([data-preview="1"], [data-preview="3"]) {
+  .finder-preview:is([data-place="left"], [data-place="right"]) {
   translate: calc(var(--slide) * var(--preview-spread))
     calc(var(--preview-rise) * -0.82);
 }
@@ -2983,12 +2985,17 @@ body {
 .finder-item:is(:hover, :focus-visible) .finder-label {
   background: var(--control-active);
 }
+@media (max-width: 899px) {
+  .finder-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 @media (max-width: 599px) {
   .photo-scene {
-    --folder-size: 88px;
+    --folder-size: 92px;
   }
   .finder-grid {
-    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 28px 4px;
   }
   .finder-nav {
@@ -2996,25 +3003,47 @@ body {
   }
 }
 
-/* A photo post's own page: the title card, then every photo in one column. */
-.photo-post-list {
-  display: grid;
-  justify-items: center;
-  gap: clamp(28px, 5vw, 64px);
-  margin: clamp(40px, 6vw, 80px) 0 0;
+/* A photo post's own page: as wide as the header card. The title card, the
+   post's details, then every photo in columns (each keeps its own shape, so
+   horizontal photos stay horizontal). */
+.page-shell.photo-post-page {
+  max-width: none;
+  padding-inline: var(--page-gutter);
+}
+.photo-post-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+}
+.photo-post-gallery {
+  columns: 4;
+  column-gap: clamp(12px, 1.6vw, 24px);
+  margin: clamp(36px, 5vw, 64px) 0 0;
   padding: 0;
   list-style: none;
 }
-.photo-post-list li {
-  width: 100%;
-  max-width: 720px;
+.photo-post-gallery li {
+  break-inside: avoid;
+  margin-bottom: clamp(12px, 1.6vw, 24px);
 }
-.photo-post-list img {
+.photo-post-gallery img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 6px;
-  box-shadow: var(--neumorphic);
+  border-radius: 10px;
+  background: var(--control-active);
+}
+@media (max-width: 1099px) {
+  .photo-post-gallery {
+    columns: 3;
+  }
+}
+@media (max-width: 699px) {
+  .photo-post-gallery {
+    columns: 2;
+  }
 }
 .photo-post-page .project-directions {
   margin-top: 80px;
