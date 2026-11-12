@@ -15,6 +15,7 @@ export const siteCopy = {
     aboutCta: "A little about me",
     collectionLabel: "SELECTED EXPLORATIONS",
     projectLabel: "PROJECTS",
+    githubCta: "View on GitHub",
     sampleInstruction: "Includes sample concepts. Pick a direction.",
     instruction: "Every direction is a new possibility.",
     empty: "New directions are on the way.",

@@ -201,11 +201,15 @@ export function WorkExplorer({
             }
             hidden={active.id !== "writing"}
           >
-            <ul className="finder-grid finder-grid-docs">
+            <ul className="finder-grid">
               {pieces.map((piece) => (
                 <li key={piece.slug}>
                   <Link className="finder-item" href={`/writing/${piece.slug}`}>
-                    <span className="finder-doc" aria-hidden="true" />
+                    {/* The sheet sits in a box the size of a folder, so both
+                        tabs line up. */}
+                    <span className="finder-doc-box" aria-hidden="true">
+                      <span className="finder-doc" />
+                    </span>
                     <span className="finder-label">{piece.title}</span>
                     <span className="finder-sublabel">
                       {piece.type}

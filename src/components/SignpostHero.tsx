@@ -202,6 +202,17 @@ export function SignpostHero({
             {String(projects.length).padStart(2, "0")}{" "}
             {siteCopy.hero.projectLabel}
           </span>
+          {grid && (
+            <a
+              className="scene-meta-link"
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {siteCopy.hero.githubCta}{" "}
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          )}
         </div>
         <div className="scene-stage">
           {projects.length === 0 ? (

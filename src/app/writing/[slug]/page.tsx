@@ -70,29 +70,31 @@ export default async function WritingPage({ params }: Props) {
             )}
           </p>
         </header>
-        {writing.body ? (
-          <SafeHtml
-            html={writingHtml(writing.body)}
-            className="project-readme writing-body"
-            // The page title owns heading level one.
-            headingShift={1}
-            tableLabel="Table"
-            resolveUrl={writingUrl}
-          />
-        ) : (
-          writing.summary && <p className="page-lead">{writing.summary}</p>
-        )}
-        {writing.pdf && (
-          <p className="writing-pdf">
-            <ButtonAnchor
-              href={`/writing/${writing.pdf}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open the PDF <ArrowUpRight size={17} aria-hidden="true" />
-            </ButtonAnchor>
-          </p>
-        )}
+        <div className="writing-paper">
+          {writing.body ? (
+            <SafeHtml
+              html={writingHtml(writing.body)}
+              className="project-readme writing-body"
+              // The page title owns heading level one.
+              headingShift={1}
+              tableLabel="Table"
+              resolveUrl={writingUrl}
+            />
+          ) : (
+            writing.summary && <p className="page-lead">{writing.summary}</p>
+          )}
+          {writing.pdf && (
+            <p className="writing-pdf">
+              <ButtonAnchor
+                href={`/writing/${writing.pdf}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open the PDF <ArrowUpRight size={17} aria-hidden="true" />
+              </ButtonAnchor>
+            </p>
+          )}
+        </div>
       </article>
       {previous && next && (
         <nav

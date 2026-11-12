@@ -1174,9 +1174,29 @@ h6,
   padding-left: 0;
   padding-right: 0;
 }
-/* The list view only keeps the project count, at the right. */
+/* The list view keeps the project count on the left and links to GitHub on
+   the right. */
 .hero-list .scene-meta {
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+}
+.scene-meta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  color: var(--text);
+  transition: color 0.2s;
+}
+.scene-meta-link:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+@media (hover: hover) {
+  .scene-meta-link:hover {
+    color: var(--accent-glow);
+  }
 }
 /* Beside the intro card the focused project card lines up with it: same top,
    same height as it had beside the intro card (now removed from card mode).
@@ -2934,10 +2954,6 @@ body {
   translate: calc(var(--slide) * var(--preview-spread))
     calc(var(--preview-rise) * -0.82);
 }
-/* Documents have nothing that pops out, so they need no room above. */
-.finder-grid-docs {
-  padding-top: 40px;
-}
 .photo-scene {
   scroll-margin-top: 110px;
 }
@@ -2987,12 +3003,17 @@ body {
   display: block;
 }
 /* A piece of writing: a sheet of paper with a folded corner and text lines. */
+.finder-doc-box {
+  display: grid;
+  place-items: center;
+  width: var(--folder-size);
+  aspect-ratio: 5 / 4;
+}
 .finder-doc {
   position: relative;
   display: block;
-  width: calc(var(--folder-size) * 0.7);
-  /* As tall as a folder, so labels line up across the tabs. */
-  height: calc(var(--folder-size) * 0.8);
+  height: 100%;
+  aspect-ratio: 3 / 4;
   border-radius: 6px;
   background:
     repeating-linear-gradient(
@@ -3037,11 +3058,7 @@ body {
   text-align: center;
   overflow-wrap: anywhere;
 }
-.finder-item:is(:hover, :focus-visible) /* Documents have nothing that pops out, so they need no room above. */
-.finder-grid-docs {
-  padding-top: 40px;
-}
-.photo-scene {
+.finder-item:is(:hover, :focus-visible) .photo-scene {
   scroll-margin-top: 110px;
 }
 /* Tabs under the toolbar: one per kind of work. */
@@ -3090,12 +3107,17 @@ body {
   display: block;
 }
 /* A piece of writing: a sheet of paper with a folded corner and text lines. */
+.finder-doc-box {
+  display: grid;
+  place-items: center;
+  width: var(--folder-size);
+  aspect-ratio: 5 / 4;
+}
 .finder-doc {
   position: relative;
   display: block;
-  width: calc(var(--folder-size) * 0.7);
-  /* As tall as a folder, so labels line up across the tabs. */
-  height: calc(var(--folder-size) * 0.8);
+  height: 100%;
+  aspect-ratio: 3 / 4;
   border-radius: 6px;
   background:
     repeating-linear-gradient(
@@ -3206,9 +3228,68 @@ body {
   }
 }
 
-/* A piece of writing: one readable column. */
+/* A piece of writing: its heading, then the text on a sheet of paper. The
+   paper and ink follow the theme (--paper, --paper-ink, --paper-muted). */
 .writing-article {
-  max-width: 760px;
+  --paper: #1d1f24;
+  --paper-ink: #e9e6df;
+  --paper-muted: #a9a59c;
+  --paper-edge: rgb(255 255 255 / 0.08);
+  max-width: 860px;
+  margin-inline: auto;
+}
+[data-theme="light"] .writing-article {
+  --paper: #fdfcf8;
+  --paper-ink: #24262b;
+  --paper-muted: #5c5f66;
+  --paper-edge: rgb(28 31 35 / 0.1);
+}
+.writing-paper {
+  margin-top: 48px;
+  padding: clamp(28px, 7vw, 88px) clamp(22px, 7vw, 88px);
+  background: var(--paper);
+  color: var(--paper-ink);
+  border: 1px solid var(--paper-edge);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.12),
+    0 18px 44px -18px rgb(0 0 0 / 0.45);
+}
+.writing-paper .writing-body {
+  margin-top: 0;
+  color: var(--paper-ink);
+}
+.writing-paper .writing-body :is(h2, h3, h4, h5, h6, a) {
+  color: var(--paper-ink);
+}
+.writing-paper .writing-body :is(li, blockquote) {
+  color: var(--paper-ink);
+}
+.writing-paper .writing-body h3 {
+  margin-top: 2.4em;
+  padding-top: 1.6em;
+  border-top: 1px solid var(--paper-edge);
+  font-size: 20px;
+}
+.writing-paper .writing-body h3 ~ ul {
+  padding-left: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--paper-muted);
+}
+.writing-paper .writing-body h3 ~ ul li {
+  /* A hanging indent, as in a reference list. */
+  padding-left: 2em;
+  text-indent: -2em;
+  color: var(--paper-muted);
+}
+.writing-paper .writing-pdf {
+  margin-top: 32px;
+}
+.writing-paper > .page-lead {
+  margin-top: 0;
+  color: var(--paper-muted);
 }
 .writing-title {
   font-size: clamp(36px, 4.6vw, 64px);
