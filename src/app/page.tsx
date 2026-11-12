@@ -7,17 +7,18 @@ import { ButtonLink } from "@/components/ui/Button";
 import { PhotoScene } from "@/components/PhotoScene";
 import { WritingFolders } from "@/components/WritingFolders";
 import { CardModeOnly } from "@/components/CardModeOnly";
-import { getPhotos } from "@/lib/photos";
+import { getLocalPosts } from "@/lib/photos";
+import { toFolders } from "@/lib/photo-posts";
 import { getWritings } from "@/lib/writing";
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [{ projects, sample }, photos, writings] = await Promise.all([
+  const [{ projects, sample }, writings] = await Promise.all([
     getProjectCollection(),
-    getPhotos(),
     getWritings(),
   ]);
+  const folders = toFolders(getLocalPosts());
   // Only what the folders show goes to the browser, not the full text.
   const pieces = writings.map(({ slug, title, date, type, summary }) => ({
     slug,
@@ -54,20 +55,10 @@ export default async function HomePage() {
   );
   return (
     <main id="main">
-      <SignpostHero
-        projects={projects}
-        sample={sample}
-        nextScene={
-          photos.length > 0
-            ? "photos"
-            : pieces.length > 0
-              ? "writing"
-              : undefined
-        }
-      >
+      <SignpostHero projects={projects} sample={sample}>
         {context}
       </SignpostHero>
-      <PhotoScene photos={photos} />
+      <PhotoScene folders={folders} />
       <WritingFolders pieces={pieces} />
       <CardModeOnly className="work-context">{context}</CardModeOnly>
       <nav className="accessible-projects" aria-label="All projects">

@@ -15,8 +15,6 @@ Keep local settings in `.env.local` and configure production values through the 
 | `RATE_LIMIT_SALT`           | Private value used to hash rate-limit identifiers                                                                            | Contact rate limiting  |
 | `RESEND_API_KEY`            | Resend API key for message notifications                                                                                     | Contact form           |
 | `CONTACT_TO_EMAIL`          | Address that receives new messages                                                                                           | Contact form           |
-| `INSTAGRAM_ACCESS_TOKEN`    | Instagram token for the photo scene (see [Photos](photos.md)). Production only                                               | Instagram photos       |
-| `INSTAGRAM_ACCOUNT_ID`      | Optional numeric Instagram account ID, when Meta lists no account for the token                                              | Instagram photos       |
 | `CONTACT_FROM_EMAIL`        | Sender; defaults to `Portfolio <onboarding@resend.dev>`                                                                      | Verified Resend domain |
 
 `NEXT_PUBLIC_` values are public and may be embedded in client assets at build time. Keep database credentials, Redis credentials, the rate-limit salt, and the Resend API key in server-only variables.

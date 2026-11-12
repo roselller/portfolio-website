@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -24,13 +23,10 @@ import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
 export function SignpostHero({
   projects,
   sample,
-  nextScene,
   children,
 }: {
   projects: Project[];
   sample: boolean;
-  /** Id of the scene below the hero in card mode, if there is one. */
-  nextScene?: string;
   /** The context card: under the pole in the 3D view, not shown in card mode
       (there it closes the page, see CardModeOnly). */
   children: ReactNode;
@@ -66,29 +62,6 @@ export function SignpostHero({
       turn.kill();
     };
   }, [grid, projects.length]);
-
-  // List view: the focused project card is as tall as the intro card beside
-  // it, whatever its text makes of that, so its height is handed to CSS. This
-  // runs before paint, so switching to the list view never shows a first frame
-  // at the CSS fallback height.
-  useLayoutEffect(() => {
-    if (!grid) return;
-    const root = hero.current;
-    const card = root?.querySelector<HTMLElement>(".hero-copy");
-    if (!root || !card) return;
-    const measure = () =>
-      root.style.setProperty(
-        "--intro-card-height",
-        `${card.getBoundingClientRect().height}px`,
-      );
-    const observer = new ResizeObserver(measure);
-    observer.observe(card);
-    measure();
-    return () => {
-      observer.disconnect();
-      root.style.removeProperty("--intro-card-height");
-    };
-  }, [grid]);
 
   useEffect(() => {
     if (grid) return;
@@ -180,46 +153,48 @@ export function SignpostHero({
       aria-labelledby="hero-title"
       style={{ "--signpost-height": `${sceneHeight}px` } as CSSProperties}
     >
-      <div className="hero-intro-column">
-        <div className="hero-copy neu-card">
-          <p className="eyebrow">
-            <span className="accent-line" aria-hidden="true" />{" "}
-            {profile.role.toUpperCase()}
-          </p>
-          <p className="hero-hello">
-            {siteCopy.hero.greeting} {profile.name}.
-          </p>
-          <h1 id="hero-title">
-            <span className="sr-only">{profile.name}. </span>
-            {siteCopy.hero.headline.map((line) => (
-              <span className="headline-line" key={line}>
-                {line}
+      {/* Card mode has no intro card: the project cards are the hero, and
+          the page's heading is kept for screen readers and search engines. */}
+      {grid ? (
+        <h1 id="hero-title" className="sr-only">
+          {profile.name}. {siteCopy.hero.headline.join(" ")}{" "}
+          {siteCopy.hero.emphasis}
+        </h1>
+      ) : (
+        <div className="hero-intro-column">
+          <div className="hero-copy neu-card">
+            <p className="eyebrow">
+              <span className="accent-line" aria-hidden="true" />{" "}
+              {profile.role.toUpperCase()}
+            </p>
+            <p className="hero-hello">
+              {siteCopy.hero.greeting} {profile.name}.
+            </p>
+            <h1 id="hero-title">
+              <span className="sr-only">{profile.name}. </span>
+              {siteCopy.hero.headline.map((line) => (
+                <span className="headline-line" key={line}>
+                  {line}
+                </span>
+              ))}
+              <em>{siteCopy.hero.emphasis}</em>
+            </h1>
+            <p className="hero-description">{siteCopy.hero.description}</p>
+            <Link className="text-link" href="/about">
+              {siteCopy.hero.aboutCta}{" "}
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </Link>
+          </div>
+          <div className="hero-bottom">
+            <a href="#introduction" className="scroll-hint">
+              <span className="scroll-icon">
+                <ArrowDown size={15} aria-hidden="true" />
               </span>
-            ))}
-            <em>{siteCopy.hero.emphasis}</em>
-          </h1>
-          <p className="hero-description">{siteCopy.hero.description}</p>
-          <Link className="text-link" href="/about">
-            {siteCopy.hero.aboutCta}{" "}
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </Link>
+              {siteCopy.hero.scrollHint}
+            </a>
+          </div>
         </div>
-        <div className="hero-bottom">
-          <a
-            href={grid && nextScene ? `#${nextScene}` : "#introduction"}
-            className="scroll-hint"
-          >
-            <span className="scroll-icon">
-              <ArrowDown size={15} aria-hidden="true" />
-            </span>
-            {!grid
-              ? siteCopy.hero.scrollHint
-              : nextScene
-                ? siteCopy.hero.gridScrollHint
-                : siteCopy.hero.gridContextHint}
-          </a>
-        </div>
-      </div>
+      )}
       <div className="hero-work">
         <div className="scene-meta">
           {!grid && <span>{siteCopy.hero.collectionLabel}</span>}

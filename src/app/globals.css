@@ -1179,7 +1179,7 @@ h6,
   justify-content: flex-end;
 }
 /* Beside the intro card the focused project card lines up with it: same top,
-   same height (SignpostHero measures the intro card into --intro-card-height).
+   same height as it had beside the intro card (now removed from card mode).
    The track starts one pad higher so the card, not the track, meets the top. */
 @media (min-width: 900px) {
   .hero-list .carousel-track {
@@ -1187,9 +1187,8 @@ h6,
   }
   .hero-list .carousel-card {
     aspect-ratio: auto;
-    /* The fallback is the intro card's usual height (462-473px at 900px and wider),
-       for the first paint before SignpostHero has measured it. */
-    height: var(--intro-card-height, 470px);
+    /* The height the card had beside the intro card, before that was removed. */
+    height: clamp(400px, 34vw, 470px);
   }
 }
 .scene-fallback {
@@ -2789,189 +2788,211 @@ body {
   }
 }
 
-/* Scene two: photo posts on a loop. All posts share one grid cell and are
-   moved by --offset (set per post in PhotoScene): 0 is the middle, -1 and 1
-   the sides, anything further waits out of sight. One value to turn per
-   strength: --photo-width (the middle print), --photo-side-scale, --photo-gap,
-   --jiggle (how far a print swings either side of its resting angle) and
-   --jiggle-time (one swing; a full back-and-forth is twice that: 1.4s, where
-   iOS takes ~0.25s). */
+/* Scene two: the photo posts as folders in a file-browser window. The window
+   is a card with the same side gutter as the header and the context card.
+   Each folder is drawn in three layers (back, photos, front), so its photos
+   rise out from inside it under the pointer. One value to turn per strength:
+   --folder-size (the icon's width), --preview-rise (how far the photos come
+   up) and --preview-spread (how far the outer two move and turn). */
 .photo-scene {
-  --photo-width: clamp(230px, 24vw, 360px);
-  --photo-side-scale: 0.84;
-  --photo-gap: clamp(28px, 6vw, 96px);
-  --jiggle: 1deg;
-  --jiggle-time: 0.7s;
-  /* The posts waiting off to the side are cut off at the scene's edges. */
-  overflow-x: clip;
+  --folder-size: 112px;
+  --preview-rise: 62%;
+  --preview-spread: 1;
+  --folder-back: color-mix(in srgb, var(--text) 42%, var(--panel));
+  --folder-front: color-mix(in srgb, var(--text) 30%, var(--panel));
+  padding: 48px var(--page-gutter) 0;
 }
-.photo-track {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  justify-items: center;
+.finder {
+  min-height: 340px;
+}
+.finder-bar {
+  display: flex;
   align-items: center;
-  /* Room above and below for the prints' tilt, fan and shadow. */
-  padding: 36px 0;
-  touch-action: pan-y;
+  gap: 16px;
+  padding: 16px clamp(16px, 2.4vw, 32px);
+  border-bottom: 1px solid var(--line);
 }
-.photo-slide {
-  --rest: 1.2deg;
-  --state-scale: 1;
-  grid-area: 1 / 1;
+.finder-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.finder-title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.finder-account {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.finder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 36px 8px;
+  margin: 0;
+  /* The top room is where a first-row folder's photos come up. */
+  padding: 56px clamp(8px, 1.6vw, 24px) 40px;
+  list-style: none;
+}
+.finder-item {
   position: relative;
-  z-index: 1;
-  width: var(--photo-width);
-  translate: calc(var(--offset, 0) * (100% + var(--photo-gap))) 0;
-  scale: var(--state-scale);
-  /* A post turns visible at once and only waits to hide. */
-  transition:
-    translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
-    scale 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.45s,
-    visibility 0s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 4px;
+  border-radius: 12px;
+  color: inherit;
 }
-.photo-slide[data-state="active"] {
+.finder-item:is(:hover, :focus-visible) {
+  /* The photos pass over the neighbouring folders. */
   z-index: 2;
 }
-.photo-slide[data-state="side"] {
-  --state-scale: var(--photo-side-scale);
-  opacity: 0.82;
+.finder-item:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 2px;
 }
-.photo-slide[data-side="left"] {
-  --rest: -2deg;
-}
-.photo-slide[data-side="right"] {
-  --rest: 2.4deg;
-}
-.photo-slide[data-state="hidden"] {
-  --state-scale: var(--photo-side-scale);
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
-    scale 0.45s,
-    opacity 0.3s,
-    visibility 0s 0.45s;
-}
-/* The scene comes in the first time it scrolls into view. */
-.photo-scene:not([data-revealed]) .photo-slide {
-  opacity: 0;
-}
-/* A post: the cover in front and, on the middle one, up to two more photos
-   stacked behind it. Under the pointer they fan out like a hand of cards,
-   from the bottom edge. One value per card: --fan-turn (angle) and
-   --fan-shift (sideways). */
-.photo-print {
+.finder-folder {
   position: relative;
   isolation: isolate;
   display: block;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  rotate: var(--rest);
-  transition:
-    rotate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
-    scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: var(--folder-size);
+  aspect-ratio: 5 / 4;
+  transition: translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-div.photo-print {
-  cursor: default;
-}
-.photo-print img {
-  --fan-turn: 0deg;
-  --fan-shift: 0%;
+.finder-folder-back,
+.finder-folder-front {
   position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+/* The back panel, with the tab sticking up on the left. */
+.finder-folder-back {
+  top: 12%;
+  z-index: 0;
+  border-radius: 0 9% 9% 9% / 0 11% 11% 11%;
+  background: var(--folder-back);
+}
+.finder-folder-back::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 40%;
+  height: 16%;
+  border-radius: 22% 22% 0 0 / 60% 60% 0 0;
+  background: inherit;
+}
+.finder-folder-front {
+  top: 26%;
+  z-index: 2;
+  border-radius: 9% / 13%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--folder-front) 88%, #fff),
+    var(--folder-front)
+  );
+  box-shadow: 0 6px 14px -8px var(--shadow-dark);
+}
+.finder-preview {
+  --turn: 0deg;
+  --slide: 0%;
+  position: absolute;
+  left: 22%;
+  bottom: 10%;
+  z-index: 1;
+  width: 56%;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
-  border-radius: 4px;
-  box-shadow: var(--neumorphic);
+  border-radius: 3px;
+  box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.45);
+  opacity: 0;
+  scale: 0.7;
   transform-origin: 50% 100%;
-  rotate: var(--fan-turn);
-  translate: var(--fan-shift) 0;
   transition:
-    rotate 0.45s cubic-bezier(0.34, 1.4, 0.64, 1),
-    translate 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+    translate 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    rotate 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    scale 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity 0.2s;
   -webkit-user-drag: none;
   user-select: none;
+  pointer-events: none;
 }
-.photo-face {
-  z-index: 2;
+.finder-preview[data-preview="1"] {
+  --turn: -11deg;
+  --slide: -58%;
 }
-.photo-fan[data-fan="1"] {
-  z-index: 1;
+.finder-preview[data-preview="3"] {
+  --turn: 11deg;
+  --slide: 58%;
 }
-.photo-fan {
-  /* Behind the cover nothing of it shows, so it casts no second shadow. */
-  box-shadow: none;
+/* The cover (first photo) comes up in the middle, in front of the other two. */
+.finder-preview[data-preview="1"],
+.finder-preview[data-preview="3"] {
+  z-index: 0;
 }
-@keyframes photo-jiggle {
-  from {
-    rotate: calc(var(--rest) - var(--jiggle));
-  }
-  to {
-    rotate: calc(var(--rest) + var(--jiggle));
-  }
+.finder-folder-back {
+  z-index: -1;
 }
-@media (prefers-reduced-motion: no-preference) {
-  /* Only the three posts in view, and only while the scene is on screen. */
-  .photo-scene[data-onscreen]
-    .photo-slide:not([data-state="hidden"])
-    .photo-print {
-    animation: photo-jiggle var(--jiggle-time) ease-in-out infinite alternate;
-  }
-  .photo-scene[data-onscreen] .photo-slide[data-side="left"] .photo-print {
-    animation-delay: -0.45s;
-  }
-  .photo-scene[data-onscreen] .photo-slide[data-side="right"] .photo-print {
-    animation-delay: -0.9s;
-    animation-direction: alternate-reverse;
-  }
-}
-/* Under the pointer or keyboard focus a post holds still and straightens; the
-   middle one also fans its photos out. */
-.photo-scene .photo-slide .photo-print:focus-visible {
-  animation: none;
-  rotate: 0deg;
-  outline: 2px solid var(--accent-glow);
-  outline-offset: 4px;
+.finder-item:focus-visible .finder-preview {
+  opacity: 1;
+  scale: 1.25;
+  rotate: calc(var(--turn) * var(--preview-spread));
+  translate: calc(var(--slide) * var(--preview-spread))
+    calc(var(--preview-rise) * -1);
 }
 @media (hover: hover) and (pointer: fine) {
-  .photo-scene .photo-slide .photo-print:hover {
-    animation: none;
-    rotate: 0deg;
-    scale: 1.03;
+  .finder-item:hover .finder-preview {
+    opacity: 1;
+    scale: 1.25;
+    rotate: calc(var(--turn) * var(--preview-spread));
+    translate: calc(var(--slide) * var(--preview-spread))
+      calc(var(--preview-rise) * -1);
+  }
+  .finder-item:hover .finder-folder {
+    translate: 0 -3px;
   }
 }
-.photo-print:is(:hover, :focus-visible):has(.photo-fan) .photo-face {
-  --fan-turn: 5deg;
-  --fan-shift: 9%;
+/* The outer two rise a little less, so the three make an arc. */
+.finder-item:is(:hover, :focus-visible)
+  .finder-preview:is([data-preview="1"], [data-preview="3"]) {
+  translate: calc(var(--slide) * var(--preview-spread))
+    calc(var(--preview-rise) * -0.82);
 }
-.photo-print:is(:hover, :focus-visible) .photo-fan {
-  box-shadow: var(--neumorphic);
+.finder-label {
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
-.photo-print:is(:hover, :focus-visible) .photo-fan[data-fan="1"] {
-  --fan-turn: -1deg;
-  --fan-shift: 0%;
-}
-.photo-print:is(:hover, :focus-visible) .photo-fan[data-fan="2"] {
-  --fan-turn: -7deg;
-  --fan-shift: -8%;
-}
-.photo-scene .carousel-dots {
-  margin-top: 12px;
+.finder-item:is(:hover, :focus-visible) .finder-label {
+  background: var(--control-active);
 }
 @media (max-width: 599px) {
-  /* The middle post takes most of the width; the side posts peek in. */
   .photo-scene {
-    --photo-width: min(62vw, 300px);
-    --photo-gap: 14px;
+    --folder-size: 88px;
+  }
+  .finder-grid {
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 28px 4px;
+  }
+  .finder-nav {
+    display: none;
   }
 }
 
@@ -3170,15 +3191,10 @@ div.photo-print {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .photo-slide,
-  .photo-slide[data-state="hidden"],
-  .photo-print,
-  .photo-print img,
+  .finder-folder,
+  .finder-preview,
   .folder-link {
     transition: none;
-  }
-  .photo-scene:not([data-revealed]) .photo-slide:not([data-state="hidden"]) {
-    opacity: 1;
   }
   .folder {
     opacity: 1;
@@ -3188,9 +3204,6 @@ div.photo-print {
   .folder-link:is(:hover, :focus-visible),
   .folder:first-child .folder-link:is(:hover, :focus-visible) {
     translate: none;
-  }
-  .photo-scene .photo-slide .photo-print:hover {
-    scale: 1;
   }
 }
 
@@ -3230,4 +3243,16 @@ div.photo-print {
 }
 .writing-page .project-directions {
   margin-top: 80px;
+}
+
+/* Card mode has no intro card: the project cards are the hero, centred in one
+   column between the page gutters. */
+.hero.hero-list {
+  display: block;
+  min-height: 0;
+  padding-inline: var(--page-gutter);
+}
+.hero-list .hero-work {
+  max-width: 1180px;
+  margin-inline: auto;
 }

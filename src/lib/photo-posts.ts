@@ -3,12 +3,11 @@
 // cover.webp, then 1.webp, 2.webp, ...; scripts/add-photos.mjs writes them all
 // at POST_IMAGE_WIDTH x POST_IMAGE_HEIGHT (3:4, upright).
 import type { PhotoPost } from "@/data/photos";
-import type { Photo } from "@/lib/instagram";
 
 export const POST_IMAGE_WIDTH = 1080;
 export const POST_IMAGE_HEIGHT = 1440;
-/** How many photos wait behind the cover and fan out under the pointer. */
-export const FAN_COUNT = 2;
+/** How many photos pop out of a post's folder under the pointer. */
+export const PREVIEW_COUNT = 3;
 const POST_ID = /^\d{1,6}$/;
 
 export function isPostId(value: string) {
@@ -38,14 +37,25 @@ export function postImages(post: PhotoPost) {
   ];
 }
 
-/** The post as the Work page shows it: its cover, linking to its own page. */
-export function postToPhoto(post: PhotoPost): Photo {
-  const [cover, ...rest] = postImages(post);
+/** A post as the Work page shows it: a folder that opens the post's page. */
+export type PostFolder = {
+  id: string;
+  title: string;
+  href: string;
+  /** The first photos (cover first), which pop out under the pointer. */
+  previews: { src: string; alt: string }[];
+};
+
+export function postToFolder(post: PhotoPost): PostFolder {
   return {
     id: post.id,
-    src: cover.src,
-    alt: post.alt,
+    title: post.title,
     href: `/photos/${post.id}`,
-    fan: rest.slice(0, FAN_COUNT).map((image) => image.src),
+    previews: postImages(post).slice(0, PREVIEW_COUNT),
   };
+}
+
+/** Folders in the order a file browser lists them: by number, lowest first. */
+export function toFolders(posts: readonly PhotoPost[]) {
+  return sortPosts(posts).reverse().map(postToFolder);
 }

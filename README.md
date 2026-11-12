@@ -8,7 +8,7 @@ My projects, photos, and writing live on one page. The projects can also hang on
 
 - **Project cards and a 3D signpost.** Browse the cards, or switch to the signpost and move your cursor to tilt it.
 - **Projects that stay up to date.** My pinned GitHub repositories show up automatically, each with its README. No login or token needed.
-- **Photos and writing.** Photos from my photography Instagram, and my writing kept in folders, each piece on its own page.
+- **Photos and writing.** My photo posts in a folder window, and my writing kept in folders, each piece on its own page.
 - **An About page** with my skills and my journey so far.
 - **A contact form** that blocks spam, saves each message securely, and emails it to me.
 - **Comfortable everywhere.** Light and dark themes, phone to desktop layouts, keyboard support, and reduced-motion support.
@@ -40,7 +40,7 @@ You don't need any accounts or keys to look around. Until you set up the contact
 - `src/app/(marketing)/about/page.tsx` and `src/app/(marketing)/contact/page.tsx`: the biography, the quote, and the contact page text.
 - `src/data/projects.ts`: sample projects shown when you have fewer than six pins.
 - `content/writing/`: your writing, one Markdown file per piece (see the [writing guide](docs/writing.md)).
-- `src/data/photos.ts` and `public/photography/`: your photos, or connect Instagram (see the [photo guide](docs/photos.md)).
+- `src/data/photos.ts` and `public/photography/`: your photo posts (see the [photo guide](docs/photos.md)).
 - `src/styles/`: fonts and colors.
 
 ## Put it online

@@ -19,15 +19,14 @@ export const siteCopy = {
     instruction: "Every direction is a new possibility.",
     empty: "New directions are on the way.",
     scrollHint: "Scroll to explore",
-    gridScrollHint: "More work below",
-    gridContextHint: "A little more about me",
     footnote: "A portfolio, with a sense of direction.",
     edition: "VOL. 01 / 2026",
     accessibleHeading: "Explore projects",
   },
   photos: {
-    eyebrow: "PHOTOGRAPHY",
     label: "Photography",
+    // The window title of the folder view, like the folder on disk.
+    windowTitle: "bnhisu_photography",
   },
   writing: {
     eyebrow: "WRITING",

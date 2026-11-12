@@ -65,7 +65,7 @@ export default function RootLayout({
         <noscript>
           <style>
             {
-              ".page-transition, .folder { opacity: 1 !important; translate: none !important; } .photo-slide:not([data-state=hidden]) { opacity: 1 !important; }"
+              ".page-transition, .folder { opacity: 1 !important; translate: none !important; }"
             }
           </style>
         </noscript>
