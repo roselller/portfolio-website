@@ -7,13 +7,14 @@ The Work page shows photos from the Instagram account named in `src/data/profile
 
 ## Connect Instagram
 
-Instagram only gives API access to **professional accounts** (Creator or Business; switching is free in the Instagram app under Settings > Account type and tools).
+Instagram only gives API access to **professional accounts** (Creator or Business; switching is free in the Instagram app). New Meta apps use **API setup with Unified login**, which issues a system-user token that does not expire.
 
-1. At [developers.facebook.com](https://developers.facebook.com), create an app and add the **Instagram** product ("API setup with Instagram login").
-2. Add your Instagram account under "Generate access tokens" and generate a token. It only needs the `instagram_business_basic` permission.
-3. In Vercel, add `INSTAGRAM_ACCESS_TOKEN` (Production only, type Secret) and redeploy. Never paste the token anywhere else.
+1. At [developers.facebook.com](https://developers.facebook.com), create an app with the use case "Manage messaging & content on Instagram", linked to your business portfolio.
+2. Under Instagram > API setup with Unified login, connect your Instagram account and generate a token.
+3. Put the token in `INSTAGRAM_ACCESS_TOKEN` (`.env.local` to try it, then Vercel: Production only, type Secret) and redeploy. Never paste the token anywhere else.
+4. If the photos do not appear although the token is valid, Meta may list no account for it: set `INSTAGRAM_ACCOUNT_ID` to the account's numeric Instagram ID as well.
 
-A token lasts 60 days. The site keeps the one in use in Upstash Redis (`portfolio:instagram:token`) and swaps it for a fresh one once it is 30 days old, so it keeps working as long as the site is visited now and then. If it ever expires (the photo scene falls back to the files), generate a new token and replace the variable in Vercel; the new one takes over on the next deploy.
+If the token is ever revoked, the photo scene falls back to the files; generate a new token and replace the variable.
 
 Visitors' browsers load these photos from Instagram's image servers, without a referrer. To keep every request on your own site, use the files instead.
 
@@ -27,4 +28,4 @@ The script crops each photo to 4:5, resizes it to 1080x1350, removes all metadat
 
 ## How it works
 
-`src/lib/instagram.ts` holds the request, the checks on Instagram's answer (only `https:` image addresses, only `instagram.com` post links) and the token rules; `src/lib/photos.ts` caches the result for an hour; `src/components/PhotoScene.tsx` shows it. The token is sent only from the server and never appears in an error message.
+`src/lib/instagram.ts` holds the requests (to `graph.facebook.com`) and the checks on Instagram's answer (only `https:` image addresses, only `instagram.com` post links); `src/lib/photos.ts` caches the result for an hour; `src/components/PhotoScene.tsx` shows it. The token is sent only from the server, in a header, and never appears in a URL or an error message.

@@ -2,10 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   PHOTO_LIMIT,
-  TOKEN_REFRESH_AFTER_MS,
   captionAlt,
-  chooseToken,
   parseInstagramMedia,
+  pickInstagramAccount,
   tokenSeed,
 } from "../src/lib/instagram";
 import { pageForItem, toPages } from "../src/lib/photo-pages";
@@ -110,30 +109,29 @@ test("alt text is the caption's first line without hashtags, kept short", () => 
   assert.ok(long.length <= 140 && long.endsWith("…"));
 });
 
-test("the stored token is seeded, used, then refreshed after 30 days", () => {
-  const env = "IGAA-environment-token-0001";
-  const now = 1_800_000_000_000;
-  assert.deepEqual(chooseToken(null, env, now), { token: env, action: "seed" });
-  const stored = {
-    token: "IGAA-refreshed-0002",
-    savedAt: now,
-    seed: tokenSeed(env),
-  };
-  assert.deepEqual(chooseToken(stored, env, now + 1000), {
-    token: stored.token,
-    action: "use",
-  });
-  assert.deepEqual(chooseToken(stored, env, now + TOKEN_REFRESH_AFTER_MS), {
-    token: stored.token,
-    action: "refresh",
-  });
-  // A new token pasted into the environment replaces whatever was stored.
-  assert.deepEqual(chooseToken(stored, "IGAA-new-environment-0003", now), {
-    token: "IGAA-new-environment-0003",
-    action: "seed",
-  });
-  assert.equal(tokenSeed(env).length, 16);
-  assert.ok(!tokenSeed(env).includes(env.slice(0, 8)));
+test("the account named in the profile is picked, else the first", () => {
+  const data = [
+    { id: "17840000000000001", username: "other" },
+    { id: "17840000000000002", username: "BNHISU.jpg" },
+  ];
+  assert.equal(pickInstagramAccount({ data }, handle), "17840000000000002");
+  assert.equal(pickInstagramAccount({ data }, "nobody"), "17840000000000001");
+  assert.equal(
+    pickInstagramAccount({ data: [{ id: "17840000000000003" }] }, handle),
+    "17840000000000003",
+  );
+  assert.throws(() => pickInstagramAccount({ data: [] }, handle));
+  assert.throws(() =>
+    pickInstagramAccount({ data: [{ id: "../me" }] }, handle),
+  );
+  assert.throws(() => pickInstagramAccount({ error: {} }, handle));
+});
+
+test("the cache fingerprint never contains the token", () => {
+  const token = "EAAB-system-user-token-0001";
+  assert.equal(tokenSeed(token).length, 16);
+  assert.ok(!tokenSeed(token).includes(token.slice(0, 8)));
+  assert.notEqual(tokenSeed(token), tokenSeed(token + "x"));
 });
 
 test("photos are split into pages and the page follows the first photo", () => {

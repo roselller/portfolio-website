@@ -1,6 +1,7 @@
-// Reads the account's own posts through the Instagram API with Instagram
-// Login (graph.instagram.com). Pure helpers plus two fetches; the token is
-// handled by photos.ts and never appears in an error message.
+// Reads the account's own posts through the Instagram API on
+// graph.facebook.com, with the token that Meta's "API setup with Unified
+// login" issues (a system-user token; it does not expire, so there is nothing
+// to renew). The token travels in a header, never in a URL or an error.
 import { createHash } from "node:crypto";
 import { z } from "zod";
 
@@ -13,8 +14,7 @@ export type Photo = {
   href: string | null;
 };
 
-const API = "https://graph.instagram.com";
-const API_VERSION = "v27.0";
+const API = "https://graph.facebook.com/v26.0";
 const MEDIA_FIELDS =
   "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
 export const PHOTO_LIMIT = 12;
@@ -84,7 +84,11 @@ export function parseInstagramMedia(json: unknown, handle: string): Photo[] {
   return photos;
 }
 
-async function getJson(path: string, params: Record<string, string>) {
+async function getJson(
+  path: string,
+  params: Record<string, string>,
+  token: string,
+) {
   const url = new URL(`${API}/${path}`);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
@@ -92,11 +96,11 @@ async function getJson(path: string, params: Record<string, string>) {
   let response: Response;
   try {
     response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
       signal: AbortSignal.timeout(8000),
     });
   } catch {
-    // The original error can carry the URL, and the URL carries the token.
     throw new Error("Instagram could not be reached.");
   }
   if (!response.ok) {
@@ -105,62 +109,64 @@ async function getJson(path: string, params: Record<string, string>) {
   return (await response.json()) as unknown;
 }
 
-export async function fetchInstagramPhotos(token: string, handle: string) {
-  return parseInstagramMedia(
-    await getJson(`${API_VERSION}/me/media`, {
-      fields: MEDIA_FIELDS,
-      limit: String(PHOTO_LIMIT * 2),
-      access_token: token,
+const ACCOUNT_ID = /^\d{5,40}$/;
+const accountList = z.object({
+  data: z.array(
+    z.object({
+      id: z.string().regex(ACCOUNT_ID),
+      username: z.string().optional(),
     }),
+  ),
+});
+
+/**
+ * The Instagram account the token may read: the one named `handle`, else the
+ * first one. Throws when the token has no account assigned.
+ */
+export function pickInstagramAccount(json: unknown, handle: string) {
+  const list = accountList.safeParse(json);
+  if (!list.success || list.data.data.length === 0) {
+    throw new Error("The token has no Instagram account assigned.");
+  }
+  const wanted = handle.toLowerCase();
+  return (
+    list.data.data.find(
+      (account) => account.username?.toLowerCase() === wanted,
+    ) ?? list.data.data[0]
+  ).id;
+}
+
+/**
+ * The latest posts. `accountId` (INSTAGRAM_ACCOUNT_ID) skips the lookup; it is
+ * needed when the token works but Meta lists no assigned account for it.
+ */
+export async function fetchInstagramPhotos(
+  token: string,
+  handle: string,
+  accountId?: string,
+) {
+  const id =
+    accountId && ACCOUNT_ID.test(accountId)
+      ? accountId
+      : pickInstagramAccount(
+          await getJson(
+            "me/assigned_instagram_accounts",
+            { fields: "id,username" },
+            token,
+          ),
+          handle,
+        );
+  return parseInstagramMedia(
+    await getJson(
+      `${id}/media`,
+      { fields: MEDIA_FIELDS, limit: String(PHOTO_LIMIT * 2) },
+      token,
+    ),
     handle,
   );
 }
 
-const refreshed = z.object({ access_token: z.string().min(20) });
-
-/** A fresh 60-day token in exchange for one that is still valid. */
-export async function refreshInstagramToken(token: string) {
-  return refreshed.parse(
-    await getJson("refresh_access_token", {
-      grant_type: "ig_refresh_token",
-      access_token: token,
-    }),
-  ).access_token;
-}
-
-// Long-lived tokens last 60 days. The one in use is kept in Redis and swapped
-// for a fresh one once it is this old; the environment variable is the seed.
-export const TOKEN_REFRESH_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
-
-export type StoredToken = {
-  token: string;
-  /** When this token was issued to us (ms since 1970). */
-  savedAt: number;
-  /** Fingerprint of the environment token it descends from. */
-  seed: string;
-};
-
-export function tokenSeed(envToken: string) {
-  return createHash("sha256").update(envToken).digest("hex").slice(0, 16);
-}
-
-/**
- * Which token to use and what to do with the store:
- * - "seed": nothing stored for this environment token (first run, or the
- *   owner pasted a new one): use the environment token and store it.
- * - "refresh": the stored token is old enough to be swapped.
- * - "use": the stored token is fine.
- */
-export function chooseToken(
-  stored: StoredToken | null,
-  envToken: string,
-  now: number,
-): { token: string; action: "seed" | "refresh" | "use" } {
-  if (!stored || stored.seed !== tokenSeed(envToken) || !stored.token) {
-    return { token: envToken, action: "seed" };
-  }
-  return {
-    token: stored.token,
-    action: now - stored.savedAt >= TOKEN_REFRESH_AFTER_MS ? "refresh" : "use",
-  };
+/** A fingerprint of the token, for cache keys: never the token itself. */
+export function tokenSeed(token: string) {
+  return createHash("sha256").update(token).digest("hex").slice(0, 16);
 }
