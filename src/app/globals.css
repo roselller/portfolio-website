@@ -2789,93 +2789,97 @@ body {
   }
 }
 
-/* Scene two: photo prints. One value to turn per strength: --jiggle (how far
-   a print swings either side of its resting angle) and --jiggle-time (one
-   swing; a full back-and-forth is twice that: 1.4s, where iOS takes ~0.25s). */
+/* Scene two: photo posts on a loop. All posts share one grid cell and are
+   moved by --offset (set per post in PhotoScene): 0 is the middle, -1 and 1
+   the sides, anything further waits out of sight. One value to turn per
+   strength: --photo-width (the middle print), --photo-side-scale, --photo-gap,
+   --jiggle (how far a print swings either side of its resting angle) and
+   --jiggle-time (one swing; a full back-and-forth is twice that: 1.4s, where
+   iOS takes ~0.25s). */
 .photo-scene {
-  overflow-x: clip;
+  --photo-width: clamp(230px, 24vw, 360px);
+  --photo-side-scale: 0.84;
+  --photo-gap: clamp(28px, 6vw, 96px);
   --jiggle: 1deg;
   --jiggle-time: 0.7s;
-}
-.photo-stage {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: clamp(8px, 2vw, 28px);
-}
-.photo-viewport {
-  grid-column: 2;
-  /* Room above and below for the prints' tilt and shadow. The pages waiting
-     off to the side are clipped by the scene, not here, so a post at the edge
-     can fan its photos out past the viewport. */
-  padding: 28px 0;
-  touch-action: pan-y;
+  /* The posts waiting off to the side are cut off at the scene's edges. */
+  overflow-x: clip;
 }
 .photo-track {
-  display: flex;
-  translate: calc(var(--page, 0) * -100%) 0;
-  transition: translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.photo-page {
-  flex: 0 0 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(20px, 5vw, 72px);
-  padding: 0 clamp(14px, 2.4vw, 32px);
-  opacity: 0;
-  visibility: hidden;
-  /* A page turns visible at once and only waits to hide. */
-  transition:
-    opacity 0.4s,
-    visibility 0s 0.6s;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
+  /* Room above and below for the prints' tilt, fan and shadow. */
+  padding: 36px 0;
+  touch-action: pan-y;
 }
-.photo-page[data-current] {
-  opacity: 1;
-  visibility: visible;
+.photo-slide {
+  --rest: 1.2deg;
+  --state-scale: 1;
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 1;
+  width: var(--photo-width);
+  translate: calc(var(--offset, 0) * (100% + var(--photo-gap))) 0;
+  scale: var(--state-scale);
+  /* A post turns visible at once and only waits to hide. */
   transition:
-    opacity 0.4s,
+    translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.45s,
     visibility 0s;
 }
-.photo-slot {
-  --rest: -2deg;
-  width: 100%;
-  max-width: 380px;
-  justify-self: center;
-  opacity: 0;
-  translate: 0 28px;
-  transition:
-    opacity 0.6s calc(var(--slot, 0) * 90ms),
-    translate 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--slot, 0) * 90ms);
-}
-.photo-slot:nth-child(3n + 2) {
-  --rest: 1.2deg;
-}
-.photo-slot:nth-child(3n) {
-  --rest: 2.4deg;
-}
-.photo-scene[data-revealed] .photo-slot {
-  opacity: 1;
-  translate: none;
-}
-.photo-slot {
-  position: relative;
-}
-.photo-slot:hover {
-  /* The fanned photos pass over the neighbouring posts. */
+.photo-slide[data-state="active"] {
   z-index: 2;
 }
-/* A post: the cover in front and up to two more photos stacked behind it.
-   Under the pointer they fan out like a hand of cards, from the bottom edge.
-   One value per card: --fan-turn (angle) and --fan-shift (sideways). */
+.photo-slide[data-state="side"] {
+  --state-scale: var(--photo-side-scale);
+  opacity: 0.82;
+}
+.photo-slide[data-side="left"] {
+  --rest: -2deg;
+}
+.photo-slide[data-side="right"] {
+  --rest: 2.4deg;
+}
+.photo-slide[data-state="hidden"] {
+  --state-scale: var(--photo-side-scale);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.45s,
+    opacity 0.3s,
+    visibility 0s 0.45s;
+}
+/* The scene comes in the first time it scrolls into view. */
+.photo-scene:not([data-revealed]) .photo-slide {
+  opacity: 0;
+}
+/* A post: the cover in front and, on the middle one, up to two more photos
+   stacked behind it. Under the pointer they fan out like a hand of cards,
+   from the bottom edge. One value per card: --fan-turn (angle) and
+   --fan-shift (sideways). */
 .photo-print {
   position: relative;
   isolation: isolate;
   display: block;
-  aspect-ratio: 4 / 5;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   rotate: var(--rest);
   transition:
     rotate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
     scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+div.photo-print {
+  cursor: default;
 }
 .photo-print img {
   --fan-turn: 0deg;
@@ -2916,94 +2920,83 @@ body {
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  /* Only the page in view, and only while the scene is on screen. */
-  .photo-scene[data-onscreen] .photo-page[data-current] .photo-print {
-    animation: photo-jiggle var(--jiggle-time) ease-in-out infinite alternate;
-    animation-delay: calc(var(--slot, 0) * -0.45s);
-  }
+  /* Only the three posts in view, and only while the scene is on screen. */
   .photo-scene[data-onscreen]
-    .photo-page[data-current]
-    .photo-slot:nth-child(even)
+    .photo-slide:not([data-state="hidden"])
     .photo-print {
+    animation: photo-jiggle var(--jiggle-time) ease-in-out infinite alternate;
+  }
+  .photo-scene[data-onscreen] .photo-slide[data-side="left"] .photo-print {
+    animation-delay: -0.45s;
+  }
+  .photo-scene[data-onscreen] .photo-slide[data-side="right"] .photo-print {
+    animation-delay: -0.9s;
     animation-direction: alternate-reverse;
   }
 }
-/* Under the pointer or keyboard focus a post holds still, straightens and
-   fans its photos out. */
-.photo-scene .photo-page .photo-slot a.photo-print:focus-visible {
+/* Under the pointer or keyboard focus a post holds still and straightens; the
+   middle one also fans its photos out. */
+.photo-scene .photo-slide .photo-print:focus-visible {
+  animation: none;
+  rotate: 0deg;
   outline: 2px solid var(--accent-glow);
   outline-offset: 4px;
 }
-.photo-scene .photo-page .photo-slot a.photo-print:focus-visible {
-  animation: none;
-  rotate: 0deg;
-}
 @media (hover: hover) and (pointer: fine) {
-  .photo-scene .photo-page .photo-slot .photo-print:hover {
+  .photo-scene .photo-slide .photo-print:hover {
     animation: none;
     rotate: 0deg;
     scale: 1.03;
   }
 }
 .photo-print:is(:hover, :focus-visible):has(.photo-fan) .photo-face {
-  --fan-turn: 9deg;
-  --fan-shift: 16%;
+  --fan-turn: 5deg;
+  --fan-shift: 9%;
 }
 .photo-print:is(:hover, :focus-visible) .photo-fan {
   box-shadow: var(--neumorphic);
 }
 .photo-print:is(:hover, :focus-visible) .photo-fan[data-fan="1"] {
-  --fan-turn: -2deg;
+  --fan-turn: -1deg;
   --fan-shift: 0%;
 }
 .photo-print:is(:hover, :focus-visible) .photo-fan[data-fan="2"] {
-  /* Kept modest so the first post's back photo stays inside the window. */
-  --fan-turn: -11deg;
+  --fan-turn: -7deg;
   --fan-shift: -8%;
-}
-.photo-arrow {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  color: var(--text);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  box-shadow: var(--neumorphic);
-  cursor: pointer;
-  transition:
-    color 0.2s,
-    border-color 0.2s;
-}
-.photo-arrow:focus-visible {
-  outline: 2px solid var(--accent-glow);
-  outline-offset: 3px;
-}
-@media (hover: hover) {
-  .photo-arrow:hover {
-    color: var(--accent-glow);
-    border-color: var(--accent-glow);
-  }
 }
 .photo-scene .carousel-dots {
   margin-top: 12px;
 }
 @media (max-width: 599px) {
-  .photo-page {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 0 10px;
+  /* The middle post takes most of the width; the side posts peek in. */
+  .photo-scene {
+    --photo-width: min(62vw, 300px);
+    --photo-gap: 14px;
   }
-  .photo-slot {
-    max-width: 300px;
-  }
-  .photo-arrow {
-    width: 40px;
-    height: 40px;
-  }
+}
+
+/* A photo post's own page: the title card, then every photo in one column. */
+.photo-post-list {
+  display: grid;
+  justify-items: center;
+  gap: clamp(28px, 5vw, 64px);
+  margin: clamp(40px, 6vw, 80px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.photo-post-list li {
+  width: 100%;
+  max-width: 720px;
+}
+.photo-post-list img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: var(--neumorphic);
+}
+.photo-post-page .project-directions {
+  margin-top: 80px;
 }
 
 /* Scene three: writing folders. The newest is in front (first in the list);
@@ -3177,14 +3170,16 @@ body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .photo-track,
-  .photo-page,
+  .photo-slide,
+  .photo-slide[data-state="hidden"],
   .photo-print,
   .photo-print img,
   .folder-link {
     transition: none;
   }
-  .photo-slot,
+  .photo-scene:not([data-revealed]) .photo-slide:not([data-state="hidden"]) {
+    opacity: 1;
+  }
   .folder {
     opacity: 1;
     translate: none;
@@ -3194,7 +3189,7 @@ body {
   .folder:first-child .folder-link:is(:hover, :focus-visible) {
     translate: none;
   }
-  .photo-scene .photo-page .photo-slot .photo-print:hover {
+  .photo-scene .photo-slide .photo-print:hover {
     scale: 1;
   }
 }

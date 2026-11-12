@@ -3,7 +3,7 @@
 The Work page shows photos from the Instagram account named in `src/data/profile.ts` (`photography`), three to a page. There are two sources:
 
 1. **Instagram** (automatic): when `INSTAGRAM_ACCESS_TOKEN` is set, the server reads the account's latest 12 posts once an hour. Albums show their cover, videos their thumbnail, and each photo links to its post.
-2. **Files in the repository** (fallback): when no token is set, or Instagram cannot be reached, the photos listed in `src/data/photos.ts` are shown. With neither, the photo scene is left out.
+2. **Files in the repository** (what the site uses now): when no token is set, or Instagram cannot be reached, the posts listed in `src/data/photos.ts` are shown. With neither, the photo scene is left out.
 
 ## Connect Instagram
 
@@ -20,16 +20,16 @@ Visitors' browsers load these photos from Instagram's image servers, without a r
 
 ## Use files instead
 
-Keep each post's originals in a folder named `[number] date` (a higher number is a later post and is shown first), with the first photo as `cover.jpeg` and the rest as `1.png`, `2.png`, and so on. Then:
+Keep each post's originals in a folder named `[number] date`, for example `[17] 18.05.26` (a higher number is a later post), with the first photo as `cover.jpeg` and the rest as `1.png`, `2.png`, and so on. Then:
 
 ```sh
 node scripts/add-photos.mjs "/path/to/[17] 18.05.26"
 ```
 
-The script takes the cover and the first two photos, crops each to 4:5, resizes it to 800x1000, removes all metadata (including GPS) and saves it in `public/photos/<number>/`. It then adds the post to `src/data/photos.ts`; open that file to write the `alt` text and, optionally, the Instagram post to link to (`href`). Never copy an original camera file into `public/` by hand.
+The script turns every photo upright (a landscape photo is turned 90 degrees clockwise, so the whole post is portrait), crops it to 3:4, resizes it to 1080x1440 and saves it as WebP without metadata (no GPS) in `public/photography/<number>/`. It then adds the post to `src/data/photos.ts`; open that file to write the cover's `alt` text. Never copy an original camera file into `public/` by hand.
 
-On the page the cover is the print; under the pointer the two other photos fan out behind it like a hand of cards.
+On the Work page the posts sit on a loop: the latest in the middle, the one before it on the right, the oldest on the left. A click on a side post turns the loop. Under the pointer the middle post fans its first two photos out behind the cover, and a click opens the post's own page (`/photos/<number>`), which shows the folder name as its title and every photo in one column.
 
 ## How it works
 
-`src/lib/instagram.ts` holds the requests (to `graph.facebook.com`) and the checks on Instagram's answer (only `https:` image addresses, only `instagram.com` post links); `src/lib/photos.ts` caches the result for an hour; `src/components/PhotoScene.tsx` shows it. The token is sent only from the server, in a header, and never appears in a URL or an error message.
+`src/lib/instagram.ts` holds the requests (to `graph.facebook.com`) and the checks on Instagram's answer (only `https:` image addresses, only `instagram.com` post links); `src/lib/photos.ts` caches the result for an hour; `src/lib/photo-posts.ts` turns the posts in the repository into file addresses; `src/components/PhotoScene.tsx` shows the loop and `src/app/photos/[id]/page.tsx` a post's page. The token is sent only from the server, in a header, and never appears in a URL or an error message.

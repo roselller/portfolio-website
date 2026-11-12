@@ -7,7 +7,12 @@ import {
   pickInstagramAccount,
   tokenSeed,
 } from "../src/lib/instagram";
-import { pageForItem, toPages } from "../src/lib/photo-pages";
+import {
+  isPostId,
+  postImages,
+  postToPhoto,
+  sortPosts,
+} from "../src/lib/photo-posts";
 
 const handle = "bnhisu.jpg";
 const post = (id: number, extra: Record<string, unknown> = {}) => ({
@@ -137,18 +142,44 @@ test("the cache fingerprint never contains the token", () => {
   assert.notEqual(tokenSeed(token), tokenSeed(token + "x"));
 });
 
-test("photos are split into pages and the page follows the first photo", () => {
-  assert.deepEqual(toPages([1, 2, 3, 4, 5, 6, 7], 3), [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7],
+const folderPost = {
+  id: "17",
+  title: "[17] 18.05.26",
+  alt: "A bookshop",
+  photos: 3,
+};
+
+test("a post lists its cover and then its numbered photos", () => {
+  assert.deepEqual(postImages(folderPost), [
+    { src: "/photography/17/cover.webp", alt: "A bookshop" },
+    { src: "/photography/17/1.webp", alt: "Photo 1 of 3 from [17] 18.05.26" },
+    { src: "/photography/17/2.webp", alt: "Photo 2 of 3 from [17] 18.05.26" },
+    { src: "/photography/17/3.webp", alt: "Photo 3 of 3 from [17] 18.05.26" },
   ]);
-  assert.deepEqual(toPages([1, 2], 1), [[1], [2]]);
-  assert.deepEqual(toPages([], 3), []);
-  assert.deepEqual(toPages([1, 2], 0), [[1], [2]]);
-  // Photo 4 (index 3) is first on page 1 of threes and on page 3 of ones.
-  assert.equal(pageForItem(3, 3, 7), 1);
-  assert.equal(pageForItem(3, 1, 7), 3);
-  assert.equal(pageForItem(99, 3, 7), 2);
-  assert.equal(pageForItem(0, 3, 0), 0);
+  assert.equal(postImages({ ...folderPost, photos: 0 }).length, 1);
+  assert.equal(postImages({ ...folderPost, photos: -2 }).length, 1);
+});
+
+test("on the Work page a post is its cover, its page and two fan photos", () => {
+  assert.deepEqual(postToPhoto(folderPost), {
+    id: "17",
+    src: "/photography/17/cover.webp",
+    alt: "A bookshop",
+    href: "/photos/17",
+    fan: ["/photography/17/1.webp", "/photography/17/2.webp"],
+  });
+  assert.deepEqual(postToPhoto({ ...folderPost, photos: 1 }).fan, [
+    "/photography/17/1.webp",
+  ]);
+});
+
+test("posts are listed latest first and bad ids are dropped", () => {
+  const ids = sortPosts(
+    ["2", "17", "9", "../x", "", "1e3", "10"].map((id) => ({
+      ...folderPost,
+      id,
+    })),
+  ).map((item) => item.id);
+  assert.deepEqual(ids, ["17", "10", "9", "2"]);
+  assert.ok(isPostId("17") && !isPostId("17/") && !isPostId("-1"));
 });

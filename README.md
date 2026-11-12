@@ -40,7 +40,7 @@ You don't need any accounts or keys to look around. Until you set up the contact
 - `src/app/(marketing)/about/page.tsx` and `src/app/(marketing)/contact/page.tsx`: the biography, the quote, and the contact page text.
 - `src/data/projects.ts`: sample projects shown when you have fewer than six pins.
 - `content/writing/`: your writing, one Markdown file per piece (see the [writing guide](docs/writing.md)).
-- `src/data/photos.ts` and `public/photos/`: your photos, or connect Instagram (see the [photo guide](docs/photos.md)).
+- `src/data/photos.ts` and `public/photography/`: your photos, or connect Instagram (see the [photo guide](docs/photos.md)).
 - `src/styles/`: fonts and colors.
 
 ## Put it online

@@ -7,10 +7,11 @@ import { z } from "zod";
 
 export type Photo = {
   id: string;
-  /** Image address: an Instagram CDN URL, or a file under /photos/. */
+  /** Image address: an Instagram CDN URL, or a file under /photography/. */
   src: string;
   alt: string;
-  /** The Instagram post this photo links to, or null. */
+  /** Where the photo leads: its own page (/photos/<id>) for a post kept in
+      the repository, the Instagram post for one read from Instagram, or null. */
   href: string | null;
   /** More photos from the same post, which fan out behind it on hover. */
   fan: string[];

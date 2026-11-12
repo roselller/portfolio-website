@@ -1,31 +1,32 @@
-// Adds one post to the Work page's photo scene from a folder of originals.
+// Adds one photo post to the site from a folder of originals.
 //
 //   node scripts/add-photos.mjs "~/Documents/bnhisu_photography/[17] 18.05.26"
 //
 // The folder is named "[number] date" and holds cover.(jpeg|jpg|png) plus the
-// post's other photos as 1.png, 2.png, ... The number becomes the post's id
-// (a higher number is a later post and is shown first). Only the cover and
-// the first FAN_COUNT photos are used: the cover is the print, the others fan
-// out behind it under the pointer.
+// post's other photos as 1.png, 2.png, ... (no gaps). The folder name becomes
+// the post's title and the number its id and address (/photos/17); a higher
+// number is a later post and is shown first.
 //
-// Every file is cropped to the print's 4:5 shape, resized and re-encoded
-// without metadata (sharp writes none unless asked: no EXIF, no GPS, no camera
-// data), then the post is listed in src/data/photos.ts. Afterwards open that
-// file to write the post's `alt` text and, if you like, the Instagram post it
-// links to (`href`).
+// Every photo is turned upright (a landscape photo is turned 90 degrees
+// clockwise so the whole post is portrait), cropped to 3:4, resized and saved
+// as WebP without metadata (sharp writes none unless asked: no EXIF, no GPS,
+// no camera data) in public/photography/<number>/. The post is then listed in
+// src/data/photos.ts; open that file to write its `alt` text.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-const FAN_COUNT = 2;
+const WIDTH = 1080;
+const HEIGHT = 1440;
 const EXTENSIONS = ["jpeg", "jpg", "png", "webp", "heic"];
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const dataFile = path.join(root, "src", "data", "photos.ts");
 const END = "\n];\n";
 
 const folder = process.argv[2];
-const id = /^\[(\d+)\]/.exec(path.basename(folder ?? ""))?.[1];
+const title = path.basename(folder ?? "").trim();
+const id = /^\[(\d+)\]/.exec(title)?.[1];
 if (!folder || !id) {
   console.error(
     'Usage: node scripts/add-photos.mjs "<folder named [number] ...>"',
@@ -41,43 +42,51 @@ if (!cover) {
   console.error(`No cover.(${EXTENSIONS.join("|")}) in ${folder}`);
   process.exit(1);
 }
-const fan = [];
-for (let n = 1; n <= FAN_COUNT; n++) {
-  const file = find(String(n));
-  if (file) fan.push([String(n), file]);
-}
+const files = [["cover", cover]];
+for (let n = 1; find(String(n)); n++) files.push([String(n), find(String(n))]);
 
 let data = readFileSync(dataFile, "utf8").replace(
-  "export const localPhotos: Photo[] = [];",
-  "export const localPhotos: Photo[] = [\n];",
+  "export const localPosts: PhotoPost[] = [];",
+  "export const localPosts: PhotoPost[] = [\n];",
 );
-if (!data.endsWith(END)) {
+const listed = data.includes(`id: "${id}"`);
+if (!listed && !data.endsWith(END)) {
   console.error(
     `${dataFile} does not end with its list; add the post by hand.`,
   );
   process.exit(1);
 }
-if (data.includes(`id: "${id}"`)) {
-  console.error(`Post ${id} is already listed in ${dataFile}.`);
-  process.exit(1);
-}
 
-const outDir = path.join(root, "public", "photos", id);
+const outDir = path.join(root, "public", "photography", id);
 mkdirSync(outDir, { recursive: true });
-for (const [name, file] of [["cover", cover], ...fan]) {
-  const info = await sharp(file)
-    .rotate() // apply the camera's orientation before the metadata is dropped
-    .resize(800, 1000, { fit: "cover" })
-    .jpeg({ quality: 80, mozjpeg: true })
-    .toFile(path.join(outDir, `${name}.jpg`));
+let total = 0;
+for (const [name, file] of files) {
+  // Upright first (the camera's orientation flag), then landscape to portrait.
+  const upright = await sharp(file)
+    .rotate()
+    .toBuffer({ resolveWithObject: true });
+  const landscape = upright.info.width > upright.info.height;
+  const info = await sharp(upright.data)
+    .rotate(landscape ? 90 : 0)
+    .resize(WIDTH, HEIGHT, { fit: "cover" })
+    .webp({ quality: 80 })
+    .toFile(path.join(outDir, `${name}.webp`));
+  total += info.size;
   console.log(
-    `public/photos/${id}/${name}.jpg  ${Math.round(info.size / 1024)} KB`,
+    `public/photography/${id}/${name}.webp  ${Math.round(info.size / 1024)} KB${landscape ? "  (turned)" : ""}`,
   );
 }
-const fanList = fan.map(([name]) => `"/photos/${id}/${name}.jpg"`).join(", ");
-data =
-  data.slice(0, -END.length) +
-  `\n  {\n    id: "${id}",\n    src: "/photos/${id}/cover.jpg",\n    alt: "",\n    href: null,\n    fan: [${fanList}],\n  },` +
-  END;
-writeFileSync(dataFile, data);
-console.log("Now write the alt text (and link) in src/data/photos.ts.");
+console.log(`${files.length} photos, ${(total / 1048576).toFixed(1)} MB`);
+
+if (listed) {
+  console.log(
+    `Post ${id} is already in src/data/photos.ts: check its \`photos\` count is ${files.length - 1}.`,
+  );
+} else {
+  data =
+    data.slice(0, -END.length) +
+    `\n  {\n    id: "${id}",\n    title: ${JSON.stringify(title)},\n    alt: "",\n    photos: ${files.length - 1},\n  },` +
+    END;
+  writeFileSync(dataFile, data);
+  console.log("Now write the alt text in src/data/photos.ts.");
+}

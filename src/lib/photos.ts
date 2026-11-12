@@ -1,7 +1,8 @@
 import "server-only";
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import { localPhotos } from "@/data/photos";
+import { localPosts } from "@/data/photos";
+import { postToPhoto, sortPosts } from "@/lib/photo-posts";
 import { profile } from "@/data/profile";
 import { fetchInstagramPhotos, tokenSeed, type Photo } from "@/lib/instagram";
 
@@ -26,8 +27,12 @@ const getCachedInstagramPhotos = unstable_cache(
 );
 
 /** The posts kept in the repository, latest (highest number) first. */
+export function getLocalPosts() {
+  return sortPosts(localPosts);
+}
+
 function filePhotos() {
-  return [...localPhotos].sort((a, b) => Number(b.id) - Number(a.id));
+  return getLocalPosts().map(postToPhoto);
 }
 
 /** Instagram's latest posts, or the files in the repository. Never throws. */

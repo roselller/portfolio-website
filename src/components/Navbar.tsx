@@ -50,7 +50,9 @@ function isActive(href: string, pathname: string) {
   return (
     pathname === href ||
     (href === "/" &&
-      (pathname.startsWith("/projects/") || pathname.startsWith("/writing/")))
+      ["/projects/", "/writing/", "/photos/"].some((section) =>
+        pathname.startsWith(section),
+      ))
   );
 }
 

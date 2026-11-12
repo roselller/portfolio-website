@@ -3,65 +3,86 @@
 import {
   useRef,
   useState,
-  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { profile } from "@/data/profile";
 import { siteCopy } from "@/data/site-copy";
 import type { Photo } from "@/lib/instagram";
-import { keyMove, stepIndex, swipeStep } from "@/lib/carousel";
 import {
-  PHOTOS_PER_PAGE,
-  PHOTOS_PER_PAGE_PHONE,
-  pageForItem,
-  toPages,
-} from "@/lib/photo-pages";
-import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
+  keyMove,
+  parkedOffset,
+  slideOffset,
+  slideState,
+  stepIndex,
+  swipeStep,
+} from "@/lib/carousel";
 import { useInView } from "@/lib/use-in-view";
 
-const PHONE = `(max-width: ${PHONE_MAX_WIDTH}px)`;
 // A click that lands right after a swipe is the swipe's own, not a tap.
 const SWIPE_CLICK_GUARD_MS = 350;
 
-function subscribeToPhone(callback: () => void) {
-  const media = window.matchMedia(PHONE);
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
+/** The cover, with the post's next photos stacked behind it (they fan out
+    under the pointer, in CSS). The last one is drawn first, so it lies at the
+    bottom. Instagram's addresses are signed and change, so these are plain
+    images, not next/image. */
+function PrintImages({ photo, fan }: { photo: Photo; fan: boolean }) {
+  return (
+    <>
+      {fan &&
+        photo.fan
+          .slice(0, 2)
+          .map((src, index) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              className="photo-fan"
+              data-fan={index + 1}
+              src={src}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
+          ))
+          .reverse()}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="photo-face"
+        src={photo.src}
+        alt={photo.alt}
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        draggable={false}
+      />
+    </>
+  );
 }
 
 /**
- * Scene two of the Work page: photos from the photography account, three to
- * a page (one on phones), turned with the arrows, a swipe, the arrow keys or
- * the dots. The prints jiggle slowly while the scene is on screen (CSS; never
- * with reduced motion) and hold still under the pointer.
+ * Scene two of the Work page: photo posts on a loop. The latest starts in the
+ * middle with the one before it on the right and the oldest on the left; a
+ * click on a side post (or a swipe, the arrow keys, the dots) turns the loop.
+ * The post in the middle fans its next photos out under the pointer and opens
+ * its own page. The prints jiggle slowly while the scene is on screen (CSS;
+ * never with reduced motion).
  */
 export function PhotoScene({ photos }: { photos: Photo[] }) {
   const region = useRef<HTMLElement>(null);
-  const phone = useSyncExternalStore(
-    subscribeToPhone,
-    () => window.matchMedia(PHONE).matches,
-    () => false,
-  );
-  const perPage = phone ? PHOTOS_PER_PAGE_PHONE : PHOTOS_PER_PAGE;
-  // The first photo on screen is what is remembered, so it stays on screen
-  // when the page size changes.
-  const [firstItem, setFirstItem] = useState(0);
+  const [active, setActive] = useState(0);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const justSwiped = useRef(false);
   const revealed = useInView(region, { threshold: 0.25, once: true });
   const onScreen = useInView(region, { threshold: 0.05 });
 
-  const pages = toPages(photos, perPage);
-  const count = pages.length;
-  const current = pageForItem(firstItem, perPage, photos.length);
-
-  if (photos.length === 0) return null;
-
-  const goTo = (page: number) => setFirstItem(page * perPage);
-  const stepBy = (step: number) => goTo(stepIndex(current, step, count));
+  const count = photos.length;
+  if (count === 0) return null;
+  const current = stepIndex(active, 0, count);
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
@@ -69,7 +90,7 @@ export function PhotoScene({ photos }: { photos: Photo[] }) {
     const move = keyMove(event.key);
     if (!move || count < 2) return;
     event.preventDefault();
-    goTo(
+    setActive(
       "step" in move
         ? stepIndex(current, move.step, count)
         : move.to === "first"
@@ -78,7 +99,7 @@ export function PhotoScene({ photos }: { photos: Photo[] }) {
     );
   }
   function onPointerDown(event: PointerEvent<HTMLElement>) {
-    // Mouse users have the arrows; dragging is for fingers and pens.
+    // Mouse users click the side posts; dragging is for fingers and pens.
     if (event.pointerType === "mouse") return;
     swipeStart.current = { x: event.clientX, y: event.clientY };
   }
@@ -88,7 +109,7 @@ export function PhotoScene({ photos }: { photos: Photo[] }) {
     if (!start || count < 2) return;
     const step = swipeStep(event.clientX - start.x, event.clientY - start.y);
     if (!step) return;
-    stepBy(step);
+    setActive(stepIndex(current, step, count));
     justSwiped.current = true;
     window.setTimeout(() => {
       justSwiped.current = false;
@@ -121,130 +142,84 @@ export function PhotoScene({ photos }: { photos: Photo[] }) {
           @{handle} <ArrowUpRight size={16} aria-hidden="true" />
         </a>
       </header>
-      <div className="photo-stage">
-        {count > 1 && (
-          <button
-            type="button"
-            className="photo-arrow photo-arrow-previous"
-            aria-label="Previous photos"
-            onClick={() => stepBy(-1)}
-          >
-            <ArrowLeft size={18} aria-hidden="true" />
-          </button>
-        )}
-        <div
-          className="photo-viewport"
-          aria-live="polite"
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => {
-            swipeStart.current = null;
-          }}
-          onClickCapture={(event) => {
-            if (!justSwiped.current) return;
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-        >
-          <div
-            className="photo-track"
-            style={{ "--page": current } as CSSProperties}
-          >
-            {pages.map((page, pageIndex) => (
-              <div
-                key={page[0].id}
-                className="photo-page"
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`${pageIndex + 1} of ${count}`}
-                aria-hidden={pageIndex === current ? undefined : true}
-                inert={pageIndex !== current}
-                data-current={pageIndex === current ? "" : undefined}
-              >
-                {page.map((photo, slot) => {
-                  const image = (
-                    <>
-                      {/* The post's next photos wait behind the cover and
-                          fan out under the pointer (CSS). The last one is
-                          drawn first, so it lies at the bottom. */}
-                      {photo.fan
-                        .slice(0, 2)
-                        .map((src, index) => (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            key={src}
-                            className="photo-fan"
-                            data-fan={index + 1}
-                            src={src}
-                            alt=""
-                            aria-hidden="true"
-                            loading="lazy"
-                            decoding="async"
-                            draggable={false}
-                          />
-                        ))
-                        .reverse()}
-                      {/* Instagram's addresses are signed and change, so
-                          these are plain images, not next/image. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className="photo-face"
-                        src={photo.src}
-                        alt={photo.alt}
-                        loading="lazy"
-                        decoding="async"
-                        referrerPolicy="no-referrer"
-                        draggable={false}
-                      />
-                    </>
-                  );
-                  return (
-                    <div
-                      key={photo.id}
-                      className="photo-slot"
-                      style={{ "--slot": slot } as CSSProperties}
-                    >
-                      {photo.href ? (
-                        <a
-                          className="photo-print"
-                          href={photo.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {image}
-                          <span className="sr-only"> (opens Instagram)</span>
-                        </a>
-                      ) : (
-                        <div className="photo-print">{image}</div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-        {count > 1 && (
-          <button
-            type="button"
-            className="photo-arrow photo-arrow-next"
-            aria-label="Next photos"
-            onClick={() => stepBy(1)}
-          >
-            <ArrowRight size={18} aria-hidden="true" />
-          </button>
-        )}
+      <div
+        className="photo-track"
+        aria-live="polite"
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        onPointerCancel={() => {
+          swipeStart.current = null;
+        }}
+        onClickCapture={(event) => {
+          if (!justSwiped.current) return;
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+      >
+        {photos.map((photo, index) => {
+          const offset = slideOffset(index, current, count);
+          const state = slideState(offset);
+          const label = `${index + 1} of ${count}`;
+          return (
+            <div
+              key={photo.id}
+              className="photo-slide"
+              role="group"
+              aria-roledescription="slide"
+              aria-label={label}
+              aria-hidden={state === "active" ? undefined : true}
+              inert={state === "hidden"}
+              data-state={state}
+              data-side={
+                state === "active" ? undefined : offset < 0 ? "left" : "right"
+              }
+              style={{ "--offset": parkedOffset(offset) } as CSSProperties}
+            >
+              {state !== "active" ? (
+                // Side posts are for the pointer; keyboard and screen reader
+                // users turn the loop with the arrow keys and the dots.
+                <button
+                  type="button"
+                  className="photo-print"
+                  tabIndex={-1}
+                  onClick={() => setActive(index)}
+                >
+                  <PrintImages photo={photo} fan={false} />
+                </button>
+              ) : photo.href?.startsWith("/") ? (
+                <Link className="photo-print" href={photo.href}>
+                  <PrintImages photo={photo} fan />
+                  <span className="sr-only"> (open this post)</span>
+                </Link>
+              ) : photo.href ? (
+                <a
+                  className="photo-print"
+                  href={photo.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <PrintImages photo={photo} fan />
+                  <span className="sr-only"> (opens Instagram)</span>
+                </a>
+              ) : (
+                <div className="photo-print">
+                  <PrintImages photo={photo} fan />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
       {count > 1 && (
-        <div className="carousel-dots" role="group" aria-label="Choose photos">
-          {pages.map((page, pageIndex) => (
+        <div className="carousel-dots" role="group" aria-label="Choose a post">
+          {photos.map((photo, index) => (
             <button
-              key={page[0].id}
+              key={photo.id}
               type="button"
               className="carousel-dot"
-              aria-label={`Show photos ${pageIndex + 1} of ${count}`}
-              aria-current={pageIndex === current ? "true" : undefined}
-              onClick={() => goTo(pageIndex)}
+              aria-label={`Show post ${index + 1} of ${count}`}
+              aria-current={index === current ? "true" : undefined}
+              onClick={() => setActive(index)}
             />
           ))}
         </div>

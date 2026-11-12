@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getProjectCollection } from "@/lib/projects";
 import { getSiteUrl } from "@/lib/site-url";
 import { getWritings } from "@/lib/writing";
+import { getLocalPosts } from "@/lib/photos";
 
 // Same cadence as the home page, so newly pinned repositories appear within an hour.
 export const revalidate = 3600;
@@ -20,6 +21,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...projects.map(({ slug }) => ({
       url: `${origin}/projects/${encodeURIComponent(slug)}`,
       priority: 0.7,
+    })),
+    ...getLocalPosts().map(({ id }) => ({
+      url: `${origin}/photos/${id}`,
+      priority: 0.6,
     })),
     ...writings.map(({ slug }) => ({
       url: `${origin}/writing/${slug}`,
