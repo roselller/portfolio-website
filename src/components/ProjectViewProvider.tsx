@@ -7,6 +7,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import "@/lib/history-marker";
 
 const query = "(prefers-reduced-motion: reduce)";
 function subscribe(callback: () => void) {

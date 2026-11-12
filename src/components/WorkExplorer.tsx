@@ -11,8 +11,47 @@ import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { profile } from "@/data/profile";
 import { siteCopy } from "@/data/site-copy";
+import { arrivedByHistory } from "@/lib/history-marker";
 import type { PostFolder } from "@/lib/photo-posts";
 import { formatWritingDate, type Writing } from "@/lib/writing-file";
+
+/** Where the visitor's own scrolling or typing ends the hold. */
+const TAKE_OVER = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+
+/**
+ * Keeps `target` at the top of the screen until the layout above it stops
+ * changing (600 ms without a size change, 4 s at most) or the visitor scrolls
+ * or presses a key. Returns the cleanup.
+ */
+function holdAnchor(target: HTMLElement) {
+  let quiet = 0;
+  const align = () =>
+    target.scrollIntoView({ block: "start", behavior: "instant" });
+  const stop = () => {
+    observer.disconnect();
+    window.clearTimeout(quiet);
+    window.clearTimeout(limit);
+    cancelAnimationFrame(frame);
+    for (const type of TAKE_OVER) window.removeEventListener(type, stop);
+  };
+  const settle = () => {
+    window.clearTimeout(quiet);
+    quiet = window.setTimeout(stop, 600);
+  };
+  const observer = new ResizeObserver(() => {
+    align();
+    settle();
+  });
+  const limit = window.setTimeout(stop, 4000);
+  const frame = requestAnimationFrame(() => {
+    align();
+    settle();
+  });
+  observer.observe(document.querySelector("main") ?? document.body);
+  for (const type of TAKE_OVER)
+    window.addEventListener(type, stop, { passive: true, once: true });
+  return stop;
+}
 
 export type ExplorerPiece = Pick<Writing, "slug" | "title" | "date" | "type">;
 type TabId = "photos" | "writing";
@@ -43,18 +82,16 @@ export function WorkExplorer({
     () => window.location.hash,
     () => "",
   );
-  // A link to /#photos or /#writing lands on the window once the page above
-  // it has its final height (the browser's own jump happens before that).
-  // Only on arrival at the top of the page: a restored scroll position is
-  // left alone.
+  // A link to /#photos or /#writing lands on the window, and stays there while
+  // the page above it settles (the 3D signpost reports its real height late,
+  // after the browser's own jump). Back, Forward and reload keep their
+  // restored scroll position.
   useEffect(() => {
     const arrived = window.location.hash;
-    if ((arrived !== "#photos" && arrived !== "#writing") || window.scrollY > 0)
-      return;
-    const frame = requestAnimationFrame(() =>
-      region.current?.scrollIntoView({ block: "start" }),
-    );
-    return () => cancelAnimationFrame(frame);
+    const target = region.current;
+    if ((arrived !== "#photos" && arrived !== "#writing") || !target) return;
+    if (arrivedByHistory()) return;
+    return holdAnchor(target);
   }, []);
 
   const tabs = (
