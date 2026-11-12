@@ -42,8 +42,6 @@ function Assembly({
   scrollOffset,
   onSceneHeight,
   documentHeight,
-  leftInset,
-  phoneEdges,
   fx,
 }: {
   projects: Project[];
@@ -51,8 +49,6 @@ function Assembly({
   scrollOffset: RefObject<number>;
   onSceneHeight: (height: number) => void;
   documentHeight: number;
-  leftInset: number;
-  phoneEdges: { left: number; right: number } | null;
   fx: RefObject<SignHoverFx | null>;
 }) {
   const assembly = useRef<Group>(null);
@@ -66,18 +62,18 @@ function Assembly({
   const layout = useMemo(() => getSignpostLayout(projects), [projects]);
   const lean = size.width >= 900 ? 0.1 : 0.08;
   const pitch = -Math.PI / 16; // Lean away from the viewer by 11.25 degrees.
-  // Phones scale the signpost to the card width; other widths are unchanged.
+  // Phones scale the signpost to the page width; other widths use the standard zoom.
   const placement = useMemo(
     () =>
       getSignpostPlacement(
         layout,
         size.width,
         size.height,
-        phoneEdges,
+        null,
         [pitch, -0.16, -lean],
         REST_OFFSET,
       ),
-    [layout, size.width, size.height, phoneEdges, pitch, lean],
+    [layout, size.width, size.height, pitch, lean],
   );
   const presentation = placement;
   const up = useMemo(
@@ -96,7 +92,7 @@ function Assembly({
         width: size.width,
         height: size.height,
         documentHeight,
-        leftInset: placement.leftEdge ?? leftInset,
+        leftInset: placement.leftEdge ?? 0,
         rightEdge: placement.rightEdge,
         restOnly: placement.restOnly,
         pixelsPerUnit: placement.pixelsPerUnit,
@@ -115,7 +111,6 @@ function Assembly({
       size.width,
       size.height,
       documentHeight,
-      leftInset,
       placement,
       pitch,
       lean,
@@ -197,8 +192,6 @@ export default function SignpostScene({
   scrollOffset,
   onSceneHeight,
   documentHeight,
-  leftInset,
-  phoneEdges,
 }: {
   projects: Project[];
   rotation: RefObject<number>;
@@ -207,8 +200,6 @@ export default function SignpostScene({
   scrollOffset: RefObject<number>;
   onSceneHeight: (height: number) => void;
   documentHeight: number;
-  leftInset: number;
-  phoneEdges: { left: number; right: number } | null;
 }) {
   const fallback = (
     <div className="scene-fallback">
@@ -267,8 +258,6 @@ export default function SignpostScene({
             scrollOffset={scrollOffset}
             onSceneHeight={onSceneHeight}
             documentHeight={documentHeight}
-            leftInset={leftInset}
-            phoneEdges={phoneEdges}
             fx={fx}
           />
         </Suspense>

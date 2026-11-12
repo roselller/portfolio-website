@@ -93,8 +93,8 @@ h6,
 .sign-label > span:nth-child(2) {
   font-family: var(--font-heading);
 }
-/* A floating card like the intro card (.neu-card gives it the surface, border,
-   shadow and radius). Its side gutter lines up with the home page's intro card. */
+/* A floating card (.neu-card gives it the surface, border, shadow and radius).
+   Its side gutter lines up with the Work page's cards and window. */
 .site-header {
   --header-gutter: var(--page-gutter);
   position: fixed;
@@ -240,45 +240,6 @@ h6,
   background:
     radial-gradient(ellipse at 78% 45%, #8c92990a, transparent 55%), var(--bg);
 }
-.hero-copy {
-  align-self: start;
-  z-index: 35;
-  min-width: 0;
-  padding: 0 16px 20px 0;
-  pointer-events: none;
-}
-.hero-copy a {
-  pointer-events: auto;
-}
-.hero-hello {
-  margin: 35px 0 17px;
-  font-size: 16px;
-  color: var(--muted);
-}
-.hero h1 {
-  font-size: clamp(42px, 4.5vw, 76px);
-  line-height: 1.12;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-}
-.headline-line {
-  display: block;
-}
-.hero h1 em {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.17em;
-  font-weight: 400;
-  color: var(--display-muted);
-  letter-spacing: -0.015em;
-}
-.hero-description {
-  max-width: 34ch;
-  color: var(--muted);
-  margin: 30px 0 28px;
-  font-size: 16px;
-  line-height: 1.8;
-}
 .text-link {
   display: inline-flex;
   align-items: center;
@@ -313,8 +274,24 @@ h6,
   left: 0;
   min-height: 0;
 }
+/* 3D view: the count and the GitHub link sit above the signpost, where the
+   project cards' row is in card mode, over the canvas. */
 .hero:not(.hero-list) .scene-meta {
-  display: none;
+  position: relative;
+  z-index: 36;
+  grid-column: 1 / -1;
+  align-self: start;
+  align-items: center;
+  padding: 0 var(--page-gutter) 0 0;
+  pointer-events: none;
+}
+.hero:not(.hero-list) .scene-meta a {
+  pointer-events: auto;
+}
+@media (max-width: 899px) {
+  .hero:not(.hero-list) .scene-meta {
+    padding-right: 0;
+  }
 }
 .hero:not(.hero-list) .scene-bottom {
   position: absolute;
@@ -394,34 +371,6 @@ h6,
   box-shadow:
     1px 2px 5px #0003,
     inset 0 1px 0 #ffffff12;
-}
-.hero-bottom {
-  position: absolute;
-  bottom: 28px;
-  left: 4%;
-  right: 4%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.scroll-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-  min-height: 44px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.scroll-icon {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  flex-shrink: 0;
 }
 .hero-footnote {
   font-size: 12px;
@@ -1873,12 +1822,6 @@ h2.section-label {
   .hero {
     min-height: 820px;
   }
-  .hero-hello {
-    font-size: 14px;
-  }
-  .hero-description {
-    font-size: 14px;
-  }
   .hero-footnote {
     display: none;
   }
@@ -1938,21 +1881,6 @@ h2.section-label {
     padding: 145px 6% 100px;
     overflow: hidden;
   }
-  .hero-copy {
-    padding: 0;
-  }
-  .hero h1 {
-    font-size: clamp(44px, 8vw, 72px);
-  }
-  .hero-hello {
-    margin-top: 28px;
-    font-size: 16px;
-  }
-  .hero-description {
-    margin: 24px 0;
-    font-size: 16px;
-    max-width: 40ch;
-  }
   .hero-work {
     margin: 45px 0 0;
   }
@@ -1967,11 +1895,6 @@ h2.section-label {
   .scene-bottom {
     padding-left: 0;
     padding-right: 0;
-  }
-  .hero-bottom {
-    bottom: 24px;
-    left: 6%;
-    right: 6%;
   }
   .hero-list .scene-stage {
     height: auto;
@@ -2057,18 +1980,8 @@ h2.section-label {
   .hero {
     padding-top: 125px;
   }
-  .hero h1 {
-    font-size: clamp(34px, 10.4vw, 56px);
-  }
   .hero .eyebrow {
     font-size: 12px;
-  }
-  .hero-hello {
-    margin-top: 28px;
-    font-size: 14px;
-  }
-  .hero-description {
-    font-size: 16px;
   }
   .hero-work {
     margin-top: 40px;
@@ -2084,9 +1997,6 @@ h2.section-label {
   }
   .scene-instruction {
     max-width: 23ch;
-  }
-  .hero-bottom .edition {
-    display: none;
   }
   .intro-actions {
     align-items: stretch;
@@ -2269,7 +2179,7 @@ h2.section-label {
   bottom: auto;
   right: 24px;
 }
-:is(.hero, .work-context) .intro-section {
+.work-context .intro-section {
   position: relative;
   z-index: 35;
   grid-column: 1;
@@ -2279,27 +2189,22 @@ h2.section-label {
   gap: 24px;
   border: 0;
 }
-:is(.hero, .work-context) .intro-side {
+.work-context .intro-side {
   flex-direction: row;
   gap: 12px;
 }
-:is(.hero, .work-context) .intro-copy h2 {
+.work-context .intro-copy h2 {
   font-size: clamp(26px, 2.4vw, 36px);
 }
-:is(.hero, .work-context) .intro-copy p {
+.work-context .intro-copy p {
   font-size: 15px;
 }
-:is(.hero, .work-context) .intro-actions {
+.work-context .intro-actions {
   flex-direction: column;
   align-items: flex-start;
 }
-:is(.hero, .work-context) .intro-actions .text-link {
+.work-context .intro-actions .text-link {
   margin: 0;
-}
-.hero:not(.hero-list) .hero-bottom {
-  top: 660px;
-  bottom: auto;
-  right: auto;
 }
 .work-context .intro-section {
   grid-column: 1 / -1;
@@ -2326,19 +2231,14 @@ h2.section-label {
     width: 100%;
     left: 0;
   }
-  :is(.hero, .work-context) .intro-section {
+  .work-context .intro-section {
     padding: 0;
   }
-  :is(.hero, .work-context) .intro-copy h2 {
+  .work-context .intro-copy h2 {
     font-size: clamp(28px, 4.3vw, 38px);
   }
-  :is(.hero, .work-context) .intro-actions {
+  .work-context .intro-actions {
     flex-direction: row;
-  }
-  .hero:not(.hero-list) .hero-bottom {
-    top: auto;
-    bottom: 24px;
-    right: 6%;
   }
 }
 /* Phones: the context card rises over the foot of the signpost pole, as on
@@ -2368,79 +2268,24 @@ h2.section-label {
   .hero:not(.hero-list) {
     padding-bottom: 20px;
   }
-  .hero:not(.hero-list) .intro-section {
-    grid-column: 1 / -1;
-    margin-left: -3.1%;
-    padding: 80px 8% 20px;
-    grid-template-columns: minmax(0, 30fr) minmax(0, 70fr);
-    border: 1px solid var(--line);
-  }
-  .hero:not(.hero-list) .intro-copy h2 {
-    font-size: clamp(28px, 2.85vw, 42px);
-  }
-  .hero:not(.hero-list) .intro-actions {
-    flex-direction: row;
-    align-items: center;
-  }
-  .hero:not(.hero-list) .hero-bottom {
-    left: auto;
-    right: 4%;
-    top: 760px;
-  }
 }
-
-/* Shared navigation shell for the two text panels above the sculpture. */
-.hero .hero-copy.neu-card {
-  border-radius: 28px;
-  padding: 24px;
-  width: calc(100% + 32px);
-  margin-left: -16px;
-}
-:is(.hero, .work-context) .intro-section.neu-card {
+.work-context .intro-section.neu-card {
   border: 1px solid var(--line);
   border-radius: 28px;
   margin-inline: 0 3%;
   padding: 48px 5%;
 }
 @media (max-width: 899px) {
-  .hero .hero-copy.neu-card {
-    width: 100%;
-    margin: 0;
-    padding: 24px 20px;
-  }
-  :is(.hero, .work-context) .intro-section.neu-card {
+  .work-context .intro-section.neu-card {
     margin: 0;
     padding: 32px 20px;
   }
 }
 
-.hero .hero-copy.neu-card,
-:is(.hero, .work-context) .intro-section.neu-card {
+.work-context .intro-section.neu-card {
   background: var(--panel);
   box-shadow: var(--neumorphic);
   border-radius: 16px;
-}
-
-/* Keep the prompt below its panel and give cards an even layout gutter. */
-.hero-intro-column {
-  position: relative;
-  align-self: start;
-  min-width: 0;
-  z-index: 35;
-}
-.hero .hero-intro-column .hero-copy {
-  position: relative;
-  top: auto;
-  width: 100%;
-  margin: 0;
-}
-.hero .hero-intro-column .hero-bottom {
-  position: static;
-  justify-content: center;
-  margin-top: 24px;
-}
-.hero .hero-intro-column .scroll-hint {
-  margin: 0;
 }
 .work-context .intro-section.neu-card {
   grid-column: 1 / -1;
@@ -2458,13 +2303,6 @@ h2.section-label {
   }
 }
 
-.hero-intro-column {
-  container-type: inline-size;
-}
-.hero .hero-intro-column h1 {
-  font-size: clamp(32px, 12.5cqw, 64px);
-}
-
 /* Isolate the canvas below copy, including during sticky-layer compositing. */
 .hero {
   isolation: isolate;
@@ -2473,18 +2311,8 @@ h2.section-label {
   z-index: 0;
   isolation: isolate;
 }
-.hero .hero-intro-column {
-  z-index: 2;
-  isolation: isolate;
-}
-:is(.hero, .work-context) .intro-section {
+.work-context .intro-section {
   z-index: 3;
-}
-@media (min-width: 900px) {
-  .hero .hero-intro-column {
-    width: 100%;
-    max-width: 380px;
-  }
 }
 
 /* One persistent, non-interactive ShaderGradient behind every route. */
@@ -2575,29 +2403,29 @@ body {
 }
 
 /* Shared sizing keeps both intro actions on the same text and icon baseline. */
-:is(.hero, .work-context) .intro-actions {
+.work-context .intro-actions {
   flex-direction: row;
   align-items: center;
   gap: 16px;
 }
-:is(.hero, .work-context) .intro-actions > a {
+.work-context .intro-actions > a {
   margin: 0;
   justify-content: center;
   white-space: nowrap;
 }
-:is(.hero, .work-context) .intro-actions > .text-link {
+.work-context .intro-actions > .text-link {
   min-height: 53px;
   padding: 14px 20px;
   gap: 12px;
   line-height: 1.5;
 }
-:is(.hero, .work-context) .intro-actions > a svg {
+.work-context .intro-actions > a svg {
   width: 17px;
   height: 17px;
   flex-shrink: 0;
 }
 @media (max-width: 599px) {
-  :is(.hero, .work-context) .intro-actions > a {
+  .work-context .intro-actions > a {
     width: 100%;
     white-space: normal;
     text-align: center;

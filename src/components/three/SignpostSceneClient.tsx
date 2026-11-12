@@ -26,8 +26,6 @@ export function SignpostSceneClient({
   scrollOffset,
   onSceneHeight,
   documentHeight,
-  leftInset,
-  phoneEdges,
 }: {
   projects: Project[];
   rotation: RefObject<number>;
@@ -36,8 +34,6 @@ export function SignpostSceneClient({
   scrollOffset: RefObject<number>;
   onSceneHeight: (height: number) => void;
   documentHeight: number;
-  leftInset: number;
-  phoneEdges: { left: number; right: number } | null;
 }) {
   return (
     <Suspense fallback={<SceneLoading />}>
@@ -49,8 +45,6 @@ export function SignpostSceneClient({
         scrollOffset={scrollOffset}
         onSceneHeight={onSceneHeight}
         documentHeight={documentHeight}
-        leftInset={leftInset}
-        phoneEdges={phoneEdges}
       />
     </Suspense>
   );

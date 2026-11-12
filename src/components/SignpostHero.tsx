@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import Link from "next/link";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { SignpostSceneClient } from "./three/SignpostSceneClient";
 import { ProjectCarousel } from "./ProjectCarousel";
 import { profile } from "@/data/profile";
@@ -12,7 +11,6 @@ import type { Project } from "@/data/projects";
 import { useProjectView } from "./ProjectViewProvider";
 import { bindSignpostPointer } from "@/lib/signpost-pointer";
 import { createQuickTween } from "@/lib/quick-tween";
-import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
 
 export function SignpostHero({
   projects,
@@ -26,12 +24,6 @@ export function SignpostHero({
   const scrollOffset = useRef(0);
   const [sceneHeight, setSceneHeight] = useState(1400);
   const [documentHeight, setDocumentHeight] = useState(0);
-  const [leftInset, setLeftInset] = useState(0);
-  // Phones: the card's left and right edges, so the signs can meet them.
-  const [phoneEdges, setPhoneEdges] = useState<{
-    left: number;
-    right: number;
-  } | null>(null);
   const renderSceneRef = useRef<(() => void) | null>(null);
   const { grid } = useProjectView();
 
@@ -58,25 +50,7 @@ export function SignpostHero({
     const work = hero.current?.querySelector<HTMLElement>(".hero-work");
     const stage = hero.current?.querySelector<HTMLElement>(".scene-stage");
     if (!work || !stage) return;
-    const card = hero.current?.querySelector<HTMLElement>(".hero-copy");
     function update() {
-      // Clip the WebGL layer behind the card as well as stacking it below.
-      // This prevents sticky canvas compositing from painting over the card.
-      if (card) {
-        const viewport = stage!.getBoundingClientRect();
-        const panel = card.getBoundingClientRect();
-        const x = Math.max(0, panel.left - viewport.left - 2);
-        const y = Math.max(0, panel.top - viewport.top - 2);
-        const right = Math.min(viewport.width, panel.right - viewport.left + 2);
-        const bottom = Math.min(
-          viewport.height,
-          panel.bottom - viewport.top + 2,
-        );
-        stage!.style.clipPath =
-          right > x && bottom > y
-            ? `path(evenodd, "M0 0H${viewport.width}V${viewport.height}H0Z M${x} ${y}H${right}V${bottom}H${x}Z")`
-            : "none";
-      }
       scrollOffset.current = Math.max(
         0,
         Math.min(
@@ -89,32 +63,11 @@ export function SignpostHero({
     }
     const measure = () => {
       setDocumentHeight(work.clientHeight);
-      const viewport = stage.getBoundingClientRect();
-      setLeftInset(
-        window.innerWidth >= 900 && card
-          ? card.getBoundingClientRect().right -
-              viewport.left +
-              Math.max(16, viewport.width * 0.02)
-          : 0,
-      );
-      if (card && window.innerWidth <= PHONE_MAX_WIDTH) {
-        const panel = card.getBoundingClientRect();
-        const left = Math.round(panel.left - viewport.left);
-        const right = Math.round(panel.right - viewport.left);
-        setPhoneEdges((previous) =>
-          previous?.left === left && previous.right === right
-            ? previous
-            : { left, right },
-        );
-      } else {
-        setPhoneEdges(null);
-      }
       update();
     };
     const observer = new ResizeObserver(measure);
     observer.observe(work);
     observer.observe(stage);
-    if (card) observer.observe(card);
     // Scroll can fire several times per frame; read layout at most once per frame.
     let frame = 0;
     const scheduleUpdate = () => {
@@ -130,11 +83,26 @@ export function SignpostHero({
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);
-      stage.style.clipPath = "none";
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", measure);
     };
   }, [grid, sceneHeight]);
+
+  const meta = (
+    <div className="scene-meta">
+      <span>
+        {String(projects.length).padStart(2, "0")} {siteCopy.hero.projectLabel}
+      </span>
+      <a
+        className="scene-meta-link"
+        href={profile.github}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {siteCopy.hero.githubCta} <ArrowUpRight size={14} aria-hidden="true" />
+      </a>
+    </div>
+  );
 
   return (
     <section
@@ -143,63 +111,18 @@ export function SignpostHero({
       aria-labelledby="hero-title"
       style={{ "--signpost-height": `${sceneHeight}px` } as CSSProperties}
     >
-      {/* Card mode has no intro card: the project cards are the hero, and
-          the page's heading is kept for screen readers and search engines. */}
-      {grid ? (
-        <h1 id="hero-title" className="sr-only">
-          {profile.name}. {siteCopy.hero.headline.join(" ")}{" "}
-          {siteCopy.hero.emphasis}
-        </h1>
-      ) : (
-        <div className="hero-intro-column">
-          <div className="hero-copy neu-card">
-            <p className="hero-hello">
-              {siteCopy.hero.greeting} {profile.name}.
-            </p>
-            <h1 id="hero-title">
-              <span className="sr-only">{profile.name}. </span>
-              {siteCopy.hero.headline.map((line) => (
-                <span className="headline-line" key={line}>
-                  {line}
-                </span>
-              ))}
-              <em>{siteCopy.hero.emphasis}</em>
-            </h1>
-            <p className="hero-description">{siteCopy.hero.description}</p>
-            <Link className="text-link" href="/about">
-              {siteCopy.hero.aboutCta}{" "}
-              <ArrowUpRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
-          <div className="hero-bottom">
-            <a href="#introduction" className="scroll-hint">
-              <span className="scroll-icon">
-                <ArrowDown size={15} aria-hidden="true" />
-              </span>
-              {siteCopy.hero.scrollHint}
-            </a>
-          </div>
-        </div>
-      )}
+      {/* No intro card in either view: the signpost or the project cards are
+          the hero, and the page's heading is kept for screen readers and
+          search engines. */}
+      <h1 id="hero-title" className="sr-only">
+        {profile.name}. {siteCopy.hero.headline.join(" ")}{" "}
+        {siteCopy.hero.emphasis}
+      </h1>
+      {/* The project count on the left, a link to GitHub on the right. Card
+          mode keeps it above the cards; the 3D view above the signpost. */}
+      {!grid && meta}
       <div className="hero-work">
-        <div className="scene-meta">
-          {!grid && <span>{siteCopy.hero.collectionLabel}</span>}
-          <span>
-            {String(projects.length).padStart(2, "0")}{" "}
-            {siteCopy.hero.projectLabel}
-          </span>
-          {grid && (
-            <a
-              className="scene-meta-link"
-              href={profile.github}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {siteCopy.hero.githubCta}{" "}
-              <ArrowUpRight size={14} aria-hidden="true" />
-            </a>
-          )}
-        </div>
+        {grid && meta}
         <div className="scene-stage">
           {projects.length === 0 ? (
             <div className="scene-loading">{siteCopy.hero.empty}</div>
@@ -214,8 +137,6 @@ export function SignpostHero({
               scrollOffset={scrollOffset}
               onSceneHeight={setSceneHeight}
               documentHeight={documentHeight}
-              leftInset={leftInset}
-              phoneEdges={phoneEdges}
             />
           )}
         </div>

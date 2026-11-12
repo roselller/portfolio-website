@@ -27,14 +27,13 @@ test("each blade stays between the card and page edge at every pointer limit and
         width,
         height,
       );
-      const leftInset =
-        width >= 900 ? Math.min(380, width * 0.34) + width * 0.05 : 0;
+      const leftInset = 0;
       const rotation: [number, number, number] = [
         -Math.PI / 16,
         -0.16,
         width >= 900 ? -0.1 : -0.08,
       ];
-      const topX = width * (width >= 900 ? 0.67 : 0.5);
+      const topX = width * 0.5;
       const restOffset = -Math.PI / 10;
       const boards = fitSignpostBoards(layout, {
         width,

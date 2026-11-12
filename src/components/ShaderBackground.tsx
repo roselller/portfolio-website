@@ -62,7 +62,7 @@ export default function ShaderBackground() {
         type="plane"
         animate={paused ? "off" : "on"}
         color1={light ? "#fb7185" : "#9f1239"}
-        color2={light ? "#e7e9ec" : "#34363a"}
+        color2={light ? "#e7e9ec" : "#e11d48"}
         color3={light ? "#d1d5da" : "#0b0c0e"}
         uSpeed={0.4}
         uStrength={4}

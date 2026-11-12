@@ -65,7 +65,7 @@ function horizontalBounds(
   return { min, max };
 }
 
-/** Fit each blade to the actual space beside the card throughout its motion. */
+/** Fit each blade to the space between the page gutters throughout its motion. */
 export function fitSignpostBoards(layout: Layout, view: View) {
   const matrix = new Matrix4().makeRotationFromEuler(
     new Euler(...view.rotation),
@@ -123,9 +123,9 @@ export function fitSignpostBoards(layout: Layout, view: View) {
 type Edges = { left: number; right: number };
 
 /**
- * Where the signpost sits in the canvas. Phones scale it so the outermost
- * signs (at rest) meet the card edges; every other width keeps the standard
- * zoom and pole position.
+ * Where the signpost sits in the canvas, centred. Phones scale it so the
+ * outermost signs (at rest) meet the page edges (`edges`, or 6% in from each
+ * side); every other width keeps the standard zoom.
  */
 export function getSignpostPlacement(
   layout: Layout,
@@ -143,7 +143,7 @@ export function getSignpostPlacement(
   );
   const standard = {
     ...base,
-    topX: width * (width >= 900 ? 0.67 : 0.5),
+    topX: width * 0.5,
     restOnly: false,
     leftEdge: undefined as number | undefined,
     rightEdge: undefined as number | undefined,
