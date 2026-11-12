@@ -19,6 +19,12 @@ import { profile } from "@/data/profile";
 export const revalidate = 3600;
 type Props = { params: Promise<{ id: string }> };
 
+// Nothing is built ahead of time (the content store is not reachable while
+// building); each page is built on its first visit and then cached.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const post = isPostId(id)

@@ -13,6 +13,12 @@ import { workPath } from "@/lib/work-path";
 export const revalidate = 3600;
 type Props = { params: Promise<{ slug: string }> };
 
+// Nothing is built ahead of time (the content store is not reachable while
+// building); each page is built on its first visit and then cached.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const { writing } = await getWritingBySlug(slug);
