@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { ProjectCoverTitle } from "@/components/ProjectCoverTitle";
 import { getLocalPosts } from "@/lib/photos";
-import { postImages } from "@/lib/photo-posts";
+import { instagramPostUrl, postImages } from "@/lib/photo-posts";
+import { folderDate, workPath } from "@/lib/work-path";
 import { profile } from "@/data/profile";
 
 // Every post is a folder of files in the repository, so each page is built once.
@@ -46,6 +47,8 @@ export default async function PhotoPostPage({ params }: Props) {
   const post = posts[position];
   if (!post) notFound();
   const images = postImages(post);
+  // Only an Instagram post address is linked.
+  const link = instagramPostUrl(post.link);
   // Posts are listed latest first, so "next" is the later post.
   const later =
     posts.length > 1
@@ -59,10 +62,20 @@ export default async function PhotoPostPage({ params }: Props) {
         <ArrowLeft size={15} aria-hidden="true" /> Back to all work
       </Link>
       <div className="project-heading-row">
-        <p className="eyebrow">
+        <p className="eyebrow work-path">
           <span className="accent-line" aria-hidden="true" />{" "}
-          {post.id.padStart(2, "0")} / PHOTOGRAPHY
+          {workPath("photography", Number(post.id), folderDate(post.folder))}
         </p>
+        {link && (
+          <a
+            className="text-link"
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on Instagram <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
+        )}
       </div>
       <div className="project-visual">
         <Asterisk

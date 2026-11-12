@@ -8,7 +8,7 @@ My projects, photos, and writing live on one page. The projects can also hang on
 
 - **Project cards and a 3D signpost.** Browse the cards, or switch to the signpost and move your cursor to tilt it.
 - **Projects that stay up to date.** My pinned GitHub repositories show up automatically, each with its README. No login or token needed.
-- **Photos and writing.** My photo posts in a folder window, and my writing kept in folders, each piece on its own page.
+- **Photos and writing.** My photo posts and my writing in a folder window, each on its own page.
 - **An About page** with my skills and my journey so far.
 - **A contact form** that blocks spam, saves each message securely, and emails it to me.
 - **Comfortable everywhere.** Light and dark themes, phone to desktop layouts, keyboard support, and reduced-motion support.

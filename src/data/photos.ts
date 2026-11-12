@@ -15,6 +15,8 @@ export type PhotoPost = {
   hashtags: string[];
   /** content.md LOCATION, or "". */
   location: string;
+  /** content.md LINK: the post on Instagram, or "". */
+  link: string;
   /** What the cover shows, for people who cannot see it. */
   alt: string;
   /** How many numbered photos follow the cover. */

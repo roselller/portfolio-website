@@ -2745,49 +2745,10 @@ body {
   padding: 12px 0;
 }
 
-/* Work page scenes below the hero: photos (scene two) and writing (scene
-   three), then the context card in card mode. Each scene is about a screen
-   tall and comes in the first time it scrolls into view ([data-revealed], set
-   by useInView; layout.tsx shows everything when scripts are off). */
-.work-scene {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: min(100svh, 860px);
-  padding: 88px var(--page-gutter) 64px;
-}
-.work-scene-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  margin-bottom: 36px;
-}
-.work-scene-header .eyebrow {
-  margin: 0;
-}
-.work-scene-count {
-  font-family: var(--font-label);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-}
+/* The context card closes the Work page in card mode. */
 .work-context {
   padding: 48px var(--page-gutter);
 }
-@media (max-width: 899px) {
-  /* Narrow screens are tall: a scene is as tall as what it holds. */
-  .work-scene {
-    min-height: 0;
-    padding-top: 56px;
-    padding-bottom: 40px;
-  }
-  .work-scene-header {
-    margin-bottom: 24px;
-  }
-}
-
 /* Scene two: the photo posts as folders in a file-browser window. The window
    is a card with the same side gutter as the header and the context card.
    Each folder is drawn in three layers (back, photos, front), so its photos
@@ -2973,6 +2934,100 @@ body {
   translate: calc(var(--slide) * var(--preview-spread))
     calc(var(--preview-rise) * -0.82);
 }
+/* Documents have nothing that pops out, so they need no room above. */
+.finder-grid-docs {
+  padding-top: 40px;
+}
+.photo-scene {
+  scroll-margin-top: 110px;
+}
+/* Tabs under the toolbar: one per kind of work. */
+.finder-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 14px clamp(16px, 2.4vw, 32px) 0;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--input-bg);
+}
+.finder-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.finder-tab[aria-selected="true"] {
+  background: var(--control-active);
+  color: var(--text);
+  box-shadow:
+    0 2px 6px #0003,
+    inset 0 1px 0 #ffffff0d;
+}
+.finder-tab:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .finder-tab:hover {
+    color: var(--text);
+  }
+}
+.finder-anchor {
+  display: block;
+}
+/* A piece of writing: a sheet of paper with a folded corner and text lines. */
+.finder-doc {
+  position: relative;
+  display: block;
+  width: calc(var(--folder-size) * 0.7);
+  /* As tall as a folder, so labels line up across the tabs. */
+  height: calc(var(--folder-size) * 0.8);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0 10px,
+        color-mix(in srgb, var(--text) 22%, transparent) 10px 12px
+      )
+      50% 58% / 62% 46% no-repeat,
+    color-mix(in srgb, var(--panel) 55%, #fff);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 14px -8px var(--shadow-dark);
+  clip-path: polygon(0 0, 72% 0, 100% 22%, 100% 100%, 0 100%);
+  transition: translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.finder-doc::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28%;
+  height: 22%;
+  background: color-mix(in srgb, var(--text) 24%, var(--panel));
+  border-bottom-left-radius: 4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .finder-item:hover .finder-doc {
+    translate: 0 -4px;
+  }
+}
+.finder-sublabel {
+  margin-top: -8px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
 .finder-label {
   max-width: 100%;
   padding: 2px 8px;
@@ -2982,7 +3037,101 @@ body {
   text-align: center;
   overflow-wrap: anywhere;
 }
-.finder-item:is(:hover, :focus-visible) .finder-label {
+.finder-item:is(:hover, :focus-visible) /* Documents have nothing that pops out, so they need no room above. */
+.finder-grid-docs {
+  padding-top: 40px;
+}
+.photo-scene {
+  scroll-margin-top: 110px;
+}
+/* Tabs under the toolbar: one per kind of work. */
+.finder-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 14px clamp(16px, 2.4vw, 32px) 0;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--input-bg);
+}
+.finder-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.finder-tab[aria-selected="true"] {
+  background: var(--control-active);
+  color: var(--text);
+  box-shadow:
+    0 2px 6px #0003,
+    inset 0 1px 0 #ffffff0d;
+}
+.finder-tab:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .finder-tab:hover {
+    color: var(--text);
+  }
+}
+.finder-anchor {
+  display: block;
+}
+/* A piece of writing: a sheet of paper with a folded corner and text lines. */
+.finder-doc {
+  position: relative;
+  display: block;
+  width: calc(var(--folder-size) * 0.7);
+  /* As tall as a folder, so labels line up across the tabs. */
+  height: calc(var(--folder-size) * 0.8);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0 10px,
+        color-mix(in srgb, var(--text) 22%, transparent) 10px 12px
+      )
+      50% 58% / 62% 46% no-repeat,
+    color-mix(in srgb, var(--panel) 55%, #fff);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 14px -8px var(--shadow-dark);
+  clip-path: polygon(0 0, 72% 0, 100% 22%, 100% 100%, 0 100%);
+  transition: translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.finder-doc::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28%;
+  height: 22%;
+  background: color-mix(in srgb, var(--text) 24%, var(--panel));
+  border-bottom-left-radius: 4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .finder-item:hover .finder-doc {
+    translate: 0 -4px;
+  }
+}
+.finder-sublabel {
+  margin-top: -8px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.finder-label {
   background: var(--control-active);
 }
 @media (max-width: 899px) {
@@ -3049,190 +3198,11 @@ body {
   margin-top: 80px;
 }
 
-/* Scene three: writing folders. The newest is in front (first in the list);
-   each one behind stands --folder-step higher and --folder-inset narrower,
-   with its tab further right. The front folder sets the stack's height; the
-   others are placed behind it. Entrance (the list item) and hover rise (the
-   link) are separate elements, so the entrance delay never slows the hover. */
-.folder-stack {
-  --folder-step: 64px;
-  --folder-tab: 46px;
-  --folder-inset: clamp(6px, 1.2vw, 18px);
-  --folder-rise: 30px;
-  position: relative;
-  width: 100%;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0;
-  list-style: none;
-}
-.folder {
-  --folder-bg: color-mix(
-    in srgb,
-    var(--panel) calc(100% - min(var(--i), 6) * 4%),
-    var(--text)
-  );
-  position: absolute;
-  top: calc((var(--folders) - 1 - var(--i)) * var(--folder-step));
-  bottom: 0;
-  left: calc(var(--i) * var(--folder-inset));
-  right: calc(var(--i) * var(--folder-inset));
-  z-index: calc(var(--folders) - var(--i));
-  /* Only the tab and the body take the pointer: the empty strip beside a tab
-     must not cover the folder behind it. */
-  pointer-events: none;
-  opacity: 0;
-  translate: 0 72px;
-  transition:
-    opacity 0.45s calc(var(--i) * 90ms),
-    translate 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) calc(var(--i) * 90ms);
-}
-.folder:first-child {
-  position: relative;
-  top: auto;
-  margin-top: calc((var(--folders) - 1) * var(--folder-step));
-}
-.writing-scene[data-revealed] .folder {
-  opacity: 1;
-  translate: none;
-}
-.folder-link {
-  position: absolute;
-  inset: 0;
-  display: block;
-  color: inherit;
-  transition: translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.folder:first-child .folder-link {
-  position: relative;
-  inset: auto;
-  /* Room for the tab (padding, because a margin on the body would collapse
-     through the link and move the whole folder). */
-  padding-top: var(--folder-tab);
-}
-.folder-tab,
-.folder-body {
-  pointer-events: auto;
-  background: var(--folder-bg);
-  border: 1px solid var(--line);
-}
-.folder-tab {
-  position: absolute;
-  top: 0;
-  left: calc(var(--tab) * 19%);
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  /* One pixel over the body, so the body's top border ends under the tab. */
-  height: calc(var(--folder-tab) + 1px);
-  min-width: 120px;
-  max-width: min(42%, 420px);
-  padding: 0 22px;
-  border-bottom: 0;
-  border-radius: 14px 14px 0 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-.folder-tab-title {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.folder-body {
-  position: absolute;
-  inset: var(--folder-tab) 0 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  padding: clamp(22px, 3vw, 44px);
-  border-radius: 18px;
-  box-shadow: 0 -10px 24px -14px var(--shadow-dark);
-  overflow: hidden;
-}
-.folder[data-first-tab] .folder-body {
-  border-top-left-radius: 0;
-}
-.folder:first-child .folder-body {
-  position: relative;
-  inset: auto;
-  min-height: clamp(260px, 26vw, 360px);
-}
-.folder-meta {
-  font-family: var(--font-label);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-}
-.folder-title {
-  max-width: 22ch;
-  font-size: clamp(28px, 3.4vw, 48px);
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  line-height: 1.15;
-}
-.folder-summary {
-  max-width: 56ch;
-  color: var(--muted);
-  line-height: 1.8;
-}
-.folder-read {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  border-bottom: 1px solid var(--line);
-}
-.folder-link:focus-visible {
-  outline: none;
-  translate: 0 calc(var(--folder-rise) * -1);
-}
-.folder-link:focus-visible :is(.folder-tab, .folder-body) {
-  outline: 2px solid var(--accent-glow);
-  outline-offset: -2px;
-}
-@media (hover: hover) and (pointer: fine) {
-  .folder-link:hover {
-    translate: 0 calc(var(--folder-rise) * -1);
-  }
-  .folder-link:hover .folder-read {
-    color: var(--accent-glow);
-  }
-}
-/* The front folder has nothing to come out from behind: a smaller rise. */
-.folder:first-child .folder-link:is(:hover, :focus-visible) {
-  translate: 0 -10px;
-}
-@media (max-width: 599px) {
-  .folder-stack {
-    --folder-step: 58px;
-    --folder-tab: 42px;
-  }
-  /* Two tab positions, so a title keeps enough room to be read. */
-  .folder-tab {
-    left: calc(mod(var(--tab), 2) * 42%);
-    max-width: 58%;
-    padding: 0 16px;
-    font-size: 13px;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .finder-folder,
   .finder-preview,
-  .folder-link {
+  .finder-doc {
     transition: none;
-  }
-  .folder {
-    opacity: 1;
-    translate: none;
-    transition: none;
-  }
-  .folder-link:is(:hover, :focus-visible),
-  .folder:first-child .folder-link:is(:hover, :focus-visible) {
-    translate: none;
   }
 }
 
@@ -3284,4 +3254,15 @@ body {
 .hero-list .hero-work {
   max-width: 1180px;
   margin-inline: auto;
+}
+
+/* The folder-style path at the top of a Work sub-page (~/PROJECTS/01_name/):
+   kept in its own case, so it reads like a path. */
+.eyebrow.work-path {
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+}
+.project-heading-row {
+  flex-wrap: wrap;
+  align-items: center;
 }

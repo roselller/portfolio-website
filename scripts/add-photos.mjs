@@ -9,6 +9,7 @@
 //   TITLE:A trip
 //   HASHTAGS:#travel,#taiwan
 //   LOCATION:Old town
+//   LINK:https://www.instagram.com/p/.../
 //
 // The number becomes the post's id and address (/photos/17), the folder name
 // its label on the Work page; a higher number is a later post.
@@ -87,7 +88,8 @@ for (const [name, file] of files) {
 }
 console.log(`${files.length} photos, ${(total / 1048576).toFixed(1)} MB`);
 
-// content.md: KEY:value lines (TITLE, HASHTAGS separated by commas, LOCATION).
+// content.md: KEY:value lines (TITLE, HASHTAGS separated by commas, LOCATION,
+// LINK).
 const content = {};
 const contentFile = path.join(folder, "content.md");
 if (existsSync(contentFile)) {
@@ -106,6 +108,7 @@ const entry = `  {
     title: ${JSON.stringify(content.TITLE || label)},
     hashtags: ${JSON.stringify(hashtags)},
     location: ${JSON.stringify(content.LOCATION || "")},
+    link: ${JSON.stringify(content.LINK || "")},
     alt: "",
     photos: ${files.length - 1},
     landscape: ${JSON.stringify(landscapes)},

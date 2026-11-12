@@ -77,3 +77,18 @@ export function postToFolder(post: PhotoPost): PostFolder {
 export function toFolders(posts: readonly PhotoPost[]) {
   return sortPosts(posts).reverse().map(postToFolder);
 }
+
+/** A post's LINK if it is an https address on instagram.com, else null. */
+export function instagramPostUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      /^(www\.)?instagram\.com$/.test(url.hostname)
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}

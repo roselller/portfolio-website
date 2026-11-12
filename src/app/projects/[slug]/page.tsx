@@ -11,6 +11,7 @@ import { ButtonAnchor } from "@/components/ui/Button";
 import { safeExternalUrl } from "@/lib/utils";
 import { projectImageUrl } from "@/lib/images";
 import { profile } from "@/data/profile";
+import { workPath } from "@/lib/work-path";
 
 export const revalidate = 3600;
 type Props = { params: Promise<{ slug: string }> };
@@ -55,10 +56,9 @@ export default async function ProjectPage({ params }: Props) {
       </Link>
       <div className="project-heading-row">
         <div>
-          <p className="eyebrow">
+          <p className="eyebrow work-path">
             <span className="accent-line" />{" "}
-            {String(position + 1).padStart(2, "0")} /{" "}
-            {sample ? "CONCEPT PROJECT" : "SELECTED WORK"}
+            {workPath("projects", position + 1, project.title)}
           </p>
           {/* Without a preview image the cover card below carries the title. */}
           {thumbnail && <h1 className="page-heading">{project.title}</h1>}

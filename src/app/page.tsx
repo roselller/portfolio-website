@@ -4,8 +4,7 @@ import { SignpostHero } from "@/components/SignpostHero";
 import { getProjectCollection } from "@/lib/projects";
 import { siteCopy } from "@/data/site-copy";
 import { ButtonLink } from "@/components/ui/Button";
-import { PhotoScene } from "@/components/PhotoScene";
-import { WritingFolders } from "@/components/WritingFolders";
+import { WorkExplorer } from "@/components/WorkExplorer";
 import { CardModeOnly } from "@/components/CardModeOnly";
 import { getLocalPosts } from "@/lib/photos";
 import { toFolders } from "@/lib/photo-posts";
@@ -19,13 +18,12 @@ export default async function HomePage() {
     getWritings(),
   ]);
   const folders = toFolders(getLocalPosts());
-  // Only what the folders show goes to the browser, not the full text.
-  const pieces = writings.map(({ slug, title, date, type, summary }) => ({
+  // Only what the window shows goes to the browser, not the full text.
+  const pieces = writings.map(({ slug, title, date, type }) => ({
     slug,
     title,
     date,
     type,
-    summary,
   }));
   // Under the pole in the 3D view, at the end of the page in card mode.
   const context = (
@@ -58,8 +56,7 @@ export default async function HomePage() {
       <SignpostHero projects={projects} sample={sample}>
         {context}
       </SignpostHero>
-      <PhotoScene folders={folders} />
-      <WritingFolders pieces={pieces} />
+      <WorkExplorer folders={folders} pieces={pieces} />
       <CardModeOnly className="work-context">{context}</CardModeOnly>
       <nav className="accessible-projects" aria-label="All projects">
         <h2>{siteCopy.hero.accessibleHeading}</h2>

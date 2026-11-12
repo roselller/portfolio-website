@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { folderDate, workPath } from "../src/lib/work-path";
 import {
+  instagramPostUrl,
   isPostId,
   postImages,
   postToFolder,
@@ -14,6 +16,7 @@ const folderPost = {
   title: "Postcards",
   hashtags: ["travel"],
   location: "",
+  link: "",
   alt: "A bookshop",
   photos: 3,
   landscape: [2],
@@ -74,4 +77,37 @@ test("posts are listed latest first and bad ids are dropped", () => {
   ).map((item) => item.id);
   assert.deepEqual(ids, ["17", "10", "9", "2"]);
   assert.ok(isPostId("17") && !isPostId("17/") && !isPostId("-1"));
+});
+
+test("sub-pages are labelled like folders on disk", () => {
+  assert.equal(
+    workPath("projects", 1, "portfolio-website"),
+    "~/PROJECTS/01_portfolio-website/",
+  );
+  assert.equal(
+    workPath("photography", 17, folderDate("[17] 18.05.26")),
+    "~/PHOTOGRAPHY/17_18.05.26/",
+  );
+  assert.equal(
+    workPath("projects", 12, " My  Big/Project "),
+    "~/PROJECTS/12_My-Big-Project/",
+  );
+  assert.equal(folderDate("no number"), "no number");
+});
+
+test("only an https instagram.com address is linked from a post", () => {
+  assert.equal(
+    instagramPostUrl("https://www.instagram.com/p/EXAMPLE_ID_1/"),
+    "https://www.instagram.com/p/EXAMPLE_ID_1/",
+  );
+  for (const bad of [
+    "",
+    "http://www.instagram.com/p/x/",
+    "https://instagram.com.evil.example/p/x/",
+    "https://user:pw@www.instagram.com/p/x/",
+    "javascript:alert(1)",
+    "/p/x/",
+  ]) {
+    assert.equal(instagramPostUrl(bad), null, bad);
+  }
 });

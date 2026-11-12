@@ -23,16 +23,11 @@ export const siteCopy = {
     edition: "VOL. 01 / 2026",
     accessibleHeading: "Explore projects",
   },
-  photos: {
-    label: "Photography",
-    // The window title of the folder view, like the folder on disk.
-    windowTitle: "bnhisu_photography",
-  },
-  writing: {
-    eyebrow: "WRITING",
-    countOne: "PIECE",
-    countMany: "PIECES",
-    read: "Read the piece",
+  // The file-browser window on the Work page: one tab per kind of work.
+  explorer: {
+    tabsLabel: "Photography and writing",
+    photos: { tab: "photography", windowTitle: "bnhisu_photography" },
+    writing: { tab: "writing", windowTitle: "writing" },
   },
   intro: {
     eyebrow: "A LITTLE CONTEXT",

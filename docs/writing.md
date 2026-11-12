@@ -1,6 +1,6 @@
 # Writing
 
-The Work page shows each piece of writing as a folder, newest in front. Every piece also gets its own page at `/writing/<file-name>`.
+The Work page lists each piece of writing as a document on the writing tab of its file-browser window, newest first. Every piece also gets its own page at `/writing/<file-name>`.
 
 ## Add a piece
 
@@ -12,7 +12,7 @@ The Work page shows each piece of writing as a folder, newest in front. Every pi
    title: Why hawker centres matter
    date: 2026-09-14
    type: Opinion
-   summary: One line shown on the front folder and in search results.
+   summary: One line shown in search results and link previews.
    ---
 
    The first paragraph.
@@ -26,10 +26,10 @@ The Work page shows each piece of writing as a folder, newest in front. Every pi
 
 | Field     | Required | Notes                                                                                       |
 | --------- | -------- | ------------------------------------------------------------------------------------------- |
-| `title`   | Yes      | Shown on the folder's tab and as the page title. A file without a title is skipped          |
+| `title`   | Yes      | Shown under the document and as the page title. A file without a title is skipped           |
 | `date`    | No       | `YYYY-MM-DD`. Sets the order (newest in front); pieces without a date go to the back        |
 | `type`    | No       | A short label such as `Opinion` or `Proposal`. Defaults to `Writing`                        |
-| `summary` | No       | One or two sentences                                                                        |
+| `summary` | No       | One or two sentences, used for search results and link previews                             |
 | `pdf`     | No       | A file name in `public/writing/`, for example `proposal.pdf`. Adds an "Open the PDF" button |
 
 ## PDFs and images

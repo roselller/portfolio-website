@@ -7,6 +7,7 @@ import { ButtonAnchor } from "@/components/ui/Button";
 import { getWritingBySlug, getWritings, writingHtml } from "@/lib/writing";
 import { formatWritingDate } from "@/lib/writing-file";
 import { profile } from "@/data/profile";
+import { workPath } from "@/lib/work-path";
 
 // Every piece is a file in the repository, so each page is built once.
 export const dynamicParams = false;
@@ -52,14 +53,13 @@ export default async function WritingPage({ params }: Props) {
       </Link>
       <article className="writing-article">
         <header className="writing-header">
-          <p className="eyebrow">
+          <p className="eyebrow work-path">
             <span className="accent-line" aria-hidden="true" />{" "}
-            {String(position + 1).padStart(2, "0")} /{" "}
-            {writing.type.toUpperCase()}
+            {workPath("writing", position + 1, writing.slug)}
           </p>
           <h1 className="page-heading writing-title">{writing.title}</h1>
           <p className="writing-meta">
-            {profile.name}
+            {writing.type} · {profile.name}
             {writing.date && (
               <>
                 {" · "}
