@@ -1417,10 +1417,31 @@ h2.section-label {
 .timeline-body li + li {
   margin-top: 4px;
 }
+/* The closing card is as wide as the header; the text above keeps the page's
+   usual side padding (8%, 5.5% up to 1100px, capped at 1600px). */
+.page-shell.about-page {
+  max-width: none;
+  padding-inline: var(--page-gutter);
+}
+.about-body {
+  width: calc(100% * 0.84 / 0.94);
+  max-width: 1344px;
+  margin-inline: auto;
+}
 .about-cta {
   margin-top: 100px;
-  padding: 64px 8%;
+  padding: 64px max(28px, 5.3%);
   border-radius: 16px;
+}
+@media (max-width: 1100px) {
+  .about-body {
+    width: calc(100% * 0.89 / 0.94);
+  }
+}
+@media (max-width: 899px) {
+  .about-body {
+    width: 100%;
+  }
 }
 .about-cta h2 {
   font-family: var(--font-display);
