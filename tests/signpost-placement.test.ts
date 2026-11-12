@@ -5,6 +5,7 @@ import { sampleProjects } from "../src/data/projects";
 import {
   fitSignpostBoards,
   getSignpostPlacement,
+  signpostRestExtent,
 } from "../src/lib/signpost-fit";
 import {
   PHONE_MAX_WIDTH,
@@ -54,7 +55,15 @@ test("tablet and desktop widths keep the standard zoom and pole position", () =>
     );
     assert.equal(placement.pixelsPerUnit, standard.pixelsPerUnit);
     assert.equal(placement.contentHeight, standard.contentHeight);
-    assert.equal(placement.topX, width * (width >= 900 ? 0.55 : 0.5));
+    // The signs' rest extent is centred on the page.
+    const { min: low, max: high } = signpostRestExtent(
+      layout,
+      rotationFor(width),
+      restOffset,
+    );
+    const middle =
+      placement.topX + ((low + high) / 2) * placement.pixelsPerUnit;
+    assert.ok(Math.abs(middle - width / 2) < 0.01, `${width}px`);
     assert.equal(placement.restOnly, false);
   }
 });

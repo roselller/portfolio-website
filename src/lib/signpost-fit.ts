@@ -120,38 +120,12 @@ export function fitSignpostBoards(layout: Layout, view: View) {
   });
 }
 
-type Edges = { left: number; right: number };
-
-/**
- * Where the signpost sits in the canvas: centred on tablets, a little right of centre on desktop, where the signs lean left. Phones scale it so the
- * outermost signs (at rest) meet the page edges (`edges`, or 6% in from each
- * side); every other width keeps the standard zoom.
- */
-export function getSignpostPlacement(
+/** The horizontal extent of all the signs at rest, in scene units from the pole. */
+export function signpostRestExtent(
   layout: Layout,
-  width: number,
-  height: number,
-  edges: Edges | null,
   rotation: [number, number, number],
   restOffset: number,
 ) {
-  const base = getSignpostPresentation(
-    layout.width,
-    layout.height,
-    width,
-    height,
-  );
-  const standard = {
-    ...base,
-    topX: width * (width >= 900 ? 0.55 : 0.5),
-    restOnly: false,
-    leftEdge: undefined as number | undefined,
-    rightEdge: undefined as number | undefined,
-  };
-  if (width > PHONE_MAX_WIDTH || layout.boards.length === 0) return standard;
-
-  const left = edges?.left ?? width * 0.06;
-  const right = edges?.right ?? width * 0.94;
   const matrix = new Matrix4().makeRotationFromEuler(new Euler(...rotation));
   const up = new Vector3(0, 1, 0).applyMatrix4(matrix);
   let min = Infinity;
@@ -168,6 +142,47 @@ export function getSignpostPlacement(
     min = Math.min(min, bounds.min + offset);
     max = Math.max(max, bounds.max + offset);
   }
+  return { min, max };
+}
+
+type Edges = { left: number; right: number };
+
+/**
+ * Where the signpost sits in the canvas. The middle of the signs (not the
+ * pole) is at the middle of the page. Phones scale it so the outermost signs
+ * (at rest) meet the page edges (`edges`, or 6% in from each side); every
+ * other width keeps the standard zoom.
+ */
+export function getSignpostPlacement(
+  layout: Layout,
+  width: number,
+  height: number,
+  edges: Edges | null,
+  rotation: [number, number, number],
+  restOffset: number,
+) {
+  const base = getSignpostPresentation(
+    layout.width,
+    layout.height,
+    width,
+    height,
+  );
+  const { min, max } = signpostRestExtent(layout, rotation, restOffset);
+  const standard = {
+    ...base,
+    // The middle of the signs, not the pole, sits at the middle of the page.
+    topX:
+      max > min
+        ? width / 2 - ((min + max) / 2) * base.pixelsPerUnit
+        : width / 2,
+    restOnly: false,
+    leftEdge: undefined as number | undefined,
+    rightEdge: undefined as number | undefined,
+  };
+  if (width > PHONE_MAX_WIDTH || layout.boards.length === 0) return standard;
+
+  const left = edges?.left ?? width * 0.06;
+  const right = edges?.right ?? width * 0.94;
   // Stay inside the 2 px tolerance used by fitSignpostBoards, plus a hair
   // (0.05 px per side) so rounding never trims a sign.
   const span = right - left - 4.1;
