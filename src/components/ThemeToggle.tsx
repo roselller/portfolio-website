@@ -3,7 +3,8 @@
 import { useId, useSyncExternalStore } from "react";
 import { m, useReducedMotion } from "framer-motion";
 
-const storageKey = "portfolio-theme";
+// v2: an older saved "dark" (from before light became the default) is ignored.
+const storageKey = "portfolio-theme-v2";
 const themeEvent = "portfolio-theme-change";
 
 function subscribe(notify: () => void) {

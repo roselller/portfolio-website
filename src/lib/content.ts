@@ -40,7 +40,7 @@ async function loadFromSource(): Promise<Content> {
 
 // One hour, like the GitHub projects. A failed load throws, and a thrown
 // result is not cached, so the next request tries again.
-const loadCached = unstable_cache(loadFromSource, ["portfolio-content-v1"], {
+const loadCached = unstable_cache(loadFromSource, ["portfolio-content-v2"], {
   revalidate: 3600,
 });
 

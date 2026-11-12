@@ -41,9 +41,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Light is the default everywhere. Only a dark choice made with the
+            switch (stored under the v2 key) wins; a dark choice saved under the
+            old key is ignored on purpose. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{document.documentElement.dataset.theme=localStorage.getItem("portfolio-theme")==="dark"?"dark":"light"}catch(e){}})();`,
+            __html: `(function(){try{document.documentElement.dataset.theme=localStorage.getItem("portfolio-theme-v2")==="dark"?"dark":"light"}catch(e){}})();`,
           }}
         />
         <link
