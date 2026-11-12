@@ -2,7 +2,7 @@
 // they can be tested). A post's files live in public/photography/<id>/ as
 // cover.webp, then 1.webp, 2.webp, ...; scripts/add-photos.mjs writes each one
 // upright at POST_IMAGE_SHORT x POST_IMAGE_LONG (3:4), or the other way round
-// for a landscape photo (4:3).
+// for a landscape photo (4:3), plus a half-size copy (name-s.webp).
 import type { PhotoPost } from "@/data/photos";
 
 export const POST_IMAGE_SHORT = 1080;
@@ -28,6 +28,8 @@ export function sortPosts(posts: readonly PhotoPost[]) {
 
 export type PostImage = {
   src: string;
+  /** The same photo at half the size (name-s.webp), for small slots. */
+  small: string;
   alt: string;
   width: number;
   height: number;
@@ -39,14 +41,22 @@ function sized(landscape: boolean) {
     : { width: POST_IMAGE_SHORT, height: POST_IMAGE_LONG };
 }
 
-/** Every photo of a post, the cover first. */
+/** Every photo of a post, the cover first. The cover is always portrait. */
 export function postImages(post: PhotoPost): PostImage[] {
   const count = Math.max(0, Math.floor(post.photos));
+  const total = count + 1;
   return [
-    { src: file(post.id, "cover"), alt: post.alt, ...sized(false) },
+    {
+      src: file(post.id, "cover"),
+      small: file(post.id, "cover-s"),
+      alt: post.alt,
+      ...sized(false),
+    },
     ...Array.from({ length: count }, (_, index) => ({
       src: file(post.id, String(index + 1)),
-      alt: `Photo ${index + 1} of ${count} from ${post.title}`,
+      small: file(post.id, `${index + 1}-s`),
+      // The cover is photo 1, so the first numbered photo is photo 2.
+      alt: `Photo ${index + 2} of ${total} from ${post.title}`,
       ...sized(post.landscape.includes(index + 1)),
     })),
   ];
@@ -69,7 +79,7 @@ export function postToFolder(post: PhotoPost): PostFolder {
     href: `/photos/${post.id}`,
     previews: postImages(post)
       .slice(0, PREVIEW_COUNT)
-      .map((image) => image.src),
+      .map((image) => image.small),
   };
 }
 

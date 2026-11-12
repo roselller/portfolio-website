@@ -40,7 +40,7 @@ test("a writing file gives its header fields and its text", () => {
 test("Windows line endings and a byte order mark are read the same", () => {
   const writing = parseWritingFile(
     "piece",
-    "﻿" + file.replaceAll("\n", "\r\n"),
+    "\uFEFF" + file.replaceAll("\n", "\r\n"),
   );
   assert.equal(writing?.title, "Why hawker centres matter");
   assert.equal(writing?.body, "First paragraph.\n\n## A heading");
@@ -132,7 +132,10 @@ test("writing links allow web, mail and /writing/ files only", () => {
     "/writing/figure-1.png",
   );
   assert.equal(writingUrl("/writing/../secret", true), undefined);
-  assert.equal(writingUrl("/about", false), undefined);
+  assert.equal(writingUrl("/about", false), "/about");
+  assert.equal(writingUrl("/about", true), undefined);
+  assert.equal(writingUrl("//evil.example/x", false), undefined);
+  assert.equal(writingUrl("/\\evil.example", false), undefined);
   assert.equal(writingUrl("javascript:alert(1)", false), undefined);
   assert.equal(writingUrl("data:text/html,x", true), undefined);
   assert.equal(writingUrl("https://user:pw@example.com/", false), undefined);

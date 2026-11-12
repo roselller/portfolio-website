@@ -49,7 +49,8 @@ export default async function PhotoPostPage({ params }: Props) {
   const images = postImages(post);
   // Only an Instagram post address is linked.
   const link = instagramPostUrl(post.link);
-  // Posts are listed latest first, so "next" is the later post.
+  // Posts are listed latest first and the links go round the loop, like the
+  // project pages do.
   const later =
     posts.length > 1
       ? posts[(position - 1 + posts.length) % posts.length]
@@ -117,10 +118,13 @@ export default async function PhotoPostPage({ params }: Props) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image.src}
+              // Half-size files fill the columns on ordinary screens.
+              srcSet={`${image.small} ${image.width / 2}w, ${image.src} ${image.width}w`}
+              sizes="(max-width: 699px) 50vw, (max-width: 1099px) 33vw, 25vw"
               alt={image.alt}
               width={image.width}
               height={image.height}
-              loading={index < 4 ? "eager" : "lazy"}
+              loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
             />
           </li>
@@ -137,7 +141,7 @@ export default async function PhotoPostPage({ params }: Props) {
           >
             <ArrowUpLeft size={42} strokeWidth={1} aria-hidden="true" />
             <div>
-              <span className="section-label">EARLIER POST</span>
+              <span className="section-label">PREVIOUS POST</span>
               <h2>{earlier.folder}</h2>
             </div>
           </Link>
@@ -146,7 +150,7 @@ export default async function PhotoPostPage({ params }: Props) {
             className="project-direction next-project"
           >
             <div>
-              <span className="section-label">LATER POST</span>
+              <span className="section-label">NEXT POST</span>
               <h2>{later.folder}</h2>
             </div>
             <ArrowUpRight size={42} strokeWidth={1} aria-hidden="true" />

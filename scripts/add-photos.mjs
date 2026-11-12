@@ -1,6 +1,6 @@
 // Adds one photo post to the site from a folder of originals.
 //
-//   node scripts/add-photos.mjs "~/Documents/bnhisu_photography/[17] 18.05.26"
+//   node scripts/add-photos.mjs "$HOME/Documents/bnhisu_photography/[17] 18.05.26"
 //
 // The folder is named "[number] date" and holds cover.(jpeg|jpg|png) plus the
 // post's other photos as 1.png, 2.png, ... (no gaps), and optionally a
@@ -15,23 +15,27 @@
 // its label on the Work page; a higher number is a later post.
 //
 // Every photo is turned upright, cropped to 3:4 (portrait) or 4:3 (landscape:
-// horizontal photos stay horizontal), resized and saved as WebP without
-// metadata (sharp writes none unless asked: no EXIF, no GPS, no camera data) in
-// public/photography/<number>/. The post is then listed in src/data/photos.ts;
+// horizontal photos stay horizontal; the cover is always 3:4), resized and
+// saved as WebP without metadata (sharp writes none unless asked: no EXIF, no
+// GPS, no camera data) in public/photography/<number>/, with a half-size copy
+// beside it (name-s.webp) for folder previews and small screens. The post is then listed in src/data/photos.ts;
 // open that file to write its `alt` text.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const SHORT = 1080;
 const LONG = 1440;
-const EXTENSIONS = ["jpeg", "jpg", "png", "webp", "heic"];
+// Not HEIC: sharp's ready-made builds cannot read iPhone HEIC files.
+const EXTENSIONS = ["jpeg", "jpg", "png", "webp"];
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const dataFile = path.join(root, "src", "data", "photos.ts");
 const END = "\n];\n";
 
-const folder = process.argv[2];
+// A quoted "~/..." reaches us unexpanded, so expand it here.
+const folder = process.argv[2]?.replace(/^~(?=\/|$)/, homedir());
 const label = path.basename(folder ?? "").trim();
 const id = /^\[(\d+)\]/.exec(label)?.[1];
 if (!folder || !id) {
@@ -69,22 +73,49 @@ mkdirSync(outDir, { recursive: true });
 let total = 0;
 const landscapes = [];
 for (const [name, file] of files) {
-  // Upright first (the camera's orientation flag), then sized by its shape.
-  const upright = await sharp(file)
-    .rotate()
-    .toBuffer({ resolveWithObject: true });
-  const landscape = upright.info.width > upright.info.height;
-  if (landscape && name !== "cover") landscapes.push(Number(name));
-  const info = await sharp(upright.data)
-    .resize(landscape ? LONG : SHORT, landscape ? SHORT : LONG, {
-      fit: "cover",
-    })
-    .webp({ quality: 80 })
-    .toFile(path.join(outDir, `${name}.webp`));
-  total += info.size;
-  console.log(
-    `public/photography/${id}/${name}.webp  ${Math.round(info.size / 1024)} KB${landscape ? "  (landscape)" : ""}`,
-  );
+  try {
+    // The size once the camera's orientation flag is applied.
+    const meta = await sharp(file).metadata();
+    const turned = (meta.orientation ?? 1) >= 5;
+    const width = turned ? meta.height : meta.width;
+    const height = turned ? meta.width : meta.height;
+    // The cover is the folder's preview and the post's first photo: always 3:4.
+    const landscape = name !== "cover" && width > height;
+    if (landscape) landscapes.push(Number(name));
+    const w = landscape ? LONG : SHORT;
+    const h = landscape ? SHORT : LONG;
+    // Decode, turn upright and crop once; both sizes are encoded from that.
+    const { data, info } = await sharp(file)
+      .rotate()
+      .resize(w, h, { fit: "cover" })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const pixels = () =>
+      sharp(data, {
+        raw: {
+          width: info.width,
+          height: info.height,
+          channels: info.channels,
+        },
+      });
+    const full = await pixels()
+      .webp({ quality: 80 })
+      .toFile(path.join(outDir, `${name}.webp`));
+    const small = await pixels()
+      .resize(w / 2, h / 2)
+      .webp({ quality: 78 })
+      .toFile(path.join(outDir, `${name}-s.webp`));
+    total += full.size + small.size;
+    console.log(
+      `public/photography/${id}/${name}.webp  ${Math.round(full.size / 1024)} KB  (+ ${Math.round(small.size / 1024)} KB small)${landscape ? "  (landscape)" : ""}`,
+    );
+  } catch (error) {
+    console.error(`Could not read ${file}: ${error.message}`);
+    console.error(
+      "Nothing was added to src/data/photos.ts. Fix the file and run again.",
+    );
+    process.exit(1);
+  }
 }
 console.log(`${files.length} photos, ${(total / 1048576).toFixed(1)} MB`);
 

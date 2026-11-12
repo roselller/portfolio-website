@@ -2954,9 +2954,6 @@ body {
   translate: calc(var(--slide) * var(--preview-spread))
     calc(var(--preview-rise) * -0.82);
 }
-.photo-scene {
-  scroll-margin-top: 110px;
-}
 /* Tabs under the toolbar: one per kind of work. */
 .finder-tabs {
   display: flex;
@@ -3058,102 +3055,7 @@ body {
   text-align: center;
   overflow-wrap: anywhere;
 }
-.finder-item:is(:hover, :focus-visible) .photo-scene {
-  scroll-margin-top: 110px;
-}
-/* Tabs under the toolbar: one per kind of work. */
-.finder-tabs {
-  display: flex;
-  gap: 4px;
-  margin: 14px clamp(16px, 2.4vw, 32px) 0;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--input-bg);
-}
-.finder-tab {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    background 0.2s,
-    color 0.2s;
-}
-.finder-tab[aria-selected="true"] {
-  background: var(--control-active);
-  color: var(--text);
-  box-shadow:
-    0 2px 6px #0003,
-    inset 0 1px 0 #ffffff0d;
-}
-.finder-tab:focus-visible {
-  outline: 2px solid var(--accent-glow);
-  outline-offset: 2px;
-}
-@media (hover: hover) {
-  .finder-tab:hover {
-    color: var(--text);
-  }
-}
-.finder-anchor {
-  display: block;
-}
-/* A piece of writing: a sheet of paper with a folded corner and text lines. */
-.finder-doc-box {
-  display: grid;
-  place-items: center;
-  width: var(--folder-size);
-  aspect-ratio: 5 / 4;
-}
-.finder-doc {
-  position: relative;
-  display: block;
-  height: 100%;
-  aspect-ratio: 3 / 4;
-  border-radius: 6px;
-  background:
-    repeating-linear-gradient(
-        to bottom,
-        transparent 0 10px,
-        color-mix(in srgb, var(--text) 22%, transparent) 10px 12px
-      )
-      50% 58% / 62% 46% no-repeat,
-    color-mix(in srgb, var(--panel) 55%, #fff);
-  border: 1px solid var(--line);
-  box-shadow: 0 6px 14px -8px var(--shadow-dark);
-  clip-path: polygon(0 0, 72% 0, 100% 22%, 100% 100%, 0 100%);
-  transition: translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.finder-doc::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 28%;
-  height: 22%;
-  background: color-mix(in srgb, var(--text) 24%, var(--panel));
-  border-bottom-left-radius: 4px;
-}
-@media (hover: hover) and (pointer: fine) {
-  .finder-item:hover .finder-doc {
-    translate: 0 -4px;
-  }
-}
-.finder-sublabel {
-  margin-top: -8px;
-  font-size: 12px;
-  color: var(--muted);
-  text-align: center;
-}
-.finder-label {
+.finder-item:is(:hover, :focus-visible) .finder-label {
   background: var(--control-active);
 }
 @media (max-width: 899px) {
@@ -3250,20 +3152,21 @@ body {
   margin-top: 0;
   color: var(--text);
 }
-.writing-paper .writing-body h3 {
+/* A piece that ends with a heading and a list (its references): a rule
+   above, hanging indents, smaller muted text. Lists elsewhere stay lists. */
+.writing-paper .writing-body h3:has(+ ul:last-child) {
   margin-top: 2.4em;
   padding-top: 1.6em;
   border-top: 1px solid var(--line);
   font-size: 20px;
 }
-.writing-paper .writing-body h3 ~ ul {
+.writing-paper .writing-body h3 + ul:last-child {
   padding-left: 0;
   list-style: none;
   font-size: 15px;
   line-height: 1.75;
 }
-.writing-paper .writing-body h3 ~ ul li {
-  /* A hanging indent, as in a reference list. */
+.writing-paper .writing-body h3 + ul:last-child li {
   padding-left: 2em;
   text-indent: -2em;
   color: var(--muted);
@@ -3330,7 +3233,11 @@ body {
   letter-spacing: 0.06em;
   overflow-wrap: anywhere;
 }
-.project-heading-row {
-  flex-wrap: wrap;
-  align-items: center;
+/* Path on the left, link on the right; phones stack them (see the 600px
+   rules), so this only applies above that. */
+@media (min-width: 601px) {
+  .project-heading-row {
+    flex-wrap: wrap;
+    align-items: center;
+  }
 }

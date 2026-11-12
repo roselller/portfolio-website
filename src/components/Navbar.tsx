@@ -60,28 +60,31 @@ export function Navbar() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const nav = useRef<HTMLElement>(null);
-  const previous = useRef<{ left: number; width: number } | null>(null);
+  // The link the pill was on before this page.
+  const previousHref = useRef<string | undefined>(undefined);
   const activeHref = siteCopy.navigation.find(({ href }) =>
     isActive(href, pathname),
   )?.href;
 
   // The pill slides from the link it was on to the new one. Both places are
-  // measured inside the nav (offsetLeft), never against the page: a page change
-  // also resets the scroll, and a slide measured against the page started a
-  // scroll's distance below the bar.
+  // measured now and inside the nav (offsetLeft), never against the page: a
+  // page change also resets the scroll, and a slide measured against the page
+  // started a scroll's distance below the bar. Measuring now (not when the old
+  // page was shown) keeps the start right after a resize or a late font swap.
   useLayoutEffect(() => {
-    const link = nav.current?.querySelector<HTMLElement>(
-      'a[aria-current="page"]',
-    );
+    const from = previousHref.current;
+    previousHref.current = activeHref;
+    if (!activeHref || !from || from === activeHref || reduced) return;
+    const links = nav.current?.querySelectorAll<HTMLElement>("a");
+    const index = (href: string) =>
+      siteCopy.navigation.findIndex((item) => item.href === href);
+    const link = links?.[index(activeHref)];
+    const old = links?.[index(from)];
     const pill = link?.querySelector<HTMLElement>(".nav-active-indicator");
-    const from = previous.current;
-    previous.current = link
-      ? { left: link.offsetLeft, width: link.offsetWidth }
-      : null;
-    if (!link || !pill || !from || reduced) return;
-    const left = from.left - link.offsetLeft;
-    const right = link.offsetLeft + link.offsetWidth - from.left - from.width;
-    if (left === 0 && right === 0) return;
+    if (!link || !old || !pill) return;
+    const left = old.offsetLeft - link.offsetLeft;
+    const right =
+      link.offsetLeft + link.offsetWidth - old.offsetLeft - old.offsetWidth;
     pill.animate(
       [
         { left: `${left}px`, right: `${right}px` },

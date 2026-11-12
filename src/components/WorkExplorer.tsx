@@ -4,7 +4,6 @@ import {
   useEffect,
   useId,
   useRef,
-  useState,
   useSyncExternalStore,
   type KeyboardEvent,
 } from "react";
@@ -27,7 +26,7 @@ function subscribeToHash(callback: () => void) {
  * The Work page's file-browser window: photo posts as folders on one tab,
  * writing as documents on the other. Under the pointer (or keyboard focus) a
  * folder's first photos pop out of it (CSS). Each item opens its own page.
- * A link to /#writing opens the writing tab.
+ * The open tab is kept in the address (#photos, #writing).
  */
 export function WorkExplorer({
   folders,
@@ -44,20 +43,19 @@ export function WorkExplorer({
     () => window.location.hash,
     () => "",
   );
-  // The tab the visitor chose, and the address it was chosen under.
-  const [picked, setPicked] = useState<{ tab: TabId; hash: string } | null>(
-    null,
-  );
-
-  // A link to /#writing lands on the window once the page above it has its
-  // final height (the browser's own jump happens before that).
+  // A link to /#photos or /#writing lands on the window once the page above
+  // it has its final height (the browser's own jump happens before that).
+  // Only on arrival at the top of the page: a restored scroll position is
+  // left alone.
   useEffect(() => {
-    if (hash !== "#writing") return;
+    const arrived = window.location.hash;
+    if ((arrived !== "#photos" && arrived !== "#writing") || window.scrollY > 0)
+      return;
     const frame = requestAnimationFrame(() =>
       region.current?.scrollIntoView({ block: "start" }),
     );
     return () => cancelAnimationFrame(frame);
-  }, [hash]);
+  }, []);
 
   const tabs = (
     [
@@ -67,15 +65,17 @@ export function WorkExplorer({
   ).filter((tab) => tab.count > 0);
   if (tabs.length === 0) return null;
 
-  // The visitor's own choice wins until the address changes (a link to
-  // /#writing); otherwise the address decides.
-  const wanted =
-    picked && picked.hash === hash
-      ? picked.tab
-      : hash === "#writing"
-        ? "writing"
-        : "photos";
+  // The address holds the tab (#photos or #writing), so the browser's Back
+  // button and a reload come back to the tab that was open.
+  const wanted = hash === "#writing" ? "writing" : "photos";
   const active = tabs.find((tab) => tab.id === wanted) ?? tabs[0];
+
+  function showTab(tab: TabId) {
+    // replaceState does not scroll or add a history entry; it also fires no
+    // hashchange, so the store above is told by hand.
+    window.history.replaceState(window.history.state, "", `#${tab}`);
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+  }
 
   function onTabKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
@@ -86,7 +86,7 @@ export function WorkExplorer({
     event.preventDefault();
     const index = tabs.findIndex((tab) => tab.id === active.id);
     const next = tabs[(index + step + tabs.length) % tabs.length];
-    setPicked({ tab: next.id, hash });
+    showTab(next.id);
     tabList.current
       ?.querySelector<HTMLElement>(`[data-tab="${next.id}"]`)
       ?.focus();
@@ -142,7 +142,7 @@ export function WorkExplorer({
                 aria-selected={tab.id === active.id}
                 aria-controls={`${id}-panel-${tab.id}`}
                 tabIndex={tab.id === active.id ? 0 : -1}
-                onClick={() => setPicked({ tab: tab.id, hash })}
+                onClick={() => showTab(tab.id)}
               >
                 {tab.tab}
               </button>
