@@ -2793,12 +2793,9 @@ body {
    a print swings either side of its resting angle) and --jiggle-time (one
    swing; a full back-and-forth is twice that: 1.4s, where iOS takes ~0.25s). */
 .photo-scene {
-  --print-paper: #fbfaf8;
+  overflow-x: clip;
   --jiggle: 1deg;
   --jiggle-time: 0.7s;
-}
-[data-theme="light"] .photo-scene {
-  --print-paper: var(--surface-dark);
 }
 .photo-stage {
   display: grid;
@@ -2808,9 +2805,9 @@ body {
 }
 .photo-viewport {
   grid-column: 2;
-  /* Clips the pages waiting off to the side; the room above and below is for
-     the prints' tilt and shadow. */
-  overflow-x: clip;
+  /* Room above and below for the prints' tilt and shadow. The pages waiting
+     off to the side are clipped by the scene, not here, so a post at the edge
+     can fan its photos out past the viewport. */
   padding: 28px 0;
   touch-action: pan-y;
 }
@@ -2860,26 +2857,55 @@ body {
   opacity: 1;
   translate: none;
 }
+.photo-slot {
+  position: relative;
+}
+.photo-slot:hover {
+  /* The fanned photos pass over the neighbouring posts. */
+  z-index: 2;
+}
+/* A post: the cover in front and up to two more photos stacked behind it.
+   Under the pointer they fan out like a hand of cards, from the bottom edge.
+   One value per card: --fan-turn (angle) and --fan-shift (sideways). */
 .photo-print {
+  position: relative;
+  isolation: isolate;
   display: block;
   aspect-ratio: 4 / 5;
-  padding: clamp(6px, 0.8vw, 10px);
-  background: var(--print-paper);
-  border-radius: 6px;
-  box-shadow: var(--neumorphic);
   rotate: var(--rest);
   transition:
     rotate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
     scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .photo-print img {
+  --fan-turn: 0deg;
+  --fan-shift: 0%;
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 3px;
+  border-radius: 4px;
+  box-shadow: var(--neumorphic);
+  transform-origin: 50% 100%;
+  rotate: var(--fan-turn);
+  translate: var(--fan-shift) 0;
+  transition:
+    rotate 0.45s cubic-bezier(0.34, 1.4, 0.64, 1),
+    translate 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
   -webkit-user-drag: none;
   user-select: none;
+}
+.photo-face {
+  z-index: 2;
+}
+.photo-fan[data-fan="1"] {
+  z-index: 1;
+}
+.photo-fan {
+  /* Behind the cover nothing of it shows, so it casts no second shadow. */
+  box-shadow: none;
 }
 @keyframes photo-jiggle {
   from {
@@ -2902,12 +2928,15 @@ body {
     animation-direction: alternate-reverse;
   }
 }
-/* Under the pointer or keyboard focus a print holds still and straightens. */
+/* Under the pointer or keyboard focus a post holds still, straightens and
+   fans its photos out. */
+.photo-scene .photo-page .photo-slot a.photo-print:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 4px;
+}
 .photo-scene .photo-page .photo-slot a.photo-print:focus-visible {
   animation: none;
   rotate: 0deg;
-  outline: 2px solid var(--accent-glow);
-  outline-offset: 4px;
 }
 @media (hover: hover) and (pointer: fine) {
   .photo-scene .photo-page .photo-slot .photo-print:hover {
@@ -2916,7 +2945,25 @@ body {
     scale: 1.03;
   }
 }
+.photo-print:is(:hover, :focus-visible):has(.photo-fan) .photo-face {
+  --fan-turn: 9deg;
+  --fan-shift: 16%;
+}
+.photo-print:is(:hover, :focus-visible) .photo-fan {
+  box-shadow: var(--neumorphic);
+}
+.photo-print:is(:hover, :focus-visible) .photo-fan[data-fan="1"] {
+  --fan-turn: -2deg;
+  --fan-shift: 0%;
+}
+.photo-print:is(:hover, :focus-visible) .photo-fan[data-fan="2"] {
+  /* Kept modest so the first post's back photo stays inside the window. */
+  --fan-turn: -11deg;
+  --fan-shift: -8%;
+}
 .photo-arrow {
+  position: relative;
+  z-index: 3;
   display: grid;
   place-items: center;
   width: 44px;
@@ -3133,6 +3180,7 @@ body {
   .photo-track,
   .photo-page,
   .photo-print,
+  .photo-print img,
   .folder-link {
     transition: none;
   }

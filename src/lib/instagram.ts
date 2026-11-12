@@ -12,6 +12,8 @@ export type Photo = {
   alt: string;
   /** The Instagram post this photo links to, or null. */
   href: string | null;
+  /** More photos from the same post, which fan out behind it on hover. */
+  fan: string[];
 };
 
 const API = "https://graph.facebook.com/v26.0";
@@ -78,6 +80,7 @@ export function parseInstagramMedia(json: unknown, handle: string): Photo[] {
       src,
       alt: captionAlt(caption, handle),
       href: httpsUrl(permalink, /^(www\.)?instagram\.com$/),
+      fan: [],
     });
     if (photos.length === PHOTO_LIMIT) break;
   }

@@ -25,15 +25,20 @@ const getCachedInstagramPhotos = unstable_cache(
   { revalidate: 3600 },
 );
 
+/** The posts kept in the repository, latest (highest number) first. */
+function filePhotos() {
+  return [...localPhotos].sort((a, b) => Number(b.id) - Number(a.id));
+}
+
 /** Instagram's latest posts, or the files in the repository. Never throws. */
 export const getPhotos = cache(async (): Promise<Photo[]> => {
   const envToken = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
-  if (!envToken) return localPhotos;
+  if (!envToken) return filePhotos();
   try {
     const photos = await getCachedInstagramPhotos(tokenSeed(envToken));
     if (photos.length > 0) return photos;
   } catch {
     // Not connected, token expired or Instagram unreachable: use the files.
   }
-  return localPhotos;
+  return filePhotos();
 });

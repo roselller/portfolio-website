@@ -27,6 +27,7 @@ test("Instagram posts become photos that link to their post", () => {
       src: "https://scontent.cdninstagram.com/v/1.jpg?sig=abc",
       alt: "Golden hour",
       href: "https://www.instagram.com/p/POST1/",
+      fan: [],
     },
   ]);
 });
@@ -79,12 +80,14 @@ test("malformed posts are skipped and unsafe addresses never pass", () => {
       src: "https://scontent.cdninstagram.com/v/8.jpg?sig=abc",
       alt: "Golden hour",
       href: null,
+      fan: [],
     },
     {
       id: "9",
       src: "https://scontent.cdninstagram.com/v/9.jpg?sig=abc",
       alt: "Photo by @bnhisu.jpg on Instagram",
       href: null,
+      fan: [],
     },
   ]);
 });

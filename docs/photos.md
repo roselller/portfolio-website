@@ -20,11 +20,15 @@ Visitors' browsers load these photos from Instagram's image servers, without a r
 
 ## Use files instead
 
+Keep each post's originals in a folder named `[number] date` (a higher number is a later post and is shown first), with the first photo as `cover.jpeg` and the rest as `1.png`, `2.png`, and so on. Then:
+
 ```sh
-node scripts/add-photos.mjs ~/Pictures/one.jpg ~/Pictures/two.jpg
+node scripts/add-photos.mjs "/path/to/[17] 18.05.26"
 ```
 
-The script crops each photo to 4:5, resizes it to 1080x1350, removes all metadata (including GPS) and saves it in `public/photos/`. It then adds an entry to `src/data/photos.ts`; open that file to write the `alt` text and, optionally, the Instagram post to link to (`href`). Never copy an original camera file into `public/` by hand.
+The script takes the cover and the first two photos, crops each to 4:5, resizes it to 800x1000, removes all metadata (including GPS) and saves it in `public/photos/<number>/`. It then adds the post to `src/data/photos.ts`; open that file to write the `alt` text and, optionally, the Instagram post to link to (`href`). Never copy an original camera file into `public/` by hand.
+
+On the page the cover is the print; under the pointer the two other photos fan out behind it like a hand of cards.
 
 ## How it works
 

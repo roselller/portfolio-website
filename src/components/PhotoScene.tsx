@@ -163,17 +163,40 @@ export function PhotoScene({ photos }: { photos: Photo[] }) {
               >
                 {page.map((photo, slot) => {
                   const image = (
-                    // Instagram's addresses are signed and change, so these
-                    // are plain images, not next/image.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={photo.src}
-                      alt={photo.alt}
-                      loading="lazy"
-                      decoding="async"
-                      referrerPolicy="no-referrer"
-                      draggable={false}
-                    />
+                    <>
+                      {/* The post's next photos wait behind the cover and
+                          fan out under the pointer (CSS). The last one is
+                          drawn first, so it lies at the bottom. */}
+                      {photo.fan
+                        .slice(0, 2)
+                        .map((src, index) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={src}
+                            className="photo-fan"
+                            data-fan={index + 1}
+                            src={src}
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                            decoding="async"
+                            draggable={false}
+                          />
+                        ))
+                        .reverse()}
+                      {/* Instagram's addresses are signed and change, so
+                          these are plain images, not next/image. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className="photo-face"
+                        src={photo.src}
+                        alt={photo.alt}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        draggable={false}
+                      />
+                    </>
                   );
                   return (
                     <div
