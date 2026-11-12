@@ -3228,47 +3228,32 @@ body {
   }
 }
 
-/* A piece of writing: its heading, then the text on a sheet of paper. The
-   paper and ink follow the theme (--paper, --paper-ink, --paper-muted). */
+/* A piece of writing: the whole document on one sheet of paper. The sheet is
+   the site's own card surface, so its paper and ink are the theme's colours
+   (--panel, --text, --muted, --line) in light and dark mode alike. */
 .writing-article {
-  --paper: #1d1f24;
-  --paper-ink: #e9e6df;
-  --paper-muted: #a9a59c;
-  --paper-edge: rgb(255 255 255 / 0.08);
   max-width: 860px;
-  margin-inline: auto;
-}
-[data-theme="light"] .writing-article {
-  --paper: #fdfcf8;
-  --paper-ink: #24262b;
-  --paper-muted: #5c5f66;
-  --paper-edge: rgb(28 31 35 / 0.1);
+  margin: 40px auto 0;
 }
 .writing-paper {
-  margin-top: 48px;
   padding: clamp(28px, 7vw, 88px) clamp(22px, 7vw, 88px);
-  background: var(--paper);
-  color: var(--paper-ink);
-  border: 1px solid var(--paper-edge);
-  border-radius: 4px;
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.12),
-    0 18px 44px -18px rgb(0 0 0 / 0.45);
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: var(--neumorphic);
+}
+.writing-header {
+  margin-bottom: clamp(32px, 5vw, 56px);
 }
 .writing-paper .writing-body {
   margin-top: 0;
-  color: var(--paper-ink);
-}
-.writing-paper .writing-body :is(h2, h3, h4, h5, h6, a) {
-  color: var(--paper-ink);
-}
-.writing-paper .writing-body :is(li, blockquote) {
-  color: var(--paper-ink);
+  color: var(--text);
 }
 .writing-paper .writing-body h3 {
   margin-top: 2.4em;
   padding-top: 1.6em;
-  border-top: 1px solid var(--paper-edge);
+  border-top: 1px solid var(--line);
   font-size: 20px;
 }
 .writing-paper .writing-body h3 ~ ul {
@@ -3276,28 +3261,30 @@ body {
   list-style: none;
   font-size: 15px;
   line-height: 1.75;
-  color: var(--paper-muted);
 }
 .writing-paper .writing-body h3 ~ ul li {
   /* A hanging indent, as in a reference list. */
   padding-left: 2em;
   text-indent: -2em;
-  color: var(--paper-muted);
+  color: var(--muted);
 }
 .writing-paper .writing-pdf {
   margin-top: 32px;
 }
 .writing-paper > .page-lead {
   margin-top: 0;
-  color: var(--paper-muted);
 }
 .writing-title {
-  font-size: clamp(36px, 4.6vw, 64px);
+  font-size: clamp(30px, 3.6vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   text-wrap: balance;
 }
 .writing-meta {
-  margin-top: 22px;
+  margin-top: 16px;
   font-size: 14px;
+  font-style: italic;
   color: var(--muted);
 }
 .writing-body {

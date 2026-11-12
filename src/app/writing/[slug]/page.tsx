@@ -51,26 +51,33 @@ export default async function WritingPage({ params }: Props) {
       <Link href="/#writing" className="project-back">
         <ArrowLeft size={15} aria-hidden="true" /> Back to all work
       </Link>
+      <div className="project-heading-row">
+        <p className="eyebrow work-path">
+          <span className="accent-line" aria-hidden="true" />{" "}
+          {workPath("writing", position + 1, writing.slug)}
+        </p>
+      </div>
+      {/* The sheet holds the whole document, as the original file does: its
+          title, its byline, then the text. All of it comes from the piece's
+          file in content/writing/. */}
       <article className="writing-article">
-        <header className="writing-header">
-          <p className="eyebrow work-path">
-            <span className="accent-line" aria-hidden="true" />{" "}
-            {workPath("writing", position + 1, writing.slug)}
-          </p>
-          <h1 className="page-heading writing-title">{writing.title}</h1>
-          <p className="writing-meta">
-            {writing.type} · {profile.name}
-            {writing.date && (
-              <>
-                {" · "}
-                <time dateTime={writing.date}>
-                  {formatWritingDate(writing.date)}
-                </time>
-              </>
-            )}
-          </p>
-        </header>
         <div className="writing-paper">
+          <header className="writing-header">
+            <h1 className="writing-title">{writing.title}</h1>
+            <p className="writing-meta">
+              By {writing.author || profile.name}
+              {" · "}
+              {writing.type}
+              {writing.date && (
+                <>
+                  {" · "}
+                  <time dateTime={writing.date}>
+                    {formatWritingDate(writing.date)}
+                  </time>
+                </>
+              )}
+            </p>
+          </header>
           {writing.body ? (
             <SafeHtml
               html={writingHtml(writing.body)}

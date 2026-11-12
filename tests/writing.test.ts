@@ -30,6 +30,7 @@ test("a writing file gives its header fields and its text", () => {
     title: "Why hawker centres matter",
     date: "2026-09-14",
     type: "Opinion",
+    author: "",
     summary: "One line: with a colon.",
     pdf: "hawker-centres.pdf",
     body: "First paragraph.\n\n## A heading",
@@ -55,6 +56,7 @@ test("missing or unusable fields fall back instead of failing", () => {
     title: "Only a title",
     date: null,
     type: "Writing",
+    author: "",
     summary: "",
     pdf: null,
     body: "Text",
@@ -66,6 +68,13 @@ test("missing or unusable fields fall back instead of failing", () => {
       pdf,
     );
   }
+});
+
+test("a file can name its own byline", () => {
+  assert.equal(
+    parseWritingFile("p", "---\ntitle: T\nauthor: Someone Else\n---\n")?.author,
+    "Someone Else",
+  );
 });
 
 test("a file without a title, or with an unsafe file name, is skipped", () => {
@@ -88,6 +97,7 @@ test("writing is listed newest first, undated pieces last", () => {
     title,
     date,
     type: "Writing",
+    author: "",
     summary: "",
     pdf: null,
     body: "",

@@ -29,6 +29,7 @@ The Work page lists each piece of writing as a document on the writing tab of it
 | `title`   | Yes      | Shown under the document and as the page title. A file without a title is skipped           |
 | `date`    | No       | `YYYY-MM-DD`. Sets the order (newest in front); pieces without a date go to the back        |
 | `type`    | No       | A short label such as `Opinion` or `Proposal`. Defaults to `Writing`                        |
+| `author`  | No       | The byline. Defaults to the site owner's name (`src/data/profile.ts`)                       |
 | `summary` | No       | One or two sentences, used for search results and link previews                             |
 | `pdf`     | No       | A file name in `public/writing/`, for example `proposal.pdf`. Adds an "Open the PDF" button |
 

@@ -5,6 +5,7 @@
 //   title: Why hawker centres matter
 //   date: 2026-09-14
 //   type: Opinion
+//   author: A different byline (optional)
 //   summary: One line shown on the front folder.
 //   pdf: hawker-centres.pdf
 //   ---
@@ -17,6 +18,8 @@ export type Writing = {
   date: string | null;
   /** A short label such as "Opinion" or "Proposal". */
   type: string;
+  /** The byline, or "" to use the site owner's name. */
+  author: string;
   summary: string;
   /** File name inside public/writing/, or null. */
   pdf: string | null;
@@ -74,6 +77,7 @@ export function parseWritingFile(slug: string, text: string): Writing | null {
     title,
     date: validDay(fields.date),
     type: fields.type?.trim() || "Writing",
+    author: fields.author?.trim() || "",
     summary: fields.summary?.trim() || "",
     pdf: fields.pdf && PDF_NAME.test(fields.pdf) ? fields.pdf : null,
     body,
