@@ -123,7 +123,7 @@ export function fitSignpostBoards(layout: Layout, view: View) {
 type Edges = { left: number; right: number };
 
 /**
- * Where the signpost sits in the canvas, centred. Phones scale it so the
+ * Where the signpost sits in the canvas: centred on tablets, a little right of centre on desktop, where the signs lean left. Phones scale it so the
  * outermost signs (at rest) meet the page edges (`edges`, or 6% in from each
  * side); every other width keeps the standard zoom.
  */
@@ -143,7 +143,7 @@ export function getSignpostPlacement(
   );
   const standard = {
     ...base,
-    topX: width * 0.5,
+    topX: width * (width >= 900 ? 0.55 : 0.5),
     restOnly: false,
     leftEdge: undefined as number | undefined,
     rightEdge: undefined as number | undefined,

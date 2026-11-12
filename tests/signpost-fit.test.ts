@@ -33,7 +33,7 @@ test("each blade stays between the card and page edge at every pointer limit and
         -0.16,
         width >= 900 ? -0.1 : -0.08,
       ];
-      const topX = width * 0.5;
+      const topX = width * (width >= 900 ? 0.55 : 0.5);
       const restOffset = -Math.PI / 10;
       const boards = fitSignpostBoards(layout, {
         width,

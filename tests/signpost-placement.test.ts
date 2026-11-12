@@ -54,7 +54,7 @@ test("tablet and desktop widths keep the standard zoom and pole position", () =>
     );
     assert.equal(placement.pixelsPerUnit, standard.pixelsPerUnit);
     assert.equal(placement.contentHeight, standard.contentHeight);
-    assert.equal(placement.topX, width * 0.5);
+    assert.equal(placement.topX, width * (width >= 900 ? 0.55 : 0.5));
     assert.equal(placement.restOnly, false);
   }
 });
