@@ -1149,16 +1149,6 @@ h6,
 .hero-list {
   height: auto;
   max-height: none;
-  min-height: 100svh;
-  padding-right: 4%;
-  grid-template-columns: minmax(0, 35fr) minmax(0, 65fr);
-  column-gap: 24px;
-}
-.hero-list .hero-copy {
-  align-self: start;
-  position: sticky;
-  top: 124px;
-  padding-top: 25px;
 }
 .hero-list .scene-stage {
   width: 100%;
@@ -1198,16 +1188,14 @@ h6,
     color: var(--accent-glow);
   }
 }
-/* Beside the intro card the focused project card lines up with it: same top,
-   same height as it had beside the intro card (now removed from card mode).
-   The track starts one pad higher so the card, not the track, meets the top. */
+/* From 900px the focused project card has a fixed height. The track starts one
+   pad higher so the card, not the track, meets the top of the row. */
 @media (min-width: 900px) {
   .hero-list .carousel-track {
     margin-top: calc(var(--carousel-pad) * -1);
   }
   .hero-list .carousel-card {
     aspect-ratio: auto;
-    /* The height the card had beside the intro card, before that was removed. */
     height: clamp(400px, 34vw, 470px);
   }
 }
@@ -1894,9 +1882,6 @@ h2.section-label {
   .hero-footnote {
     display: none;
   }
-  .hero-list {
-    grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
-  }
   .intro-section {
     grid-template-columns: 25% 75%;
     padding-left: 5.5%;
@@ -1987,10 +1972,6 @@ h2.section-label {
     bottom: 24px;
     left: 6%;
     right: 6%;
-  }
-  .hero-list .hero-copy {
-    position: static;
-    padding-top: 0;
   }
   .hero-list .scene-stage {
     height: auto;
@@ -2320,7 +2301,7 @@ h2.section-label {
   bottom: auto;
   right: auto;
 }
-:is(.hero-list, .work-context) .intro-section {
+.work-context .intro-section {
   grid-column: 1 / -1;
   padding-top: 80px;
   max-width: 800px;
@@ -2461,14 +2442,7 @@ h2.section-label {
 .hero .hero-intro-column .scroll-hint {
   margin: 0;
 }
-.hero-list {
-  gap: 48px 32px;
-}
-.hero-list .hero-intro-column {
-  position: sticky;
-  top: 124px;
-}
-:is(.hero-list, .work-context) .intro-section.neu-card {
+.work-context .intro-section.neu-card {
   grid-column: 1 / -1;
   width: 100%;
   max-width: none;
@@ -2476,14 +2450,10 @@ h2.section-label {
   grid-template-columns: minmax(0, 30fr) minmax(0, 70fr);
 }
 @media (max-width: 899px) {
-  .hero-list .hero-intro-column {
-    position: relative;
-    top: auto;
-  }
   .hero-list .hero-work {
     margin-top: 0;
   }
-  :is(.hero-list, .work-context) .intro-section.neu-card {
+  .work-context .intro-section.neu-card {
     grid-template-columns: 1fr;
   }
 }
@@ -2543,30 +2513,15 @@ body {
 .hero {
   background: transparent;
 }
-/* Size the list column to the card itself, not its former percentage width. */
 @media (min-width: 900px) {
   .hero-list {
-    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
-    /* The same side gutter as the header card, so their edges line up. */
-    padding-inline: var(--page-gutter);
-    column-gap: 24px;
     overflow: clip;
   }
-  .hero-list .hero-intro-column {
-    align-self: start;
-  }
 }
 
-/* Card mode: the space below the context card matches the 48px row gap above it. */
+/* Card mode: 48px below the project cards. */
 .hero-list {
   padding-bottom: 48px;
-}
-
-/* Card mode follows the document; both panels start at the first card row. */
-.hero-list .hero-intro-column {
-  position: relative;
-  top: auto;
-  margin-top: 52px;
 }
 .header-actions {
   gap: 12px;
@@ -2600,9 +2555,6 @@ body {
   }
   .hero {
     padding-top: 190px;
-  }
-  .hero-list .hero-intro-column {
-    margin-top: 0;
   }
   .hero:not(.hero-list) .scene-stage {
     top: 150px;
