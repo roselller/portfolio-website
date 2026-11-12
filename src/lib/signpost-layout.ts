@@ -7,15 +7,20 @@ const lowestBoard = 2.33;
 const angles = [42, 18, 48, 14, 44, 20, 40, 16];
 
 // The boards follow the theme: light boards in light mode, dark boards in dark
-// mode. `pole` recolours the charcoal parts of the pole to the opposite of the
-// boards: null keeps the model's own charcoal (light mode, light boards).
+// mode. `pole` recolours the charcoal parts of the pole to the colour of the
+// folder icons in the photography window (--folder-back in globals.css).
 export const signpostThemes = {
-  light: { board: "#e7e9ec", ink: "#16181c", arrow: "#9f1239", pole: null },
+  light: {
+    board: "#e7e9ec",
+    ink: "#16181c",
+    arrow: "#9f1239",
+    pole: "#929498",
+  },
   dark: {
     board: "#16181c",
     ink: "#f2f3f5",
     arrow: "#fb7185",
-    pole: "#e7e9ec",
+    pole: "#717275",
   },
 } as const;
 

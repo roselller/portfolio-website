@@ -6,10 +6,9 @@ import type { Material, MeshStandardMaterial } from "three";
 import { useSignpostParts, useSignpostTheme } from "./SignpostParts";
 
 /**
- * The pole is the opposite colour of the boards. The model's charcoal is kept
- * in light mode (light boards); in dark mode its charcoal parts become the
- * theme's pole colour (small clones, so the shared model materials are never
- * touched).
+ * The pole takes the colour of the folder icons in the photography window: its
+ * charcoal parts become the theme's pole colour (small clones, so the shared
+ * model materials are never touched).
  */
 function recolour(
   material: Material | Material[],
