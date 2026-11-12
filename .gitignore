@@ -37,3 +37,9 @@ tmp/
 # Local agent notes (private; kept on this machine only)
 CLAUDE.md
 AGENTS.md
+
+# Personal content lives in the private content repo, never here.
+/public/photography/
+/public/photos/
+/public/writing/
+/content/
