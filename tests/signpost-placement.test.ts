@@ -5,6 +5,7 @@ import { sampleProjects } from "../src/data/projects";
 import {
   fitSignpostBoards,
   getSignpostPlacement,
+  pageGutter,
   signpostRestExtent,
 } from "../src/lib/signpost-fit";
 import {
@@ -36,9 +37,10 @@ function rotationFor(width: number): [number, number, number] {
   return [-Math.PI / 16, -0.16, width >= 900 ? -0.1 : -0.08];
 }
 
-test("tablet and desktop widths keep the standard zoom and pole position", () => {
-  for (const width of [PHONE_MAX_WIDTH + 1, 768, 900, 1440, 1920]) {
+test("tablet and desktop widths keep the standard zoom and centre the signs", () => {
+  for (const width of [PHONE_MAX_WIDTH + 1, 768, 900, 1100, 1440, 1920]) {
     const layout = layoutFor(6);
+    const rotation = rotationFor(width);
     const standard = getSignpostPresentation(
       layout.width,
       layout.height,
@@ -49,36 +51,28 @@ test("tablet and desktop widths keep the standard zoom and pole position", () =>
       layout,
       width,
       750,
-      { left: width * 0.06, right: width * 0.94 },
-      rotationFor(width),
+      rotation,
       restOffset,
     );
     assert.equal(placement.pixelsPerUnit, standard.pixelsPerUnit);
     assert.equal(placement.contentHeight, standard.contentHeight);
-    // The signs' rest extent is centred on the page.
-    const { min: low, max: high } = signpostRestExtent(
-      layout,
-      rotationFor(width),
-      restOffset,
-    );
-    const middle =
-      placement.topX + ((low + high) / 2) * placement.pixelsPerUnit;
-    assert.ok(Math.abs(middle - width / 2) < 0.01, `${width}px`);
     assert.equal(placement.restOnly, false);
+    // The middle of the signs at rest, not the pole, is the page's middle.
+    const { min, max } = signpostRestExtent(layout, rotation, restOffset);
+    const middle = placement.topX + ((min + max) / 2) * placement.pixelsPerUnit;
+    assert.ok(Math.abs(middle - width / 2) < 0.01, `${width}px`);
   }
 });
 
-test("on phones the outermost signs meet the card edges without shrinking", () => {
+test("on phones the outermost signs meet the page gutters without shrinking", () => {
   for (const width of [320, 360, 390, 430, 540, PHONE_MAX_WIDTH]) {
     const layout = layoutFor(6);
-    const edges = { left: Math.round(width * 0.06), right: 0 };
-    edges.right = width - edges.left;
+    const edges = { left: pageGutter(width), right: width - pageGutter(width) };
     const rotation = rotationFor(width);
     const placement = getSignpostPlacement(
       layout,
       width,
       750,
-      edges,
       rotation,
       restOffset,
     );
@@ -94,8 +88,6 @@ test("on phones the outermost signs meet the card edges without shrinking", () =
       width,
       height: 750,
       documentHeight: placement.contentHeight,
-      leftInset: placement.leftEdge ?? 0,
-      rightEdge: placement.rightEdge,
       restOnly: placement.restOnly,
       pixelsPerUnit: placement.pixelsPerUnit,
       topX: placement.topX,
@@ -140,14 +132,11 @@ test("on phones a canvas as tall as the lengthened pole box trims no sign", () =
   for (const width of [320, 360, 390, 430, 540, PHONE_MAX_WIDTH]) {
     for (const count of [1, 3, 6]) {
       const layout = layoutFor(count);
-      const edges = { left: Math.round(width * 0.06), right: 0 };
-      edges.right = width - edges.left;
       const rotation = rotationFor(width);
       const placement = getSignpostPlacement(
         layout,
         width,
         750,
-        edges,
         rotation,
         restOffset,
       );
@@ -156,8 +145,6 @@ test("on phones a canvas as tall as the lengthened pole box trims no sign", () =
         width,
         height: boxHeight,
         documentHeight: boxHeight,
-        leftInset: placement.leftEdge ?? 0,
-        rightEdge: placement.rightEdge,
         restOnly: placement.restOnly,
         pixelsPerUnit: placement.pixelsPerUnit,
         topX: placement.topX,
@@ -186,7 +173,6 @@ test("phone placement stays finite and bounded for any number of signs", () => {
       layout,
       390,
       750,
-      null,
       rotationFor(390),
       restOffset,
     );

@@ -12,13 +12,10 @@ type View = {
   width: number;
   height: number;
   documentHeight: number;
-  leftInset: number;
   pixelsPerUnit: number;
   topX: number;
   rotation: [number, number, number];
   restOffset: number;
-  /** Right limit in px; defaults to the page gutter. */
-  rightEdge?: number;
   /** Phones: fit the rest pose only, because touch never tilts the signpost. */
   restOnly?: boolean;
 };
@@ -65,15 +62,23 @@ function horizontalBounds(
   return { min, max };
 }
 
+/**
+ * The page's side gutter in px: the header card's inset (--page-gutter in
+ * globals.css: 3%, 6% at 899px and below).
+ */
+export function pageGutter(width: number) {
+  return width * (width <= 899 ? 0.06 : 0.03);
+}
+
 /** Fit each blade to the space between the page gutters throughout its motion. */
 export function fitSignpostBoards(layout: Layout, view: View) {
   const matrix = new Matrix4().makeRotationFromEuler(
     new Euler(...view.rotation),
   );
   const up = new Vector3(0, 1, 0).applyMatrix4(matrix);
-  const gutter = Math.max(16, view.width * 0.02);
-  const left = Math.max(gutter, view.leftInset);
-  const right = view.rightEdge ?? view.width - gutter;
+  const gutter = pageGutter(view.width);
+  const left = gutter;
+  const right = view.width - gutter;
   const scrollDrift =
     Math.max(0, view.documentHeight - view.height) * (up.x / up.y);
 
@@ -145,19 +150,15 @@ export function signpostRestExtent(
   return { min, max };
 }
 
-type Edges = { left: number; right: number };
-
 /**
  * Where the signpost sits in the canvas. The middle of the signs (not the
  * pole) is at the middle of the page. Phones scale it so the outermost signs
- * (at rest) meet the page edges (`edges`, or 6% in from each side); every
- * other width keeps the standard zoom.
+ * (at rest) meet the page gutters; every other width keeps the standard zoom.
  */
 export function getSignpostPlacement(
   layout: Layout,
   width: number,
   height: number,
-  edges: Edges | null,
   rotation: [number, number, number],
   restOffset: number,
 ) {
@@ -167,26 +168,37 @@ export function getSignpostPlacement(
     width,
     height,
   );
-  const { min, max } = signpostRestExtent(layout, rotation, restOffset);
-  const standard = {
-    ...base,
-    // The middle of the signs, not the pole, sits at the middle of the page.
-    topX:
-      max > min
-        ? width / 2 - ((min + max) / 2) * base.pixelsPerUnit
-        : width / 2,
-    restOnly: false,
-    leftEdge: undefined as number | undefined,
-    rightEdge: undefined as number | undefined,
-  };
-  if (width > PHONE_MAX_WIDTH || layout.boards.length === 0) return standard;
+  if (layout.boards.length === 0) {
+    return {
+      ...base,
+      topX: width / 2,
+      restOnly: false,
+    };
+  }
+  if (width > PHONE_MAX_WIDTH) {
+    // Centre the signs at their natural size. Where the fit has to trim a
+    // board (narrow desktops) they sit a little off-centre rather than being
+    // squeezed further to balance the two sides.
+    const { min, max } = signpostRestExtent(layout, rotation, restOffset);
+    return {
+      ...base,
+      topX:
+        max > min
+          ? width / 2 - ((min + max) / 2) * base.pixelsPerUnit
+          : width / 2,
+      restOnly: false,
+    };
+  }
 
-  const left = edges?.left ?? width * 0.06;
-  const right = edges?.right ?? width * 0.94;
+  const left = pageGutter(width);
+  const right = width - left;
+  const { min, max } = signpostRestExtent(layout, rotation, restOffset);
   // Stay inside the 2 px tolerance used by fitSignpostBoards, plus a hair
   // (0.05 px per side) so rounding never trims a sign.
   const span = right - left - 4.1;
-  if (!(max > min) || !(span > 0)) return standard;
+  if (!(max > min) || !(span > 0)) {
+    return { ...base, topX: width / 2, restOnly: false };
+  }
   // One or two signs lean to one side; cap the zoom so they never balloon.
   const pixelsPerUnit = Math.min(span / (max - min), base.pixelsPerUnit * 2);
   const used = (max - min) * pixelsPerUnit;
@@ -197,7 +209,5 @@ export function getSignpostPlacement(
     contentHeight: Math.ceil(layout.height * pixelsPerUnit + 64),
     topX,
     restOnly: true,
-    leftEdge: left,
-    rightEdge: right,
   };
 }

@@ -7,21 +7,13 @@ export const siteCopy = {
   ],
   contactCta: "Let’s talk",
   hero: {
-    greeting: "Hello, I’m",
     headline: ["Good ideas."],
     emphasis: "different directions.",
-    description:
-      "Thoughtful digital experiences, built with purpose and a little play.",
-    aboutCta: "A little about me",
-    collectionLabel: "SELECTED EXPLORATIONS",
     projectLabel: "PROJECTS",
     githubCta: "View on GitHub",
     sampleInstruction: "Includes sample concepts. Pick a direction.",
     instruction: "Every direction is a new possibility.",
     empty: "New directions are on the way.",
-    scrollHint: "Scroll to explore",
-    footnote: "A portfolio, with a sense of direction.",
-    edition: "VOL. 01 / 2026",
     accessibleHeading: "Explore projects",
   },
   // The file-browser window on the Work page: one tab per kind of work.

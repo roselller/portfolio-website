@@ -11,7 +11,7 @@
 | Contact form        | React Hook Form, Zod, Neon PostgreSQL, Drizzle ORM, Upstash Redis, Resend |
 | Tooling             | pnpm, ESLint, Prettier, Node.js test runner with `tsx`                    |
 
-Every page has an animated [shader background](https://github.com/ruucm/shadergradient) from ruucm (about 30 fps, loaded when the browser is idle; a still frame with reduced motion or data-saver; a CSS gradient without WebGL). Search and sharing come from a sitemap that includes the pinned projects, `robots.txt`, and Open Graph metadata.
+Every page has an animated [shader background](https://github.com/ruucm/shadergradient) from ruucm (about 30 fps, loaded when the browser is idle; a still frame with reduced motion; the CSS gradient alone with data-saver or without WebGL). Search and sharing come from a sitemap that includes the pinned projects, `robots.txt`, and Open Graph metadata.
 
 ## Checks
 

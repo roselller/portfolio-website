@@ -12,10 +12,9 @@ import { useSignpostParts, useSignpostTheme } from "./SignpostParts";
  */
 function recolour(
   material: Material | Material[],
-  color: string | null,
+  color: string,
   clones: MeshStandardMaterial[],
 ) {
-  if (!color) return material;
   const paint = (source: Material) => {
     if (!source.name.startsWith("Charcoal")) return source;
     const clone = (source as MeshStandardMaterial).clone();

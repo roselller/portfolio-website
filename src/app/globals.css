@@ -89,8 +89,7 @@ h4,
 h5,
 h6,
 .wordmark,
-.project-visual-word,
-.sign-label > span:nth-child(2) {
+.project-visual-word {
   font-family: var(--font-heading);
 }
 /* A floating card (.neu-card gives it the surface, border, shadow and radius).
@@ -282,7 +281,9 @@ h6,
   grid-column: 1 / -1;
   align-self: start;
   align-items: center;
-  padding: 0 var(--page-gutter) 0 0;
+  /* The hero's content box is 97% of the page here (its left padding is the
+     gutter), so scale the gutter to land on the header card's right edge. */
+  padding: 0 calc(var(--page-gutter) * 1.031) 0 0;
   pointer-events: none;
 }
 .hero:not(.hero-list) .scene-meta a {
@@ -372,79 +373,10 @@ h6,
     1px 2px 5px #0003,
     inset 0 1px 0 #ffffff12;
 }
-.hero-footnote {
-  font-size: 12px;
-  color: var(--muted);
-}
-.edition {
-  font-family: var(--font-label);
-  font-size: 12px;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-}
-.sign-label {
-  position: relative;
-  color: #222631;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 228px;
-  height: 46px;
-  font-size: 18px;
-  font-weight: 650;
-  line-height: 1;
-  white-space: nowrap;
-  padding: 0 16px;
-  overflow: hidden;
-  backface-visibility: hidden;
-}
 .accessible-projects a:focus-visible {
   background: #fb71850d;
   color: var(--accent-glow);
   border-radius: 5px;
-}
-.sign-label::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 20%,
-    #ffffff99 50%,
-    transparent 80%
-  );
-  transform: translateX(-140%);
-  pointer-events: none;
-}
-.sign-label.is-active::after {
-  transform: translateX(140%);
-  transition: transform 0.6s;
-}
-.sign-label-left {
-  flex-direction: row-reverse;
-}
-.sign-index {
-  font-family: var(--font-label);
-  font-size: 12px;
-  opacity: 0.65;
-}
-.sign-label > span:nth-child(2) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-.sign-index,
-.sign-arrow {
-  flex-shrink: 0;
-}
-.sign-arrow {
-  margin-left: auto;
-  font-size: 22px;
-  color: #9f1239;
-}
-.sign-label-left .sign-arrow {
-  margin-right: auto;
-  margin-left: 0;
 }
 .scene-loading {
   display: flex;
@@ -1417,8 +1349,10 @@ h2.section-label {
 .timeline-body li + li {
   margin-top: 4px;
 }
-/* The closing card is as wide as the header; the text above keeps the page's
-   usual side padding (8%, 5.5% up to 1100px, capped at 1600px). */
+/* The closing card is as wide as the header. The text above it is inset from
+   the card the way the page's side padding used to place it (8% of the page, or
+   5.5% up to 1100px, at most 1344px wide); on phones that is the same width as
+   the card, 1% narrower than before. */
 .page-shell.about-page {
   max-width: none;
   padding-inline: var(--page-gutter);
@@ -1430,7 +1364,7 @@ h2.section-label {
 }
 .about-cta {
   margin-top: 100px;
-  padding: 64px max(28px, 5.3%);
+  padding: 64px 5.3%;
   border-radius: 16px;
 }
 @media (max-width: 1100px) {
@@ -1843,9 +1777,6 @@ h2.section-label {
   .hero {
     min-height: 820px;
   }
-  .hero-footnote {
-    display: none;
-  }
   .intro-section {
     grid-template-columns: 25% 75%;
     padding-left: 5.5%;
@@ -2000,9 +1931,6 @@ h2.section-label {
   }
   .hero {
     padding-top: 125px;
-  }
-  .hero .eyebrow {
-    font-size: 12px;
   }
   .hero-work {
     margin-top: 40px;
@@ -2200,15 +2128,24 @@ h2.section-label {
   bottom: auto;
   right: 24px;
 }
+/* The context card closes the Work page. */
 .work-context .intro-section {
   position: relative;
-  z-index: 35;
-  grid-column: 1;
+  z-index: 3;
   align-self: end;
-  padding: 0 24px 20px 0;
-  grid-template-columns: 1fr;
   gap: 24px;
-  border: 0;
+}
+.work-context .intro-section.neu-card {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 48px 5%;
+  grid-template-columns: minmax(0, 30fr) minmax(0, 70fr);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--neumorphic);
 }
 .work-context .intro-side {
   flex-direction: row;
@@ -2219,18 +2156,6 @@ h2.section-label {
 }
 .work-context .intro-copy p {
   font-size: 15px;
-}
-.work-context .intro-actions {
-  flex-direction: column;
-  align-items: flex-start;
-}
-.work-context .intro-actions .text-link {
-  margin: 0;
-}
-.work-context .intro-section {
-  grid-column: 1 / -1;
-  padding-top: 80px;
-  max-width: 800px;
 }
 @media (max-width: 899px) {
   .hero:not(.hero-list) {
@@ -2252,14 +2177,12 @@ h2.section-label {
     width: 100%;
     left: 0;
   }
-  .work-context .intro-section {
-    padding: 0;
+  .work-context .intro-section.neu-card {
+    padding: 32px 20px;
+    grid-template-columns: 1fr;
   }
   .work-context .intro-copy h2 {
     font-size: clamp(28px, 4.3vw, 38px);
-  }
-  .work-context .intro-actions {
-    flex-direction: row;
   }
 }
 /* Phones: the context card rises over the foot of the signpost pole, as on
@@ -2290,37 +2213,9 @@ h2.section-label {
     padding-bottom: 20px;
   }
 }
-.work-context .intro-section.neu-card {
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  margin-inline: 0 3%;
-  padding: 48px 5%;
-}
-@media (max-width: 899px) {
-  .work-context .intro-section.neu-card {
-    margin: 0;
-    padding: 32px 20px;
-  }
-}
-
-.work-context .intro-section.neu-card {
-  background: var(--panel);
-  box-shadow: var(--neumorphic);
-  border-radius: 16px;
-}
-.work-context .intro-section.neu-card {
-  grid-column: 1 / -1;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  grid-template-columns: minmax(0, 30fr) minmax(0, 70fr);
-}
 @media (max-width: 899px) {
   .hero-list .hero-work {
     margin-top: 0;
-  }
-  .work-context .intro-section.neu-card {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -2331,9 +2226,6 @@ h2.section-label {
 .hero .hero-work {
   z-index: 0;
   isolation: isolate;
-}
-.work-context .intro-section {
-  z-index: 3;
 }
 
 /* One persistent, non-interactive ShaderGradient behind every route. */
@@ -2353,22 +2245,21 @@ body {
     var(--bg) 75%
   );
 }
+/* The shader's canvas fades in once it has drawn its first frame. */
 .site-background > div {
-  opacity: 0.85;
-  animation: background-in 0.9s ease-out;
+  opacity: 0;
+  transition: opacity 0.9s ease-out;
 }
-@keyframes background-in {
-  from {
-    opacity: 0;
-  }
+.site-background[data-shader="on"] > div {
+  opacity: 0.85;
+}
+[data-theme="light"] .site-background[data-shader="on"] > div {
+  opacity: 0.55;
 }
 @media (prefers-reduced-motion: reduce) {
   .site-background > div {
-    animation: none;
+    transition: none;
   }
-}
-[data-theme="light"] .site-background > div {
-  opacity: 0.55;
 }
 .hero {
   background: transparent;

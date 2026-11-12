@@ -143,3 +143,40 @@ test("sign text is uppercased and limited to characters the sign font contains",
   assert.equal(toSignText("live"), "LIVE");
   assert.equal(toSignText("Straße"), "STRASSE");
 });
+
+test("the pole colours are the folder icons' colour (--folder-back) in each theme", () => {
+  const tokens = readFileSync(
+    new URL("../src/styles/tokens.css", import.meta.url),
+    "utf8",
+  );
+  const css = readFileSync(
+    new URL("../src/app/globals.css", import.meta.url),
+    "utf8",
+  );
+  // --folder-back is a mix of the text colour into the panel colour.
+  const mix =
+    /--folder-back:\s*color-mix\(in srgb, var\(--text\) (\d+)%, var\(--panel\)\)/.exec(
+      css,
+    );
+  assert.ok(
+    mix,
+    "--folder-back is no longer a color-mix of --text and --panel",
+  );
+  const share = Number(mix[1]) / 100;
+  const channels = (hex: string) =>
+    [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16));
+  for (const [theme, block] of [
+    ["dark", /:root\s*\{[^}]*\}/],
+    ["light", /\[data-theme="light"\]\s*\{[^}]*\}/],
+  ] as const) {
+    const body = block.exec(tokens)?.[0] ?? "";
+    const text = /--text:\s*(#[0-9a-f]{6})/i.exec(body)?.[1];
+    const panel = /--panel:\s*(#[0-9a-f]{6})/i.exec(body)?.[1];
+    assert.ok(text && panel, `${theme} tokens`);
+    const mixed = channels(text).map((value, index) =>
+      Math.round(value * share + channels(panel)[index] * (1 - share)),
+    );
+    const hex = `#${mixed.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+    assert.equal(signpostThemes[theme].pole, hex, `${theme} pole colour`);
+  }
+});

@@ -5,13 +5,11 @@ import { sampleProjects } from "../src/data/projects";
 import {
   fitSignpostBoards,
   getSignpostPlacement,
+  pageGutter,
 } from "../src/lib/signpost-fit";
-import {
-  getSignpostLayout,
-  getSignpostPresentation,
-} from "../src/lib/signpost-layout";
+import { getSignpostLayout } from "../src/lib/signpost-layout";
 
-test("each blade stays between the card and page edge at every pointer limit and scroll position", () => {
+test("each blade stays between the page gutters at every pointer limit and scroll position", () => {
   for (const width of [320, 390, 900, 1024, 1440, 1920]) {
     for (const count of [0, 1, 3, 6]) {
       const layout = getSignpostLayout(
@@ -24,40 +22,40 @@ test("each blade stays between the card and page edge at every pointer limit and
       );
       const height = 750;
       const documentHeight = width >= 900 ? 1392 : 800;
-      const { pixelsPerUnit } = getSignpostPresentation(
-        layout.width,
-        layout.height,
-        width,
-        height,
-      );
-      const leftInset = 0;
       const rotation: [number, number, number] = [
         -Math.PI / 16,
         -0.16,
         width >= 900 ? -0.1 : -0.08,
       ];
       const restOffset = -Math.PI / 10;
-      const { topX } = getSignpostPlacement(
+      const placement = getSignpostPlacement(
         layout,
         width,
         height,
-        null,
         rotation,
         restOffset,
       );
+      const { pixelsPerUnit, topX } = placement;
       const boards = fitSignpostBoards(layout, {
         width,
         height,
         documentHeight,
-        leftInset,
+        restOnly: placement.restOnly,
         pixelsPerUnit,
         topX,
         rotation,
         restOffset,
       });
       const up = new Vector3(0, 1, 0).applyEuler(new Euler(...rotation));
-      const left = Math.max(16, width * 0.02, leftInset);
-      const right = width - Math.max(16, width * 0.02);
+      const left = pageGutter(width);
+      const right = width - left;
+      // Phones never tilt, so only the rest pose has to fit there.
+      const pointers = placement.restOnly
+        ? [0]
+        : Array.from(
+            { length: 31 },
+            (_, step) => -Math.PI / 9 + (step / 30) * (Math.PI / 6),
+          );
       assert.equal(boards.length, count);
       for (const [index, board] of boards.entries()) {
         assert.ok(board.width > 0 && board.fontSize > 0);
@@ -68,8 +66,7 @@ test("each blade stays between the card and page edge at every pointer limit and
           (documentHeight - height) / 2,
           documentHeight - height,
         ]) {
-          for (let step = 0; step <= 30; step++) {
-            const pointer = -Math.PI / 9 + (step / 30) * (Math.PI / 6);
+          for (const pointer of pointers) {
             for (const x of [-0.24, 2.78]) {
               for (const y of [-0.301, 0.301]) {
                 for (const z of [0.139, 0.331]) {

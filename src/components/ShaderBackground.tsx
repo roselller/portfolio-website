@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
-import { useThree } from "@react-three/fiber";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import { ShaderGradient, ShaderGradientCanvas } from "@shadergradient/react";
 
 function subscribe(notify: () => void) {
@@ -12,32 +12,15 @@ function subscribe(notify: () => void) {
   });
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   motion.addEventListener("change", notify);
-  const connection = saveDataConnection();
-  connection?.addEventListener?.("change", notify);
   document.addEventListener("visibilitychange", notify);
   return () => {
     observer.disconnect();
     motion.removeEventListener("change", notify);
-    connection?.removeEventListener?.("change", notify);
     document.removeEventListener("visibilitychange", notify);
   };
 }
-type SaveDataConnection = EventTarget & { saveData?: boolean };
-function saveDataConnection() {
-  return (navigator as Navigator & { connection?: SaveDataConnection })
-    .connection;
-}
-// The gradient stands still (one drawn frame) when the visitor asks for
-// reduced motion or for less data. Both are signals that the page should not
-// keep the GPU busy.
-function stillWanted() {
-  return (
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-    saveDataConnection()?.saveData === true
-  );
-}
 function snapshot() {
-  return `${document.documentElement.dataset.theme === "dark" ? "dark" : "light"}|${stillWanted()}|${document.visibilityState}`;
+  return `${document.documentElement.dataset.theme === "dark" ? "dark" : "light"}|${window.matchMedia("(prefers-reduced-motion: reduce)").matches}|${document.visibilityState}`;
 }
 
 // The gradient follows clock time, so drawing ~30 frames a second instead of
@@ -57,7 +40,19 @@ function RenderPolicy({ paused }: { paused: boolean }) {
   return null;
 }
 
-export default function ShaderBackground() {
+// Tells the page when the first frame is about to be drawn, so the gradient
+// can fade in over a canvas that has something on it.
+function FirstFrame({ onFrame }: { onFrame: () => void }) {
+  const done = useRef(false);
+  useFrame(() => {
+    if (done.current) return;
+    done.current = true;
+    onFrame();
+  });
+  return null;
+}
+
+export default function ShaderBackground({ onFrame }: { onFrame: () => void }) {
   const state = useSyncExternalStore(
     subscribe,
     snapshot,
@@ -74,6 +69,7 @@ export default function ShaderBackground() {
       powerPreference="low-power"
     >
       <RenderPolicy paused={paused} />
+      <FirstFrame onFrame={onFrame} />
       <ShaderGradient
         control="props"
         type="plane"
