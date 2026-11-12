@@ -24,10 +24,15 @@ import { PHONE_MAX_WIDTH } from "@/lib/signpost-layout";
 export function SignpostHero({
   projects,
   sample,
+  nextScene,
   children,
 }: {
   projects: Project[];
   sample: boolean;
+  /** Id of the scene below the hero in card mode, if there is one. */
+  nextScene?: string;
+  /** The context card: under the pole in the 3D view, not shown in card mode
+      (there it closes the page, see CardModeOnly). */
   children: ReactNode;
 }) {
   const hero = useRef<HTMLElement>(null);
@@ -200,11 +205,18 @@ export function SignpostHero({
           </Link>
         </div>
         <div className="hero-bottom">
-          <a href="#introduction" className="scroll-hint">
+          <a
+            href={grid && nextScene ? `#${nextScene}` : "#introduction"}
+            className="scroll-hint"
+          >
             <span className="scroll-icon">
               <ArrowDown size={15} aria-hidden="true" />
             </span>
-            {grid ? siteCopy.hero.gridScrollHint : siteCopy.hero.scrollHint}
+            {!grid
+              ? siteCopy.hero.scrollHint
+              : nextScene
+                ? siteCopy.hero.gridScrollHint
+                : siteCopy.hero.gridContextHint}
           </a>
         </div>
       </div>
@@ -246,7 +258,7 @@ export function SignpostHero({
           </div>
         )}
       </div>
-      {children}
+      {!grid && children}
     </section>
   );
 }

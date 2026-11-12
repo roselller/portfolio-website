@@ -2269,7 +2269,7 @@ h2.section-label {
   bottom: auto;
   right: 24px;
 }
-.hero .intro-section {
+:is(.hero, .work-context) .intro-section {
   position: relative;
   z-index: 35;
   grid-column: 1;
@@ -2279,21 +2279,21 @@ h2.section-label {
   gap: 24px;
   border: 0;
 }
-.hero .intro-side {
+:is(.hero, .work-context) .intro-side {
   flex-direction: row;
   gap: 12px;
 }
-.hero .intro-copy h2 {
+:is(.hero, .work-context) .intro-copy h2 {
   font-size: clamp(26px, 2.4vw, 36px);
 }
-.hero .intro-copy p {
+:is(.hero, .work-context) .intro-copy p {
   font-size: 15px;
 }
-.hero .intro-actions {
+:is(.hero, .work-context) .intro-actions {
   flex-direction: column;
   align-items: flex-start;
 }
-.hero .intro-actions .text-link {
+:is(.hero, .work-context) .intro-actions .text-link {
   margin: 0;
 }
 .hero:not(.hero-list) .hero-bottom {
@@ -2301,7 +2301,7 @@ h2.section-label {
   bottom: auto;
   right: auto;
 }
-.hero-list .intro-section {
+:is(.hero-list, .work-context) .intro-section {
   grid-column: 1 / -1;
   padding-top: 80px;
   max-width: 800px;
@@ -2326,13 +2326,13 @@ h2.section-label {
     width: 100%;
     left: 0;
   }
-  .hero .intro-section {
+  :is(.hero, .work-context) .intro-section {
     padding: 0;
   }
-  .hero .intro-copy h2 {
+  :is(.hero, .work-context) .intro-copy h2 {
     font-size: clamp(28px, 4.3vw, 38px);
   }
-  .hero .intro-actions {
+  :is(.hero, .work-context) .intro-actions {
     flex-direction: row;
   }
   .hero:not(.hero-list) .hero-bottom {
@@ -2396,7 +2396,7 @@ h2.section-label {
   width: calc(100% + 32px);
   margin-left: -16px;
 }
-.hero .intro-section.neu-card {
+:is(.hero, .work-context) .intro-section.neu-card {
   border: 1px solid var(--line);
   border-radius: 28px;
   margin-inline: 0 3%;
@@ -2408,14 +2408,14 @@ h2.section-label {
     margin: 0;
     padding: 24px 20px;
   }
-  .hero .intro-section.neu-card {
+  :is(.hero, .work-context) .intro-section.neu-card {
     margin: 0;
     padding: 32px 20px;
   }
 }
 
 .hero .hero-copy.neu-card,
-.hero .intro-section.neu-card {
+:is(.hero, .work-context) .intro-section.neu-card {
   background: var(--panel);
   box-shadow: var(--neumorphic);
   border-radius: 16px;
@@ -2449,7 +2449,7 @@ h2.section-label {
   position: sticky;
   top: 124px;
 }
-.hero-list .intro-section.neu-card {
+:is(.hero-list, .work-context) .intro-section.neu-card {
   grid-column: 1 / -1;
   width: 100%;
   max-width: none;
@@ -2464,7 +2464,7 @@ h2.section-label {
   .hero-list .hero-work {
     margin-top: 0;
   }
-  .hero-list .intro-section.neu-card {
+  :is(.hero-list, .work-context) .intro-section.neu-card {
     grid-template-columns: 1fr;
   }
 }
@@ -2488,7 +2488,7 @@ h2.section-label {
   z-index: 2;
   isolation: isolate;
 }
-.hero .intro-section {
+:is(.hero, .work-context) .intro-section {
   z-index: 3;
 }
 @media (min-width: 900px) {
@@ -2604,29 +2604,29 @@ body {
 }
 
 /* Shared sizing keeps both intro actions on the same text and icon baseline. */
-.hero .intro-actions {
+:is(.hero, .work-context) .intro-actions {
   flex-direction: row;
   align-items: center;
   gap: 16px;
 }
-.hero .intro-actions > a {
+:is(.hero, .work-context) .intro-actions > a {
   margin: 0;
   justify-content: center;
   white-space: nowrap;
 }
-.hero .intro-actions > .text-link {
+:is(.hero, .work-context) .intro-actions > .text-link {
   min-height: 53px;
   padding: 14px 20px;
   gap: 12px;
   line-height: 1.5;
 }
-.hero .intro-actions > a svg {
+:is(.hero, .work-context) .intro-actions > a svg {
   width: 17px;
   height: 17px;
   flex-shrink: 0;
 }
 @media (max-width: 599px) {
-  .hero .intro-actions > a {
+  :is(.hero, .work-context) .intro-actions > a {
     width: 100%;
     white-space: normal;
     text-align: center;
@@ -2744,4 +2744,447 @@ body {
   cursor: pointer;
   color: var(--text);
   padding: 12px 0;
+}
+
+/* Work page scenes below the hero: photos (scene two) and writing (scene
+   three), then the context card in card mode. Each scene is about a screen
+   tall and comes in the first time it scrolls into view ([data-revealed], set
+   by useInView; layout.tsx shows everything when scripts are off). */
+.work-scene {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: min(100svh, 860px);
+  padding: 88px var(--page-gutter) 64px;
+}
+.work-scene-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-bottom: 36px;
+}
+.work-scene-header .eyebrow {
+  margin: 0;
+}
+.work-scene-count {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.work-context {
+  padding: 48px var(--page-gutter);
+}
+@media (max-width: 899px) {
+  /* Narrow screens are tall: a scene is as tall as what it holds. */
+  .work-scene {
+    min-height: 0;
+    padding-top: 56px;
+    padding-bottom: 40px;
+  }
+  .work-scene-header {
+    margin-bottom: 24px;
+  }
+}
+
+/* Scene two: photo prints. One value to turn per strength: --jiggle (how far
+   a print swings either side of its resting angle) and --jiggle-time (one
+   swing; a full back-and-forth is twice that: 1.4s, where iOS takes ~0.25s). */
+.photo-scene {
+  --print-paper: #fbfaf8;
+  --jiggle: 1deg;
+  --jiggle-time: 0.7s;
+}
+[data-theme="light"] .photo-scene {
+  --print-paper: var(--surface-dark);
+}
+.photo-stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(8px, 2vw, 28px);
+}
+.photo-viewport {
+  grid-column: 2;
+  /* Clips the pages waiting off to the side; the room above and below is for
+     the prints' tilt and shadow. */
+  overflow-x: clip;
+  padding: 28px 0;
+  touch-action: pan-y;
+}
+.photo-track {
+  display: flex;
+  translate: calc(var(--page, 0) * -100%) 0;
+  transition: translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.photo-page {
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 5vw, 72px);
+  padding: 0 clamp(14px, 2.4vw, 32px);
+  opacity: 0;
+  visibility: hidden;
+  /* A page turns visible at once and only waits to hide. */
+  transition:
+    opacity 0.4s,
+    visibility 0s 0.6s;
+}
+.photo-page[data-current] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.4s,
+    visibility 0s;
+}
+.photo-slot {
+  --rest: -2deg;
+  width: 100%;
+  max-width: 380px;
+  justify-self: center;
+  opacity: 0;
+  translate: 0 28px;
+  transition:
+    opacity 0.6s calc(var(--slot, 0) * 90ms),
+    translate 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--slot, 0) * 90ms);
+}
+.photo-slot:nth-child(3n + 2) {
+  --rest: 1.2deg;
+}
+.photo-slot:nth-child(3n) {
+  --rest: 2.4deg;
+}
+.photo-scene[data-revealed] .photo-slot {
+  opacity: 1;
+  translate: none;
+}
+.photo-print {
+  display: block;
+  aspect-ratio: 4 / 5;
+  padding: clamp(6px, 0.8vw, 10px);
+  background: var(--print-paper);
+  border-radius: 6px;
+  box-shadow: var(--neumorphic);
+  rotate: var(--rest);
+  transition:
+    rotate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.photo-print img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+@keyframes photo-jiggle {
+  from {
+    rotate: calc(var(--rest) - var(--jiggle));
+  }
+  to {
+    rotate: calc(var(--rest) + var(--jiggle));
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Only the page in view, and only while the scene is on screen. */
+  .photo-scene[data-onscreen] .photo-page[data-current] .photo-print {
+    animation: photo-jiggle var(--jiggle-time) ease-in-out infinite alternate;
+    animation-delay: calc(var(--slot, 0) * -0.45s);
+  }
+  .photo-scene[data-onscreen]
+    .photo-page[data-current]
+    .photo-slot:nth-child(even)
+    .photo-print {
+    animation-direction: alternate-reverse;
+  }
+}
+/* Under the pointer or keyboard focus a print holds still and straightens. */
+.photo-scene .photo-page .photo-slot a.photo-print:focus-visible {
+  animation: none;
+  rotate: 0deg;
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .photo-scene .photo-page .photo-slot .photo-print:hover {
+    animation: none;
+    rotate: 0deg;
+    scale: 1.03;
+  }
+}
+.photo-arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: var(--neumorphic);
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.photo-arrow:focus-visible {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .photo-arrow:hover {
+    color: var(--accent-glow);
+    border-color: var(--accent-glow);
+  }
+}
+.photo-scene .carousel-dots {
+  margin-top: 12px;
+}
+@media (max-width: 599px) {
+  .photo-page {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 10px;
+  }
+  .photo-slot {
+    max-width: 300px;
+  }
+  .photo-arrow {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Scene three: writing folders. The newest is in front (first in the list);
+   each one behind stands --folder-step higher and --folder-inset narrower,
+   with its tab further right. The front folder sets the stack's height; the
+   others are placed behind it. Entrance (the list item) and hover rise (the
+   link) are separate elements, so the entrance delay never slows the hover. */
+.folder-stack {
+  --folder-step: 64px;
+  --folder-tab: 46px;
+  --folder-inset: clamp(6px, 1.2vw, 18px);
+  --folder-rise: 30px;
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.folder {
+  --folder-bg: color-mix(
+    in srgb,
+    var(--panel) calc(100% - min(var(--i), 6) * 4%),
+    var(--text)
+  );
+  position: absolute;
+  top: calc((var(--folders) - 1 - var(--i)) * var(--folder-step));
+  bottom: 0;
+  left: calc(var(--i) * var(--folder-inset));
+  right: calc(var(--i) * var(--folder-inset));
+  z-index: calc(var(--folders) - var(--i));
+  /* Only the tab and the body take the pointer: the empty strip beside a tab
+     must not cover the folder behind it. */
+  pointer-events: none;
+  opacity: 0;
+  translate: 0 72px;
+  transition:
+    opacity 0.45s calc(var(--i) * 90ms),
+    translate 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) calc(var(--i) * 90ms);
+}
+.folder:first-child {
+  position: relative;
+  top: auto;
+  margin-top: calc((var(--folders) - 1) * var(--folder-step));
+}
+.writing-scene[data-revealed] .folder {
+  opacity: 1;
+  translate: none;
+}
+.folder-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  color: inherit;
+  transition: translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.folder:first-child .folder-link {
+  position: relative;
+  inset: auto;
+  /* Room for the tab (padding, because a margin on the body would collapse
+     through the link and move the whole folder). */
+  padding-top: var(--folder-tab);
+}
+.folder-tab,
+.folder-body {
+  pointer-events: auto;
+  background: var(--folder-bg);
+  border: 1px solid var(--line);
+}
+.folder-tab {
+  position: absolute;
+  top: 0;
+  left: calc(var(--tab) * 19%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  /* One pixel over the body, so the body's top border ends under the tab. */
+  height: calc(var(--folder-tab) + 1px);
+  min-width: 120px;
+  max-width: min(42%, 420px);
+  padding: 0 22px;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.folder-tab-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.folder-body {
+  position: absolute;
+  inset: var(--folder-tab) 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: clamp(22px, 3vw, 44px);
+  border-radius: 18px;
+  box-shadow: 0 -10px 24px -14px var(--shadow-dark);
+  overflow: hidden;
+}
+.folder[data-first-tab] .folder-body {
+  border-top-left-radius: 0;
+}
+.folder:first-child .folder-body {
+  position: relative;
+  inset: auto;
+  min-height: clamp(260px, 26vw, 360px);
+}
+.folder-meta {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.folder-title {
+  max-width: 22ch;
+  font-size: clamp(28px, 3.4vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+.folder-summary {
+  max-width: 56ch;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.folder-read {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--line);
+}
+.folder-link:focus-visible {
+  outline: none;
+  translate: 0 calc(var(--folder-rise) * -1);
+}
+.folder-link:focus-visible :is(.folder-tab, .folder-body) {
+  outline: 2px solid var(--accent-glow);
+  outline-offset: -2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .folder-link:hover {
+    translate: 0 calc(var(--folder-rise) * -1);
+  }
+  .folder-link:hover .folder-read {
+    color: var(--accent-glow);
+  }
+}
+/* The front folder has nothing to come out from behind: a smaller rise. */
+.folder:first-child .folder-link:is(:hover, :focus-visible) {
+  translate: 0 -10px;
+}
+@media (max-width: 599px) {
+  .folder-stack {
+    --folder-step: 58px;
+    --folder-tab: 42px;
+  }
+  /* Two tab positions, so a title keeps enough room to be read. */
+  .folder-tab {
+    left: calc(mod(var(--tab), 2) * 42%);
+    max-width: 58%;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-track,
+  .photo-page,
+  .photo-print,
+  .folder-link {
+    transition: none;
+  }
+  .photo-slot,
+  .folder {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+  .folder-link:is(:hover, :focus-visible),
+  .folder:first-child .folder-link:is(:hover, :focus-visible) {
+    translate: none;
+  }
+  .photo-scene .photo-page .photo-slot .photo-print:hover {
+    scale: 1;
+  }
+}
+
+/* A piece of writing: one readable column. */
+.writing-article {
+  max-width: 760px;
+}
+.writing-title {
+  font-size: clamp(36px, 4.6vw, 64px);
+  text-wrap: balance;
+}
+.writing-meta {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.writing-body {
+  margin-top: 56px;
+  font-size: 17px;
+  line-height: 1.9;
+}
+.writing-body p {
+  margin-bottom: 1.4em;
+}
+.writing-body h2 {
+  margin: 1.8em 0 0.75em;
+  color: var(--text);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.writing-body li {
+  margin-bottom: 0.9em;
+}
+.writing-pdf {
+  margin-top: 40px;
+}
+.writing-page .project-directions {
+  margin-top: 80px;
 }

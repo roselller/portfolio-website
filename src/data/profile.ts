@@ -9,6 +9,11 @@ export const profile = {
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
   github: "https://github.com/roselller/",
   linkedin: "https://www.linkedin.com/in/roseller-armirola-iii/",
+  // The photography account shown on the Work page.
+  photography: {
+    handle: "bnhisu.jpg",
+    url: "https://www.instagram.com/bnhisu.jpg/",
+  },
   // The photo print on the About quote card (4:5 portrait). To swap the photo:
   // put ONE resized, location-stripped JPEG or WebP in public/about/ (never an
   // original camera file: phone photos carry GPS), then change src, width and

@@ -19,10 +19,21 @@ export const siteCopy = {
     instruction: "Every direction is a new possibility.",
     empty: "New directions are on the way.",
     scrollHint: "Scroll to explore",
-    gridScrollHint: "A little more about me",
+    gridScrollHint: "More work below",
+    gridContextHint: "A little more about me",
     footnote: "A portfolio, with a sense of direction.",
     edition: "VOL. 01 / 2026",
     accessibleHeading: "Explore projects",
+  },
+  photos: {
+    eyebrow: "PHOTOGRAPHY",
+    label: "Photography",
+  },
+  writing: {
+    eyebrow: "WRITING",
+    countOne: "PIECE",
+    countMany: "PIECES",
+    read: "Read the piece",
   },
   intro: {
     eyebrow: "A LITTLE CONTEXT",

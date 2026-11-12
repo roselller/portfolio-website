@@ -88,13 +88,66 @@ function contentUrl(
   }
 }
 
-/** Rebuild only document elements as React nodes; never inject remote HTML. */
+type ResolveUrl = (
+  value: string | undefined,
+  image: boolean,
+) => string | undefined;
+
+/**
+ * Links and images in the site's own writing: full web addresses, mail links,
+ * and files under /writing/ (for images kept in public/writing/).
+ */
+export function writingUrl(value: string | undefined, image: boolean) {
+  if (!value) return undefined;
+  if (/^\/writing\/[\w./-]+$/.test(value) && !value.includes("..")) {
+    return value;
+  }
+  try {
+    const url = new URL(value);
+    const allowed =
+      url.protocol === "https:" ||
+      url.protocol === "http:" ||
+      (!image && url.protocol === "mailto:");
+    return allowed && !url.username && !url.password ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** A GitHub README: relative links and images resolve against the repository. */
 export function ProjectReadme({
   html,
   repositoryUrl,
 }: {
   html: string;
   repositoryUrl: string;
+}) {
+  return (
+    <SafeHtml
+      html={html}
+      className="project-readme"
+      // The page title and Project brief own heading levels one and two.
+      headingShift={2}
+      tableLabel="README table"
+      resolveUrl={(value, image) => contentUrl(value, repositoryUrl, image)}
+    />
+  );
+}
+
+/** Rebuild only document elements as React nodes; never inject the HTML itself. */
+export function SafeHtml({
+  html,
+  className,
+  headingShift,
+  tableLabel,
+  resolveUrl,
+}: {
+  html: string;
+  className: string;
+  /** How many levels headings move down (the page owns the top ones). */
+  headingShift: number;
+  tableLabel: string;
+  resolveUrl: ResolveUrl;
 }) {
   function render(node: Node, key: number): ReactNode {
     if (node.nodeType === NodeType.TEXT_NODE) return node.text;
@@ -124,7 +177,7 @@ export function ProjectReadme({
     if (tag === "a") {
       // GitHub's empty permalink icons have no content after SVG removal.
       if (!node.text.trim() && !node.querySelector("img")) return null;
-      const href = contentUrl(node.getAttribute("href"), repositoryUrl);
+      const href = resolveUrl(node.getAttribute("href"), false);
       if (!href) return createElement(Fragment, { key }, ...children);
       props.href = href;
       if (!href.startsWith("#")) {
@@ -133,7 +186,7 @@ export function ProjectReadme({
       }
     }
     if (tag === "img") {
-      const src = contentUrl(node.getAttribute("src"), repositoryUrl, true);
+      const src = resolveUrl(node.getAttribute("src"), true);
       return src
         ? createElement("img", {
             ...props,
@@ -159,9 +212,8 @@ export function ProjectReadme({
       props.start = Number(node.getAttribute("start"));
     }
     if (tag === "details") props.open = node.hasAttribute("open");
-    // The page title and Project brief own heading levels one and two.
     const outputTag = /^h[1-6]$/.test(tag)
-      ? `h${Math.min(6, Number(tag[1]) + 2)}`
+      ? `h${Math.min(6, Number(tag[1]) + headingShift)}`
       : tag;
     const element = createElement(outputTag, props, ...children);
     return tag === "table"
@@ -172,7 +224,7 @@ export function ProjectReadme({
             className: "readme-table",
             tabIndex: 0,
             role: "region",
-            "aria-label": "README table",
+            "aria-label": tableLabel,
           },
           element,
         )
@@ -180,7 +232,7 @@ export function ProjectReadme({
   }
   return createElement(
     "div",
-    { className: "project-readme" },
+    { className },
     ...parse(html, {
       blockTextElements: { script: true, noscript: true, style: true },
     }).childNodes.map(render),

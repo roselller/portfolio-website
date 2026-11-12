@@ -48,7 +48,9 @@ const PILL_SLIDE_MS = 380;
 
 function isActive(href: string, pathname: string) {
   return (
-    pathname === href || (href === "/" && pathname.startsWith("/projects/"))
+    pathname === href ||
+    (href === "/" &&
+      (pathname.startsWith("/projects/") || pathname.startsWith("/writing/")))
   );
 }
 

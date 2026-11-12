@@ -63,7 +63,11 @@ export default function RootLayout({
       </head>
       <body>
         <noscript>
-          <style>{".page-transition { opacity: 1 !important; }"}</style>
+          <style>
+            {
+              ".page-transition, .photo-slot, .folder { opacity: 1 !important; translate: none !important; }"
+            }
+          </style>
         </noscript>
         <SiteBackground />
         <GlassFilter />
