@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpLeft, ArrowUpRight } from "lucide-react";
 import { SafeHtml, writingUrl } from "@/components/ProjectReadme";
-import { ButtonAnchor } from "@/components/ui/Button";
 import { getWritingBySlug, writingHtml } from "@/lib/writing";
 import { formatWritingDate } from "@/lib/writing-file";
 import { profile } from "@/data/profile";
@@ -86,17 +85,6 @@ export default async function WritingPage({ params }: Props) {
             />
           ) : (
             writing.summary && <p className="page-lead">{writing.summary}</p>
-          )}
-          {writing.pdf && (
-            <p className="writing-pdf">
-              <ButtonAnchor
-                href={`/writing/${writing.pdf}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open the PDF <ArrowUpRight size={17} aria-hidden="true" />
-              </ButtonAnchor>
-            </p>
           )}
         </div>
       </article>

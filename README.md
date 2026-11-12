@@ -39,8 +39,7 @@ You don't need any accounts or keys to look around. Until you set up the contact
 - `src/data/skills.ts`, `src/data/journey.ts`, and `public/logos/`: the skills and journey on the About page, and the logos beside them.
 - `src/app/(marketing)/about/page.tsx` and `src/app/(marketing)/contact/page.tsx`: the biography, the quote, and the contact page text.
 - `src/data/projects.ts`: sample projects shown when you have fewer than six pins.
-- `content/writing/`: your writing, one Markdown file per piece (see the [writing guide](docs/writing.md)).
-- `src/data/photos.ts` and `public/photography/`: your photo posts (see the [photo guide](docs/photos.md)).
+- Your photos and writing are not in this repository: they live in a private content repository (see the [photo guide](docs/photos.md) and the [writing guide](docs/writing.md)).
 - `src/styles/`: fonts and colors.
 
 ## Put it online

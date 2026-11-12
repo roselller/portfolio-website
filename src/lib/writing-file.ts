@@ -7,7 +7,6 @@
 //   type: Opinion
 //   author: A different byline (optional)
 //   summary: One line shown on the front folder.
-//   pdf: hawker-centres.pdf
 //   ---
 //   The text.
 
@@ -21,14 +20,11 @@ export type Writing = {
   /** The byline, or "" to use the site owner's name. */
   author: string;
   summary: string;
-  /** File name inside public/writing/, or null. */
-  pdf: string | null;
   /** The text, in Markdown. */
   body: string;
 };
 
 export const WRITING_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const PDF_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*\.pdf$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 function unquote(value: string) {
@@ -79,7 +75,6 @@ export function parseWritingFile(slug: string, text: string): Writing | null {
     type: fields.type?.trim() || "Writing",
     author: fields.author?.trim() || "",
     summary: fields.summary?.trim() || "",
-    pdf: fields.pdf && PDF_NAME.test(fields.pdf) ? fields.pdf : null,
     body,
   };
 }

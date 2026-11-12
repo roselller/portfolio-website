@@ -118,6 +118,15 @@ live, so it is safe to try the fallback, which runs pnpm 11 through `npx` for bo
 }
 ```
 
+## Photos and writing (private content repository)
+
+Your photos and writing live in a second, **private** GitHub repository (`portfolio-content`), never in this one. The site reads it with a token that can only read that repository.
+
+1. On github.com create the empty private repository `portfolio-content`; clone it to `~/Documents/portfolio-content`. Put `photography/` and `writing/` in it (see [photos](photos.md), [writing](writing.md)) and push.
+2. GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Resource owner: you. Repository access: **Only select repositories**, `portfolio-content`. Permissions: **Contents: Read-only** (Metadata read is added by itself). Expiration: 1 year; put the date in your calendar. Copy the token straight into Vercel; never into chat, the repo or `.env.local`.
+3. Vercel → Settings → Environment Variables, **Production only**: `CONTENT_REPOSITORY` = `roselller/portfolio-content`, and `CONTENT_GITHUB_TOKEN` = the token, type **Secret**. Never add `CONTENT_DIR`. Then **Redeploy**.
+4. Preview deployments get no token, so they show no photos or writing (like the contact form). If the token expires or the repository is unreachable, the Work page renders without the window; new content appears within an hour of a push. To renew: create a new token, replace the variable, redeploy.
+
 ## 5. Checks after the first deployment
 
 Replace `SITE` with the `vercel.app` address Vercel gave you.

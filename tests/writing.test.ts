@@ -15,7 +15,6 @@ title: "Why hawker centres matter"
 date: 2026-09-14
 Type: Opinion
 summary: One line: with a colon.
-pdf: hawker-centres.pdf
 ---
 
 First paragraph.
@@ -32,7 +31,6 @@ test("a writing file gives its header fields and its text", () => {
     type: "Opinion",
     author: "",
     summary: "One line: with a colon.",
-    pdf: "hawker-centres.pdf",
     body: "First paragraph.\n\n## A heading",
   });
 });
@@ -49,7 +47,7 @@ test("Windows line endings and a byte order mark are read the same", () => {
 test("missing or unusable fields fall back instead of failing", () => {
   const writing = parseWritingFile(
     "piece",
-    "---\ntitle: Only a title\ndate: 2026-02-31\npdf: ../../secret.pdf\n---\nText",
+    "---\ntitle: Only a title\ndate: 2026-02-31\n---\nText",
   );
   assert.deepEqual(writing, {
     slug: "piece",
@@ -58,16 +56,8 @@ test("missing or unusable fields fall back instead of failing", () => {
     type: "Writing",
     author: "",
     summary: "",
-    pdf: null,
     body: "Text",
   });
-  for (const pdf of ["a/b.pdf", "x.exe", ".hidden.pdf", "https://x.y/z.pdf"]) {
-    assert.equal(
-      parseWritingFile("p", `---\ntitle: T\npdf: ${pdf}\n---\n`)?.pdf,
-      null,
-      pdf,
-    );
-  }
 });
 
 test("a file can name its own byline", () => {
@@ -99,7 +89,6 @@ test("writing is listed newest first, undated pieces last", () => {
     type: "Writing",
     author: "",
     summary: "",
-    pdf: null,
     body: "",
   });
   const sorted = sortWritings([

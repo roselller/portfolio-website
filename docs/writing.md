@@ -4,7 +4,7 @@ The Work page lists each piece of writing as a document on the writing tab of it
 
 ## Add a piece
 
-1. Create a file in `content/writing/`, for example `content/writing/why-hawker-centres-matter.md`. The file name becomes the page address, so use lowercase letters, numbers and single hyphens only.
+1. In your **private content repository** (not this website's), create `writing/why-hawker-centres-matter.md`, for example. The file name becomes the page address, so use lowercase letters, numbers and single hyphens only.
 2. Start it with a short header between two `---` lines, then write the text below it in [Markdown](https://commonmark.org/help/):
 
    ```md
@@ -22,25 +22,20 @@ The Work page lists each piece of writing as a document on the writing tab of it
    More text, with _italics_, **bold**, lists and [links](https://example.com).
    ```
 
-3. Commit and push (or use **Add file** on github.com). Every push to `main` goes live.
+3. Run `pnpm content:check` here (with `CONTENT_DIR` set), then commit and push the content repository (or use **Add file** on github.com). The site picks it up within an hour; nothing is committed to the website.
 
-| Field     | Required | Notes                                                                                       |
-| --------- | -------- | ------------------------------------------------------------------------------------------- |
-| `title`   | Yes      | Shown under the document and as the page title. A file without a title is skipped           |
-| `date`    | No       | `YYYY-MM-DD`. Sets the order (newest in front); pieces without a date go to the back        |
-| `type`    | No       | A short label such as `Opinion` or `Proposal`. Defaults to `Writing`                        |
-| `author`  | No       | The byline. Defaults to the site owner's name (`src/data/profile.ts`)                       |
-| `summary` | No       | One or two sentences, used for search results and link previews                             |
-| `pdf`     | No       | A file name in `public/writing/`, for example `proposal.pdf`. Adds an "Open the PDF" button |
+| Field     | Required | Notes                                                                                |
+| --------- | -------- | ------------------------------------------------------------------------------------ |
+| `title`   | Yes      | Shown under the document and as the page title. A file without a title is skipped    |
+| `date`    | No       | `YYYY-MM-DD`. Sets the order (newest in front); pieces without a date go to the back |
+| `type`    | No       | A short label such as `Opinion` or `Proposal`. Defaults to `Writing`                 |
+| `author`  | No       | The byline. Defaults to the site owner's name (`src/data/profile.ts`)                |
+| `summary` | No       | One or two sentences, used for search results and link previews                      |
 
-## PDFs and images
+## Images and PDFs
 
-- To offer the original document, put the PDF in `public/writing/` and name it in the `pdf` field. A piece can be a PDF with only a summary (leave the text empty), but text on the page reads better on phones.
-- Before publishing a PDF, check its document properties: exported files often carry the author's full name and the software used.
-- Images go in `public/writing/` too and are written as `![What the image shows](/writing/figure-1.png)`. Never publish an original phone photo: it carries GPS data.
+The content repository holds text only: pieces cannot offer a PDF or include images from files. An image can be linked from another `https:` address with `![What the image shows](https://...)`. Never publish an original phone photo: it carries GPS data.
 
 ## How it is rendered
 
-`src/lib/writing-file.ts` reads the header, `src/lib/writing.ts` loads the folder and turns Markdown into HTML with `marked`. That HTML is never inserted as it is: `SafeHtml` (in `src/components/ProjectReadme.tsx`) rebuilds it from an allowlist of plain document elements, so scripts, event handlers, forms and `javascript:` links in a file are dropped. Links may point to `https:`, `http:`, `mailto:` and files under `/writing/`.
-
-The home page and the sitemap are rebuilt on the server every hour, so `next.config.ts` lists `content/writing/` in `outputFileTracingIncludes`. Keep that entry if the folder moves.
+`src/lib/writing-file.ts` reads the header, `src/lib/writing.ts` takes the pieces from the content store (`src/lib/content.ts`, cached for an hour) and turns Markdown into HTML with `marked`. That HTML is never inserted as it is: `SafeHtml` (in `src/components/ProjectReadme.tsx`) rebuilds it from an allowlist of plain document elements, so scripts, event handlers, forms and `javascript:` links in a file are dropped. Links may point to `https:`, `http:`, `mailto:` and pages of this site.
